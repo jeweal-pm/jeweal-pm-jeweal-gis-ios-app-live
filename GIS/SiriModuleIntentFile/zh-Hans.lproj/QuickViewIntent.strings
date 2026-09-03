@@ -1,0 +1,24 @@
+"2nrPEg" = "搜索产品"; // "Search Product"
+
+"4fAvtQ" = "按 ${id} 搜索"; // "Search by ${id}"
+
+"5nOS4s" = "州"; // "State"
+
+"AE6UM1" = "ID"; // "Id"
+
+"Dnr1i6" = "确认一下，你想要‘${id}’吗？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"Ju7Mqw" = "有 ${count} 个选项与 ‘${id}’ 匹配。"; // "There are ${count} options matching ‘${id}’."
+
+"nfLG3J" = "出现错误，请重试。"; // "Something went wrong please try again."
+
+"tSIIFI" = "快速查看"; // "Quick View"
+
+"uzmHz9" = "按 ${id} 搜索"; // "search by ${id}"
+
+"xGxqLq" = "产品是 ${searchProduct}"; // "Product is ${searchProduct}"
+
+"ydruGN" = "按 ${id} 搜索"; // "search by ${id}"
+
+"RS8bpo" = "Quick View Search";
+

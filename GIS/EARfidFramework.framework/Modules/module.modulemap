@@ -1,0 +1,6 @@
+framework module EARfidFramework {
+  umbrella header "EARfidFramework.h"
+
+  export *
+  module * { export * }
+}

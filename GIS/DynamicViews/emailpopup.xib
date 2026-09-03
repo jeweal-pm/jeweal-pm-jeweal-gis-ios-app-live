@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="segoe_regular.ttf">
+            <string>SegoeUI</string>
+        </array>
+        <array key="segoe_semibold.ttf">
+            <string>SegoeUI-Semibold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="EmailPopUp" customModule="GIS" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNS-2Y-1u3">
+                    <rect key="frame" x="16" y="292" width="382" height="312"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email Confirmation" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UoB-0f-qgY">
+                            <rect key="frame" x="0.0" y="0.0" width="382" height="50"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="Xlk-QL-Yjg"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="SegoeUI-Semibold" family="Segoe UI" pointSize="17"/>
+                            <color key="textColor" name="theme6A"/>
+                            <nil key="highlightedColor"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                    <real key="value" value="5"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </label>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Vjc-I4-iUP">
+                            <rect key="frame" x="16" y="50" width="350" height="237"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KSG-aN-8Kp">
+                                    <rect key="frame" x="0.0" y="0.0" width="350" height="70"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="envelope.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="OPG-tf-M4n">
+                                            <rect key="frame" x="135" y="-3.5" width="80" height="76.5"/>
+                                            <color key="tintColor" name="themeColor"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="80" id="BZe-9X-4xb"/>
+                                                <constraint firstAttribute="width" constant="80" id="zon-Fg-Wh7"/>
+                                            </constraints>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="OPG-tf-M4n" firstAttribute="centerX" secondItem="KSG-aN-8Kp" secondAttribute="centerX" id="8qf-BY-bHP"/>
+                                        <constraint firstAttribute="height" constant="70" id="M69-1Y-9vV"/>
+                                        <constraint firstItem="OPG-tf-M4n" firstAttribute="centerY" secondItem="KSG-aN-8Kp" secondAttribute="centerY" id="Nua-vJ-Tk1"/>
+                                    </constraints>
+                                </view>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please confirm your email address where invoice to be sent." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HEF-tK-szn">
+                                    <rect key="frame" x="0.0" y="74" width="350" height="50"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="50" id="PZW-PO-ikL"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="14"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <nil key="highlightedColor"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="5"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </label>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Vn-L7-lJx">
+                                    <rect key="frame" x="0.0" y="128" width="350" height="45"/>
+                                    <subviews>
+                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="example: name@mail.com" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Kf-ux-sTY">
+                                            <rect key="frame" x="0.0" y="0.0" width="350" height="45"/>
+                                            <color key="textColor" name="theme6A"/>
+                                            <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="16"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                    </subviews>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="8Kf-ux-sTY" secondAttribute="bottom" id="HQG-Cu-Idp"/>
+                                        <constraint firstAttribute="height" constant="45" id="O1I-4k-ZgF"/>
+                                        <constraint firstItem="8Kf-ux-sTY" firstAttribute="leading" secondItem="9Vn-L7-lJx" secondAttribute="leading" id="bi3-tp-mfF"/>
+                                        <constraint firstAttribute="trailing" secondItem="8Kf-ux-sTY" secondAttribute="trailing" id="q3x-UB-k9O"/>
+                                        <constraint firstItem="8Kf-ux-sTY" firstAttribute="top" secondItem="9Vn-L7-lJx" secondAttribute="top" id="uWA-wt-fSA"/>
+                                    </constraints>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="10"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                            <real key="value" value="1.5"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                            <color key="value" red="0.36078431370000003" green="0.78039215689999997" blue="0.75686274509999996" alpha="1" colorSpace="calibratedRGB"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="niJ-Hn-7z7">
+                                    <rect key="frame" x="0.0" y="177" width="350" height="60"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ehv-JF-fP8">
+                                            <rect key="frame" x="100" y="20" width="150" height="40"/>
+                                            <color key="backgroundColor" name="themeColor"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="40" id="Tob-lJ-I0U"/>
+                                                <constraint firstAttribute="width" constant="150" id="rv8-yv-3TT"/>
+                                            </constraints>
+                                            <state key="normal" title="Confirm">
+                                                <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            </state>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                    <real key="value" value="10"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="mConfirm:" destination="iN0-l3-epB" eventType="touchUpInside" id="gEE-hG-RM1"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="Ehv-JF-fP8" secondAttribute="bottom" id="KiP-mo-IfR"/>
+                                        <constraint firstItem="Ehv-JF-fP8" firstAttribute="centerX" secondItem="niJ-Hn-7z7" secondAttribute="centerX" id="Wsb-Kh-zcR"/>
+                                        <constraint firstAttribute="height" constant="60" id="gCD-jN-q3N"/>
+                                    </constraints>
+                                </view>
+                            </subviews>
+                        </stackView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="olN-jd-Hg4">
+                            <rect key="frame" x="334" y="8" width="40" height="40"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0WZ-dq-jmg">
+                                    <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="tintColor" name="themeLightRed"/>
+                                    <state key="normal">
+                                        <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        <imageReference key="image" image="xmark.circle.fill" catalog="system" symbolScale="large"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="10"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="mClose:" destination="iN0-l3-epB" eventType="touchUpInside" id="gqA-hT-6h8"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="0WZ-dq-jmg" secondAttribute="bottom" id="Fdo-aM-z8A"/>
+                                <constraint firstAttribute="height" constant="40" id="Gq3-LX-rbS"/>
+                                <constraint firstItem="0WZ-dq-jmg" firstAttribute="top" secondItem="olN-jd-Hg4" secondAttribute="top" id="Kn5-Yw-Gjf"/>
+                                <constraint firstItem="0WZ-dq-jmg" firstAttribute="leading" secondItem="olN-jd-Hg4" secondAttribute="leading" id="XUI-Bh-mkQ"/>
+                                <constraint firstAttribute="trailing" secondItem="0WZ-dq-jmg" secondAttribute="trailing" id="geB-fj-b5h"/>
+                                <constraint firstAttribute="width" constant="40" id="lvy-jg-Qbd"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" name="themeBackground"/>
+                    <constraints>
+                        <constraint firstItem="olN-jd-Hg4" firstAttribute="top" secondItem="fNS-2Y-1u3" secondAttribute="top" constant="8" id="0Kz-MJ-Qro"/>
+                        <constraint firstItem="UoB-0f-qgY" firstAttribute="top" secondItem="fNS-2Y-1u3" secondAttribute="top" id="A9q-2c-aaV"/>
+                        <constraint firstItem="Vjc-I4-iUP" firstAttribute="leading" secondItem="fNS-2Y-1u3" secondAttribute="leading" constant="16" id="BvZ-e6-GEH"/>
+                        <constraint firstItem="UoB-0f-qgY" firstAttribute="leading" secondItem="fNS-2Y-1u3" secondAttribute="leading" id="Dzx-pr-rmS"/>
+                        <constraint firstAttribute="trailing" secondItem="olN-jd-Hg4" secondAttribute="trailing" constant="8" id="M7e-6d-wbb"/>
+                        <constraint firstAttribute="bottom" secondItem="Vjc-I4-iUP" secondAttribute="bottom" constant="25" id="S04-nO-Tft"/>
+                        <constraint firstItem="Vjc-I4-iUP" firstAttribute="top" secondItem="UoB-0f-qgY" secondAttribute="bottom" id="bqg-ul-52X"/>
+                        <constraint firstAttribute="trailing" secondItem="UoB-0f-qgY" secondAttribute="trailing" id="fjZ-zi-Tou"/>
+                        <constraint firstAttribute="trailing" secondItem="Vjc-I4-iUP" secondAttribute="trailing" constant="16" id="siq-Dx-OxX"/>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="250" id="tkz-x3-qEO"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="15"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" systemColor="secondarySystemFillColor"/>
+            <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="fNS-2Y-1u3" secondAttribute="trailing" constant="16" id="MGz-sA-TqO"/>
+                <constraint firstItem="fNS-2Y-1u3" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="Twc-GD-Lg9"/>
+                <constraint firstItem="fNS-2Y-1u3" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="h5E-4o-XDu"/>
+            </constraints>
+            <connections>
+                <outlet property="mConfirmButton" destination="Ehv-JF-fP8" id="tod-mu-7R8"/>
+                <outlet property="mEmail" destination="8Kf-ux-sTY" id="jUJ-cP-K8i"/>
+                <outlet property="mEmailConfirmationLABEL" destination="UoB-0f-qgY" id="UCr-aT-8G7"/>
+                <outlet property="mPleaseConfrimLABEL" destination="HEF-tK-szn" id="8if-TD-uTf"/>
+            </connections>
+            <point key="canvasLocation" x="28.985507246376812" y="34.821428571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="envelope.fill" catalog="system" width="128" height="93"/>
+        <image name="xmark.circle.fill" catalog="system" width="128" height="123"/>
+        <namedColor name="theme6A">
+            <color red="0.41568627450980394" green="0.41568627450980394" blue="0.41568627450980394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeBackground">
+            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeColor">
+            <color red="0.36078431372549019" green="0.7803921568627451" blue="0.75686274509803919" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeLightRed">
+            <color red="1" green="0.53333333333333333" blue="0.53333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="secondarySystemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.16" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

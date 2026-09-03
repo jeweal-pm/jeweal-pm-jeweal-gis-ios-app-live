@@ -1,0 +1,21 @@
+"7IU5TE" = "确认一下，您想要的是‘${id}’吗？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"ER90LN" = "出现问题，请再试一次。"; // "Something went wrong, please try again."
+
+"GhkxqV" = "通过 ${id} 搜索"; // "Search by ${id}"
+
+"NvXjwL" = "有 ${count} 个选项与‘${id}’匹配。"; // "There are ${count} options matching ‘${id}’."
+
+"SRlJ4a" = "编号"; // "Id"
+
+"Tp7B0M" = "搜索产品"; // "Search Product"
+
+"cbkFvC" = "产品是 ${searchProduct}"; // "Product is ${searchProduct}"
+
+"f0ntIv" = "通过 ${id} 搜索"; // "Search by ${id}"
+
+"p7G2Rk" = "通过 ${id} 搜索"; // "Search by ${id}"
+
+"riRRhi" = "库存盘点"; // "Stock Take"
+
+"WAM9TY" = "Open Stock Take";

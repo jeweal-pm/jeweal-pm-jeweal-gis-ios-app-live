@@ -1,0 +1,21 @@
+"7IU5TE" = "確認のため、あなたが欲しいのは‘${id}’ですか？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"ER90LN" = "問題が発生しました。もう一度お試しください。"; // "Something went wrong, please try again."
+
+"GhkxqV" = "${id}で検索"; // "Search by ${id}"
+
+"NvXjwL" = "‘${id}’に一致するオプションが${count}件あります。"; // "There are ${count} options matching ‘${id}’."
+
+"SRlJ4a" = "ID"; // "Id"
+
+"Tp7B0M" = "商品を検索"; // "Search Product"
+
+"cbkFvC" = "商品は${searchProduct}です"; // "Product is ${searchProduct}"
+
+"f0ntIv" = "${id}で検索"; // "Search by ${id}"
+
+"p7G2Rk" = "${id}で検索"; // "Search by ${id}"
+
+"riRRhi" = "在庫確認"; // "Stock Take"
+
+"WAM9TY" = "Open Stock Take";

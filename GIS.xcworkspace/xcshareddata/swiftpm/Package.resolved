@@ -1,0 +1,33 @@
+{
+  "originHash" : "ba6af25d666b89da5b48374ab340e1993f6a772b5bd8e9bad7be587aac9094f1",
+  "pins" : [
+    {
+      "identity" : "countrypicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mobven/CountryPicker.git",
+      "state" : {
+        "revision" : "6225c2933fea6abdb8171718b22bbe289706a7aa",
+        "version" : "2.0.3"
+      }
+    },
+    {
+      "identity" : "paypal-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/paypal/paypal-ios",
+      "state" : {
+        "revision" : "2008a6de7c00a2ae53c669932d5fb19674c35b1e",
+        "version" : "2.0.1"
+      }
+    },
+    {
+      "identity" : "stripe-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stripe/stripe-ios.git",
+      "state" : {
+        "revision" : "55dbee993d8a4df8977f2c21dd07ad35e7cfd50e",
+        "version" : "25.17.0"
+      }
+    }
+  ],
+  "version" : 3
+}

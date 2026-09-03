@@ -1,0 +1,23 @@
+"2nrPEg" = "ค้นหาสินค้า"; // "Search Product"
+
+"4fAvtQ" = "ค้นหาจาก ${id}"; // "Search by ${id}"
+
+"5nOS4s" = "จังหวัด"; // "State"
+
+"AE6UM1" = "รหัส"; // "Id"
+
+"Dnr1i6" = "เพื่อยืนยัน คุณต้องการ ‘${id}’ ใช่ไหม?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"Ju7Mqw" = "มี ${count} ตัวเลือกที่ตรงกับ ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"nfLG3J" = "เกิดข้อผิดพลาดบางอย่าง โปรดลองอีกครั้ง"; // "Something went wrong please try again."
+
+"tSIIFI" = "ดูอย่างรวดเร็ว"; // "Quick View"
+
+"uzmHz9" = "ค้นหาจาก ${id}"; // "search by ${id}"
+
+"xGxqLq" = "ผลิตภัณฑ์คือ ${searchProduct}"; // "Product is ${searchProduct}"
+
+"ydruGN" = "ค้นหาจาก ${id}"; // "search by ${id}"
+
+"RS8bpo" = "Quick View Search";

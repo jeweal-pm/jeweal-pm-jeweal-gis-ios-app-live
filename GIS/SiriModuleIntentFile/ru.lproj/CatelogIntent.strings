@@ -1,0 +1,21 @@
+"4UaUnZ" = "ИД"; // "Id"
+
+"DHzvn1" = "Каталог"; // "Catalog"
+
+"E8Sw7Y" = "Что-то пошло не так, пожалуйста, попробуйте еще раз!"; // "Something wrong please try again!"
+
+"JL3Qln" = "Поиск по ${id}"; // "Search by ${id}"
+
+"TLc4G7" = "Существует ${count} вариантов, соответствующих ‘${id}’. "; // "There are ${count} options matching ‘${id}’."
+
+"Vn5KFh" = "Чтобы подтвердить, вы хотели ‘${id}’?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"VueOCo" = "Поиск продукта"; // "Search Product"
+
+"bOzerI" = "Продукт - ${searchProduct}"; // "Product is ${searchProduct}"
+
+"fFQSc4" = "Поиск по ${id}"; // "Search by ${id}"
+
+"p56i8p" = "Поиск по ${id}"; // "Search by ${id}"
+
+"sWEkV6" = "Open Catalog";

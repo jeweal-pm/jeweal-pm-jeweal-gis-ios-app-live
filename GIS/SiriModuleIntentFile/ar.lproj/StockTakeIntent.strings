@@ -1,0 +1,21 @@
+"7IU5TE" = "لتأكيد، كنت تريد ‘${id}’؟"; // "Just to confirm, you wanted ‘${id}’?"
+
+"ER90LN" = "حدث خطأ ما، يرجى المحاولة مرة أخرى"; // "Something went wrong please try again."
+
+"GhkxqV" = "بحث بواسطة ${id}"; // "Search by ${id}"
+
+"NvXjwL" = "يوجد ${count} خيارات تطابق ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"SRlJ4a" = "معرف"; // "Id"
+
+"Tp7B0M" = "بحث عن منتج"; // "Search Product"
+
+"cbkFvC" = "المنتج هو ${searchProduct}"; // "Product is ${searchProduct}"
+
+"f0ntIv" = "بحث بواسطة ${id}"; // "Search by ${id}"
+
+"p7G2Rk" = "بحث بواسطة ${id}"; // "Search by ${id}"
+
+"riRRhi" = "جرد المخزون"; // "Stock Take"
+
+"WAM9TY" = "Open Stock Take";

@@ -1,0 +1,674 @@
+/* 
+Localization.strings
+GIS
+
+Created by admin on 15/11/21.
+
+*/
+/**Login*/    /**Login*/
+"Username" = "Username";
+"Password" = "Password";
+"Forgot Passsword" = "Forgot Passsword";
+"FORGOT PASSWORD?" = "FORGOT PASSWORD?";
+"FORGOT PIN? " = "FORGOT PIN?";
+"Login with Password" = "Login with Password";
+"Enter Pin" = "Введите пин-код";
+"Invalid Pin" = "Invalid Pin";
+"Forgot Pin" = "Forgot Pin";
+"your store name" = "your store name";
+
+"Email" = "Email";
+"storename" = "storename";
+"Login" = "Login";
+"Now! Quick login with PIN" = "Now! Quick login with PIN";
+"Organization" = "Organization";
+"Choose Store" = "Choose Store";
+
+/**Startup*/    /**Startup*/
+
+"Hello!" = "Привет! 👋";
+"Language" = "язык";
+"Enter" = "войти";
+"Choose Language" = "Выберите язык";
+
+/**Home*/    /**Home*/
+
+"INVENTORY" = "инвентаризация";
+"ITEM SEARCH" = "поиск товара";
+"STOCK TAKE" = "переучет, инвентаризация";
+"Stock Take" = "переучет, инвентаризация";
+"POS" = "место продажи";
+"GRAPH" = "график";
+"Logout" = "разлогиниться";
+"Switch Store" = "перейти в магазин";
+
+/**Inventory*/    /**Inventory*/
+
+"Summary" = "сводка";
+"My Inventory" = "Мой инвентарь";
+"Stock" = "запас";
+"Reserved" = "зарезервировано";
+"Reserve" = "бронировать";
+"RESERVE" = "бронировать";
+
+"Available" = "доступный";
+"Item" = "Элемент";
+"SKU" = "SKU";
+"Location" = "размещение";
+"Metal" = "металл";
+"Stone" = "камень";
+"Size" = "размер";
+"item selected" = "выбранный элемент";
+"items selected" = "выбранные элементы";
+"StockID" = "Запас Id";
+"StockId" = "Запас Id";
+"Stock Id" = "Запас Id";
+
+"Qty" = "Кол-во";
+"Price" = "цена";
+"Refresh" = "Обновить";
+"Share" = "Делиться";
+"Print" = "распечатать";
+"No items selected to reserve" = "Не выбрано ни одного товара для резервирования";
+
+
+"Sale Person" = "Продавец";
+"Sales Person" = "Продавец";
+
+"Total" = "тотал";
+"Remark" = "примечание";
+"Submit" = "предоставить";
+"SUBMIT" = "предоставить";
+
+"Cancel" = "отменить";
+"Filter" = "фильтры";
+"Clear All" = "очистить все";
+"Location" = "размещение";
+"Price Range" = "ценовой диапазон";
+"Select All" = "Выбрать все";
+
+/**Item Search*/    /**Item Search*/
+
+"Item Search" = "поиск товара";
+"Stock Id" = "Запас Id";
+"Sold" = "продано";
+"St" = "св";
+"Re" = "Ре";
+"So" = "Со";
+"Av" = "Ав";
+"Order" = "Заказ";
+"Custom Order" = "Изготовленный на заказ заказ";
+"CHECK OUT" = "Оплата";
+"Create your own design" = "созать свой собственный";
+"Create your jewelry by your own design" = "Создавайте украшения по собственному дизайну";
+"Concept Design" = "Концепт дизайна";
+"Write your concept design" = "Напишите концепцию дизайна…";
+"Concept" = "концепция";
+"Sketch" = "Эскиз";
+"Picture" = "Изображение";
+"Engraving" = "Гравировка";
+
+
+"Text" = "текст";
+"Logo" = "Логотип";
+"Position" = "Позиция";
+"Font" = "Шрифт";
+"Write something here" = "Напишите что-нибудь здесь";
+"Which position would you like to engraving ?" = "В каком положении вы хотите сделать гравировку?";
+"SELECT" = "Выбирать";
+"Upload Logo" = "Загрузить логотип";
+"Select File" = "Выберите файл";
+"Reserve Records" = "Резервные записи";
+
+/**Stock Take*/    /**Stock Take*/
+
+"TOTAL" = "итоговый";
+"SCANNED" = "СКАНИРОВАНО";
+"UNSCANNED" = "НЕ СКАНИРОВАНО";
+"CONFLICT" = "КОНФЛИКТ";
+"UNKNOWN" = "НЕИЗВЕСТНЫЙ";
+"QTY" = "КОЛ-ВО";
+"TOTAL SKU" = "ВСЕГО SKU";
+"START" = "НАЧИНАТЬ";
+"Power" = "Власть";
+"Connect" = "Соединять";
+
+/**POS*/    /**POS*/
+
+"More" = "Более";
+"Inventory" = "Инвентарь";
+"inventory" = "Инвентарь";
+
+"Payment" = "Оплата";
+"Payments" = "Оплата";
+
+ "SNo" = "S №";
+"Image" = "Изображение";
+"Unit" = "Единица";
+"Dis%" = "Скидка%";
+"Discount" = "Скидка";
+"Amount" = "цена";
+"Pcs" = "кусок";
+
+
+"EXCHANGE" = "Обмен";
+"Refund" = "Возвращать деньги";
+"REFUND" = "Возвращать деньги";
+
+"Repair Order" = "Заказ на ремонт";
+"Wish List" = "Список желаний";
+"Invoice" = "Счет";
+"Date" = "Дата";
+"Purchase History" = "История покупки";
+"Repair List" = "Список ремонтов";
+"Select what you'd like to repair" = "Выберите, что вы хотите отремонтировать";
+
+
+
+"Fill the name or register" = "Заполните имя или зарегистрируйтесь";
+"Customer Search" = "Поиск клиентов";
+"Wishlist" = "Список желаний";
+"ORDER" = "ЗАКАЗ";
+"Search" = "Поиск";
+"ADD TO CART" = "ДОБАВИТЬ В КОРЗИНУ";
+"Inventory List" = "Список инвентаря";
+"Deposit" = "Депозит";
+"Gift Card" = "Подарочная карта";
+"Gift Card number" = "Номер подарочной карты";
+"Valid Date" = "Действительной датой";
+"Add Gift Card" = "Добавить подарочную карту";
+"Grand Total" = "общий итог";
+"Sub Total" = "Промежуточный итог";
+"Tax (5%)" = "налог (5%)";
+"ADD NOW" = "ДОБАВИТЬ СЕЙЧАС";
+"Exchange Rate" = "Обменный курс";
+
+/**Check out*/    /**Check out*/
+
+"Check Out" = "оплата";
+"Credit Card" = "Кредитная карта";
+"Cash" = "Наличные";
+"Bank" = "Банк";
+"Credit note" = "Кредит-нота";
+"Tax" = "налог";
+"Credit/Debit" = "Кредит Дебет";
+"Apple Pay" = "Apple Pay";
+"Alipay" = "Alipay";
+"WeChat Pay" = "WeChat Pay";
+"Credit Note" = "Кредитная нота";
+"Balance Due" = "баланс";
+"SUB" = "вычесть";
+"Type" = "Тип";
+"Ref No." = "Исх. №";
+"Item Selected" = "Выбранный элемент";
+"Items Selected" = "Выбранные элементы";
+"PAY NOW" = "заплатить сейчас";
+"Labour" = "Стоимость работы";
+"Shipping" = "отгрузка";
+"Loyalty point" = "бонусный балл";
+"Discount (%)" = "скидка (%)";
+"Discount (Amount)" = "сумма скидки";
+"TAX (%)" = "НАЛОГ (%)";
+"TAX (Amount)" = "сумма налога";
+
+
+/**Profile*/    /**Profile*/
+"Customer" = "Клиент";
+"Month" = "Месяц";
+
+
+/**Registration*/    /**Registration*/
+"Full Name" = "Полное имя";
+"Last Name" = "Фамилия";
+"Date of Birth" = "Дата рождения";
+"Age" = "Возраст";
+"Gender" = "Пол";
+"Group" = "Группа";
+"Home" = "Дом";
+"Mobile" = "Мобильный";
+"Occasion" = "Повод";
+"Source" = "Источник";
+"Instagram" = "Инстаграм";
+"Company" = "Компания";
+"Address" = "Адрес";
+"Country" = "Страна";
+"City" = "Город";
+"Province" = "Провинция/штат";
+"Zip" = "Почтовый индекс";
+"Tax ID No. (optional)" = "Налог  ID (необязательно)";
+"Shipping address same as billing address" = "Адрес доставки совпадает с адресом выставления счета";
+"Billing Address" = "Адрес для выставления счета";
+"Profile"    = "Профиль";
+"Name" = "Имя";
+"QUICK VIEW" = "БЫСТРЫЙ ПРОСМОТР";
+"TRACE" = "СЛЕД";
+"Please enter stock Id to track" = "Пожалуйста, введите свой биржевой идентификатор, чтобы отслеживать детали";
+"Trace with Authenticity" = "Отследить с достоверностью";
+"No Data Found!" = "Данные не найдены!";
+
+
+ 
+
+"POS" =  "POS/место продажи";
+"Quick View" =  "быстрый просмотр";
+"Inventory" =  "инвентаризация";
+"Diamond" =  "бриллиант";
+"Item Search" =  "поиск товара";
+"Stock Take" =  "переучет; инвентаризация";
+"Trace" =  "отслеживание";
+"Catalog" =  "каталог";
+"Graph" =  "график";
+"Language" =  "язык";
+"log out" =  "выйти из системы; разлогиниться";
+"Switch store" =  "перейти в магазин";
+"Store" =  "магазин";
+"User" =  "пользователь";
+"View More" =  "смотреть больше ";
+"Transaction" =  "Сделка";
+"Customer" =  "Клиент";
+"Total Invoice" =  "Общий счет";
+"Total Quantity" =  "общее количество";
+"pcs" =  "штук (мн.ч.)";
+"Email" =  "электронная почта";
+"Password" =  "пароль";
+"Forgot Password" =  "забыли пароль";
+"Log in" =  "Войти";
+"Quick Log in with PIN" =  "быстрый вход с PIN";
+"Organization" =  "организация";
+"Enter  PIN" =  "введите PIN";
+"Forgot PIN" =  "забыли PIN";
+"Hello" =  "Привет!";
+"enter" =  "войти";
+"Search By Stock ID" =  "искать по артикулу";
+"Search by Stock ID" =  "искать по артикулу";
+
+"Total" =  "общий; итоговый";
+"Scanned" =  "отсканированный";
+"Unscanned" =  "не отсканированный";
+"Conflict" =  "разногласие";
+"Unknown" =  "неизвестный";
+"Connect" =  "соединить";
+"Refresh" =  "обновить данные";
+"Power" =  "подключение/ питание от источника тока";
+"Save" =  "сохранить";
+"Search by SKU / Stock ID" =  "искать по складскому артикулу";
+"Search by SKU / Stock Id" =  "искать по складскому артикулу";
+
+"Metal" =  "металл";
+"Stone" =  "камень";
+"Size" =  "размер";
+"Collection" =  "коллекция";
+"Conflict / Unknown" =  "разногласие/ неизвестный";
+"All" =  "все";
+"Not found devices can connect." =  "не найденные устройства нельзя соединить ";
+"Disconnected" =  "разединилось; отключилось";
+"Frequency" =  "частота";
+"Max" =  "максимум";
+"Clear All" =  "очистить все";
+"Item" =  "товар";//изделие/ наименование/ предмет/
+"Items" =  "товар";
+"Filters" =  "фильтры";
+"Select All" =  "выбрать все";
+"apply" =  "применить";
+"Apply" =  "применить";
+"APPLY" =  "применить";
+
+"Trace with Authenticity" =  "Отследить должным образом";
+"Please Scan QR Code or Barcode to track details" =  "Пожста; осканируйте QR код или штрих-код чтобы отследить детали";
+"SCAN NOW" =  "сканируйте сейчас";
+"Scan now" =  "сканируйте сейчас";
+
+"Please enter your Stock ID to track details" =  "введите ваш артикул чтобы увидеть подробности";
+"Or" =  "или";
+"Product" =  "продукт";
+"Activity" =  "активность/ действие";
+"Block ID" =  "Идентификатор блока";
+"Stock ID" =  "Инвентарный Номер";
+"SKU" =  "единица хранения";
+"Product Summary" =  "информация о продукте";
+"Price" =  "цена";
+"Location" =  "размещение";
+"Color" =  "цвет";
+"Gross Wt" =  "вес брутто";
+"Net Wt" =  "вес нетто";
+"Shape" =  "форма";
+"Cut" =  "огранка";
+"Clarity" =  "чистота";
+"Weight" =  "вес";
+"Setting" =  "закрепка";
+"Certificate" =  "паспорт/ сертификат";
+"Document ID" =  "идентификатор документа";
+"Transaction Date" =  "дата транзакции";
+"Store name" =  "название магазина";
+"Store location" =  "местоположение магазина";
+"Client name" =  "имя клиента";
+"Client country" =  "страна клиента";
+"Client nationality" =  "национальность клиента";
+"Qty" =  "количество";
+"Transaction Zone" =  "зона транзакции";
+"STO" =  "Перемещение запаса";
+"PU" =  "покупка";
+"From Store" =  "из магазина";
+"To Store" =  "в магазин";
+"Your store name" =  "название вашего магазина";
+"submit" =  "предоставить";
+"face id" =  "разблокировка по лицу";
+"Preview" =  "предпросмотр";
+"Carat" =  "карат";
+"Colour" =  "цвет";
+"Reserve List" =  "резервный список";
+"Search By Stock ID/Customer" =  "поиск по артиклю/ покупателю";
+"Certification" =  "сертификация";
+"Due" =  "долг";
+"Remove All" =  "удалить";
+"REMOVE" =  "удалить";
+
+"Show More" =  "показать больше";
+"Results" =  "результаты";
+"Result" =  "результаты";
+
+"Comparison" =  "сравнение";
+"Reset" =  "переустановить";
+"Diamond Search" =  "поиск бриллианта";
+"GIA Report" =  "сертификат Геммологического института Америки";
+"Polish" =  "полировать";
+"Symmetry" =  "симметрия";
+"Fluorescence" =  "флуоресценция";
+"Depth" =  "глубина";
+"Table" =  "площадка (камня)";
+"Girdle" =  "рундист";
+"Gridle" =  "рундист";
+"Culet" =  "шип";
+"Measurements" =  "размеры";
+"Graded By" =  "оценен";
+"Customer Name" =  "Имя клиента";
+"Due Date" =  "дата платежа";
+"Note" =  "примечание/ уведомление";
+"EX. Urgent Order" =  "Пример срочного заказа";
+"Jewelry" =  "юверное украшение";
+"Search by SKU/Stock ID" =  "Поиск по артикулу/идентификатору запаса";
+"Search By SKU/Stock ID/Customer" =  "Поиск по артикулу/идентификатору запаса";
+
+"Delivery" =  "доставка";
+"add to cart" =  "добавить в корзину";
+"Search by SKU / Product name" =  "Поиск по артикулу/названию продукта";
+"Search to view product information" =  "Поиск информации о продукте";
+"can click to view Variant Product/Design Product" =  "можно кликнуть чтобы просмотреть вариант/дизайн продукта";
+"Order" =  "заказ";
+"Next" =  "следующий";
+"Confirm" =  "подтвердить";
+"CONFIRM" =  "подтвердить";
+"Confirm" =  "подтвердить";
+
+"Variant Product" =  "Варианты продукта";
+"Design Product" =  "Дизайн продукта";
+"Product Details" =  "Информация о товаре";
+"Reference No." =  "каталожный номер";
+"Material" =  "Матермал";
+"Search by SKU" =  "Поиск по артикулу";
+"Search to view stock information" =  "поиск чтобы просмотреть инфо об остатках";
+"Available" =  "доступный";
+"Sold" =  "продано";
+"Reserved" =  "зарезервировано";
+"Stock" =  "запас/склад";
+"Create your own" =  "созать свой собственный";
+ "Remarks" =  "примечание";
+
+"Grand Total" =  "совокупный итог";
+"Deposit" =  "депозит";
+"Outstanding Balance" =  "остаток долга";
+"check out" =  "Оплата";
+"Wishlist" =  "список желаемого";
+"Reserve Record" =  "отчет о резерве";
+"Sold Record" =  "отчет о продажах";
+"Search by Invoice / Stock Id" =  "Поиск по счету/номеру запаса/покупателю";
+"Summary" =  "сводка";
+"My Inventory" =  "Мой остаток/запасы";
+"Cancel" =  "отменить";
+"CANCEL" =  "отменить";
+
+"Product ID" =  "Код продукта";
+"Custom" =  "На заказ";
+"CREATE NEW CUSTOMER" =  "создать нвого заказчика";
+"History" =  "история";
+"Advance Options" =  "продвинутые опции";
+"Excellent" =  "отлично";
+"Very Good" =  "оч хорошо";
+"Good" =  "хорошо";
+"Lab" =  "лаборатория";
+"Status" =  "статус";
+"Less Options" =  "меньше опций";
+"None" =  "ничего";
+"Faint" =  "тусклый/ бледный";
+"Medium" =  "средний";
+"Strong" =  "сильный";
+"Phone" =  "телефон";
+"Add Email" =  "добавить эл. Почту";
+"Deselect" =  "отменить выбор";
+"Are you sure want to proceed ?" =  "уверены; что хотите продолжить";
+"Are you sure want to remove ?" =  "уверены; что хотите удалить";
+"Items" =  "Изделия";
+"Park" =  "парк";
+"PARK" =  "парк";
+"Balance Due" =  "сумма задолженности";
+"More" =  "еще";
+"Text" =  "текст";
+"Credit Card" =  "кредитная карта";
+"Cash" =  "наличные";
+"Bank" =  "Наличные";
+"Mobile Number" =  "Номер мобильного";
+"Order Successful" =  "заказ успешно создан";
+"Order Summary" =  "детали заказа";
+"BACK TO POS" =  "назад в место продажи";
+"Forgot your PIN?" =  "Забыли Ваш PIN?";
+"Items Selected" =  "ывбранные товары";
+"Gift Card number" =  "Номер подарочной карты";
+"Cheque" =  "чек";
+"Internet Banking" =  "Интернет- банкинг";
+"Account No." =  "№ счета";
+"Account Name" =  "Название счета";
+"Ref No." =  "исх. №";
+"Inst No." =  "номер чека";
+"take a photo" =  "сфотографировать";
+"Scan QR Code" =  "сканируйте QR - код";
+"Clear" =  "Четкий";
+"SUB" =  "SUB";
+"Card number" =  "номер карты";
+"Card name" =  "название карты";
+"Labour" =  "Стоимость работы";
+"Shipping" =  "отгрузка";
+"Loyalty Point" =  "бонусный балл";
+"Discount" =  "скидка";
+"Discount (Amount)" =  "сумма скидки";
+"tax" =  "налог";
+"Tax (Amount)" =  "сумма налога";
+"The Balance Due is not yet complete." =  "Задолженность по балансу еще не погашена";
+"Sub Total" =  "подитог";
+"Upload ID image" =  "Загрузить изображение удостоверения личности";
+"Total Amount" =  "общая сумма";
+"Total Customer" =  "всего клиентов";
+"Most Amount" =  "большая часть";
+"Clound Account" =  "Облачная учетная запись";
+"Sort By" =  "Сортировать по";
+"Most Invoice" =  "Большинство счетов";
+"Most Quantity" =  "Самое большое количество";
+"Oldest Customer" =  "Самый старый клиент";
+"Newest Customer" =  "Новый клиент";
+"Gender" =  "Пол";
+"Birth Date" =  "дата рождения";
+"Instagram" =  "Инстаграм";
+"Nationality" =  "национальность клиента";
+"ID" =  "идентификационный документ";
+"Occasion" =  "Повод ";
+"Source" =  "источник/ исходник";
+"Bill to" =  "Выставить счёт ";
+"Tax ID No." =  "номер налогового счета";
+"Ship to" =  "отгрузить";
+"Dis" =  "система интерпретации данных";
+"Add Note" =  "добавить примечание";
+"Note for the sale you want to park" =  "Примечания для товаров; которые необходимо отложить";
+"Ex. Customer will come back in 10 minutes." =  "Например; Клиент вернется через 10 минут.";
+"park sale" =  "Приостановка продажи";
+"Parked" =  "Отложенный (товар)";
+"The customer left the wallet in the car. Will be back in 15 minutes." =  "Клиент оставил кошелек в машине. Вернется через 15 минут.";
+"Search" =  "поиск";
+"Select the diamonds you want to compare for comparison." =  "Выберите бриллиант; который хотите сравнить";
+"Add to" =  "добавить к ";
+"Pointer" =  "Указатель";
+"Order Type" =  "Тип заказа";
+"Select ID" =  "Выберите идентификатор";
+"Please fill all required fields." =  "Пожалуйста; заполните все обязательные поля.";
+"Create Customer" =  "Создать клиента";
+"Customer Information" =  "информация о клиенте";
+"Customer Id" =  " ИД клиента";
+"Title" =  "форма обращения";
+"First Name" =  "Имя собственное";
+"Middle Name" =  "среднее имя // отчество";
+"Last Name" =  "фамилия";
+"Age" =  "возраст";
+"Group" =  "группа";
+"Address" =  "адрес";
+"Province/State" =  "провинция/ штат";
+"Country" =  "страна ";
+"City" =  "город";
+"Zip Code" =  "индекс";
+"Add Phone" =  "добавить телефон";
+"Select Occasion" =  "выбрать повод";
+"Select Source" =  "выбрать источник";
+"Billing Address" =  "адрес выставления счета";
+"Company" =  "компания";
+"Shipping Address" =  "адрес отгрузки";
+"Shipping address same as billing address" =  "адрес счета и отгрузки совпадают";
+"Privacy" =  "конфиденциальность ";
+"Data Handling" =  "Обработка  данных";
+"Contact Term" =  "Срок контакта ";
+"Card Creation SA" =  "Создание карты SA   ";
+"Customer has opted to receive offers, updates, marketing and promotion by email." =  "Клиент предпочитает получать предложения; обновления; маркетинговые и рекламные акции по электронной почте.";
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." =  "   Этот клиент освобожден от налогов. Все налоги будут удалены; когда этот профиль клиента будет связан с продажей.";
+"Create Customer Successful" =  "Клиент успешно создан";
+"Search Customer" =  " Поиск клиента";
+"Payment History" =  "история платежей";
+"Credit Note" =  "возвратная накладная";
+"Edit Customer" =  "Сменить клиента";
+"Most Location" =  "Большая часть сайта";
+"Count" =  "Считать";
+"Name" =  "Имя/ название";
+"Search Country" =  "поиск страны";
+"Search City" =  "поиск города";
+"Print" =  "распечатать";
+"Share" =  "поделиться";
+"Repair" =  "ремонт";
+"Exchange" =  "обмен";
+ 
+"Gift Card" =  "подарочная карта";
+"Mix & Match" =  "смешивать и сочетать";
+"Select your option" =  "Выберите опцию";
+"ADD STONE" =  "Добавить камень";
+"REMOVE STONE" =  "Убрать камень";
+"Concept" =  "концепция";
+"Sketch" =  "Эскиз";
+"Picture" =  "Изображение";
+"Write your concept design..." =  "Напишите концепцию дизайна…";
+"next" =  "Следующий";
+"Done" =  "Выполнено";
+"back" =  "Назад";
+"logo" =  "Логотип";
+"Write text you want to engrave" =  "Напишите; что вы хотите выгравировать";
+"Which position would you like to engrave?" =  "Укажите место гравировки";
+"Font" =  "Шрифт";
+"Position" =  "Позиция";
+"finish" =  "Завершение";
+"Upload your logo" =  "Загрузите свой логотип";
+"Select Setting" =  "Выбрать вставку";
+"select" =  "Выбрать";
+"Change Setting" =  "Изменить вставку";
+"Change Diamond" =  "Изменить бриллиант";
+"Change Engraving" =  "Изменить гравировку";
+"Want to deposit money in Credit Note?" =  "Хотите внести депозит возвратной накладной?";
+"add deposit" =  "добавить депозит";
+"Want to make a gift for a special occasion?" =  "Хотите подарок к особому дню?";
+"Gift Card Name" =  "Название подарочной карты";
+"amount" =  "Сумма";
+"Valid Date" =  "Действительная дата";
+"create" =  "Создать";
+"Process" =  "Процесс";
+"Write your repair description..." =  "Опишите ремонт";
+"Repair list" =  "Список ремонтных изделий";
+"Polishing" =  "Полировать";
+"Ring Re-sizing" =  "Изменить размер кольца";
+"Finishing" =  "Шлифовка";
+"Reshape Bent Ring" =  "Исправить форму погнутого кольца";
+"Plating" =  " Гальваническое покрытие";
+"Stone Replacement" =  "Замена камня";
+"Prong Repair" =  "Ремонт крапана";
+"Laser Spot Solder" =  "Лазерная точечная пайка";
+"Chain and Clasp Repair" =  "Ремонт цепочки и застежки";
+"Remodel Jewelery" =  "Изменить модель украшения";
+"Diamond Details" =  "Информация о бриллиантах";
+"Most Wishlist" =  "Лист желаний";
+"Female" =  "Женский";
+"Male" =  "Мужской";
+"Couples" =  "Парный";
+"Complete" =  "Завершить";
+"Select Diamond" =  "Выбрать бриллиант";
+"Description" =  "Описание";
+
+
+"Choose Customer" = "Выберите клиента";
+"Search customer by name, mobile, email, country" = "Поиск клиента по имени, мобильному телефону";
+"Apply Filter" = "Применить фильтр";
+"Apply Filters" = "Применить фильтр";
+"Service Labour" = "Служебный труд";
+"Term" = "Срок";
+"DETAIL" = "ДЕТАЛИ";
+"Installment" = "Рассрочка";
+"Installments" = "Рассрочка";
+"INSTALLMENT" = "Рассрочка";
+"Receive Amount" = "Получить сумму";
+"Balance" = "Баланс";
+"Applied Service Labour" = "Прикладная служба труда";
+"Full Payment" = "Полная оплата";
+"LayBy" = "LayBy";
+"Layby" = "LayBy";
+"Email Confirmation" = "Подтверждение электонной почты";
+"Please confirm your email address where invoice to be sent" = "Пожалуйста, подтвердите свой адрес электронной почты, на который будет отправлен счет";
+"Receive" = "Получать";
+"Quotation" = "Цитата";
+"QUOTE" = "ЦИТИРОВАТЬ";
+"Partial History" = "Частичная история";
+"Purchased Items" = "Купленные товары";
+"Certificate No." = "Сертификат номер.";
+"View Installments" = "Посмотреть рассрочку";
+"View LayBy" = "Посмотреть LayBy";
+"Search by SKU/Customer" = "Поиск по артикулу/покупателю";
+"Pick Jewelry" = "Выбрать украшения";
+"Pick Diamond" = "Выбрать алмаз";
+"View Less" = "Показать меньше";
+"Payment Confirmation" = "подтвердить оплата";
+"Day" = "День";
+"Year" = "Год";
+
+"Search by Invoice no / Customer" = "Поиск по номеру счета / клиенту";
+"Search by Invoice no" = "Поиск по номеру счета";
+
+"Note for the order you want a quotation" = "Примечание для заказа вы хотите цитату";
+"CREATE A QUOTE" = "СОЗДАТЬ ПРЕДЛОЖЕНИЕ";
+"Ex : Hold order" = "Пример: держать заказ";
+"Are you sure want to add to order ?" = "Вы уверены, что хотите добавить в заказ?";
+"Quoted Items" = "Цитаты";
+"ADD TO ORDER" = "ДОБАВИТЬ В ЗАКАЗ";
+
+"Address Customer" = "Адрес клиента";
+"Billing Address" = "Биллинговый адрес";
+"Shipping Address" = "Адрес доставки";
+"Default Shipping Address" = "Адрес доставки по умолчанию";
+"Default Billing Address" = "Платежный адрес по умолчанию";
+"Address*" = "Адрес*";
+"Country*" = "Страна*";
+"Edit Billing Address" = "Изменить платежный адрес";
+"Add Billing Address" = "Добавить платежный адрес";
+"Add billing address" = "Добавить платежный адрес";
+"Add Shipping Address" = "Добавить адрес доставки";
+"Add shipping address" = "Добавить адрес доставки";
+"Select billing address" = "Выберите платежный адрес";
+"Select shipping address" = "Выберите адрес доставки";

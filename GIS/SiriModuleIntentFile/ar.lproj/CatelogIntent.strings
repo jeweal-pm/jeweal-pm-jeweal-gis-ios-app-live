@@ -1,0 +1,21 @@
+"4UaUnZ" = "معرف"; // "Id"
+
+"DHzvn1" = "كتالوج"; // "Catalog"
+
+"E8Sw7Y" = "حدث خطأ، يرجى المحاولة مرة أخرى!"; // "Something wrong please try again!"
+
+"JL3Qln" = "ابحث عن ${id}"; // "Search by ${id}"
+
+"TLc4G7" = "يوجد ${count} خيار متطابق مع ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"Vn5KFh" = "فقط للتأكيد، هل كنت تقصد ‘${id}’؟"; // "Just to confirm, you wanted ‘${id}’?"
+
+"VueOCo" = "ابحث عن المنتج"; // "Search Product"
+
+"bOzerI" = "المنتج هو ${searchProduct}"; // "Product is ${searchProduct}"
+
+"fFQSc4" = "ابحث عن ${id}"; // "Search by ${id}"
+
+"p56i8p" = "ابحث عن ${id}"; // "Search by ${id}"
+
+"sWEkV6" = "Open Catalog";

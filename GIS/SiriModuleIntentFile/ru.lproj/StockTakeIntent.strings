@@ -1,0 +1,21 @@
+"7IU5TE" = "Для подтверждения, вы хотели ‘${id}’?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"ER90LN" = "Произошла ошибка, пожалуйста, попробуйте еще раз."; // "Something went wrong, please try again."
+
+"GhkxqV" = "Поиск по ${id}"; // "Search by ${id}"
+
+"NvXjwL" = "Существует ${count} вариантов, соответствующих ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"SRlJ4a" = "ID"; // "Id"
+
+"Tp7B0M" = "Поиск товара"; // "Search Product"
+
+"cbkFvC" = "Товар – это ${searchProduct}"; // "Product is ${searchProduct}"
+
+"f0ntIv" = "Поиск по ${id}"; // "Search by ${id}"
+
+"p7G2Rk" = "Поиск по ${id}"; // "Search by ${id}"
+
+"riRRhi" = "Инвентаризация"; // "Stock Take"
+
+"WAM9TY" = "Open Stock Take";

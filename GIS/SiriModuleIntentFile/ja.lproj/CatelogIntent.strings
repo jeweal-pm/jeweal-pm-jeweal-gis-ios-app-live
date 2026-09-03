@@ -1,0 +1,21 @@
+"4UaUnZ" = "ID"; // "Id"
+
+"DHzvn1" = "カタログ"; // "Catalog"
+
+"E8Sw7Y" = "何か問題が発生しました。もう一度お試しください！"; // "Something wrong please try again!"
+
+"JL3Qln" = "${id} で検索"; // "Search by ${id}"
+
+"TLc4G7" = "‘${id}’ に一致するオプションは ${count} 件あります。"; // "There are ${count} options matching ‘${id}’."
+
+"Vn5KFh" = "確認のために、‘${id}’ を希望されていましたか？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"VueOCo" = "商品を検索"; // "Search Product"
+
+"bOzerI" = "商品は ${searchProduct} です"; // "Product is ${searchProduct}"
+
+"fFQSc4" = "${id} で検索"; // "Search by ${id}"
+
+"p56i8p" = "${id} で検索"; // "Search by ${id}"
+
+"sWEkV6" = "Open Catalog";

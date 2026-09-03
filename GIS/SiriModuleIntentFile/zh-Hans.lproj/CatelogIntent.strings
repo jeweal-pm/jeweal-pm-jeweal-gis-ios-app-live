@@ -1,0 +1,21 @@
+"4UaUnZ" = "ID"; // "Id"
+
+"DHzvn1" = "目录"; // "Catalog"
+
+"E8Sw7Y" = "出现问题，请重试！"; // "Something wrong please try again!"
+
+"JL3Qln" = "按 ${id} 搜索"; // "Search by ${id}"
+
+"TLc4G7" = "有 ${count} 个选项与 ‘${id}’ 匹配。"; // "There are ${count} options matching ‘${id}’."
+
+"Vn5KFh" = "请确认，您想要 ‘${id}’ 吗？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"VueOCo" = "搜索产品"; // "Search Product"
+
+"bOzerI" = "产品是 ${searchProduct}"; // "Product is ${searchProduct}"
+
+"fFQSc4" = "按 ${id} 搜索"; // "Search by ${id}"
+
+"p56i8p" = "按 ${id} 搜索"; // "Search by ${id}"
+
+"sWEkV6" = "Open Catalog";

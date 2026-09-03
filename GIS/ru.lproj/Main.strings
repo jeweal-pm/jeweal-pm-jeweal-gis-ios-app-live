@@ -1,0 +1,180 @@
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "0CG-DB-dlJ"; */
+"0CG-DB-dlJ.placeholder" = "Email";
+
+/* Class = "UITextField"; placeholder = "2"; ObjectID = "1Ja-0N-hej"; */
+"1Ja-0N-hej.placeholder" = "2";
+
+/* Class = "UILabel"; text = "EN"; ObjectID = "2Si-oh-CTQ"; */
+"2Si-oh-CTQ.text" = "EN";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "4hW-bZ-CSQ"; */
+"4hW-bZ-CSQ.text" = "Now! Quick login with PIN";
+
+/* Class = "UIButton"; normalTitle = "1"; ObjectID = "5GM-ap-scf"; */
+"5GM-ap-scf.normalTitle" = "1";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "5Sk-Ae-c7f"; */
+"5Sk-Ae-c7f.placeholder" = "Search";
+
+/* Class = "UITextField"; placeholder = "Store name"; ObjectID = "5j1-oA-lHr"; */
+"5j1-oA-lHr.placeholder" = "Store name";
+
+/* Class = "UIButton"; normalTitle = "LOG IN"; ObjectID = "72T-pi-9SA"; */
+"72T-pi-9SA.normalTitle" = "LOG IN";
+
+/* Class = "UILabel"; text = "Language"; ObjectID = "7HL-cO-rX0"; */
+"7HL-cO-rX0.text" = "Language";
+
+/* Class = "UIButton"; normalTitle = "2"; ObjectID = "7eD-kA-jag"; */
+"7eD-kA-jag.normalTitle" = "2";
+
+/* Class = "UILabel"; text = "Marli New York"; ObjectID = "A5o-CR-Wk3"; */
+"A5o-CR-Wk3.text" = "Marli New York";
+
+/* Class = "UILabel"; text = "Language"; ObjectID = "AyH-g2-uli"; */
+"AyH-g2-uli.text" = "Language";
+
+/* Class = "UITextField"; placeholder = "********"; ObjectID = "BWL-er-yuc"; */
+"BWL-er-yuc.placeholder" = "********";
+
+/* Class = "UITextField"; placeholder = "5"; ObjectID = "Ban-D1-lFy"; */
+"Ban-D1-lFy.placeholder" = "5";
+
+/* Class = "UIButton"; normalTitle = "0"; ObjectID = "Bnj-Lg-LzR"; */
+"Bnj-Lg-LzR.normalTitle" = "0";
+
+/* Class = "UITextField"; placeholder = "4"; ObjectID = "C4E-ME-9nT"; */
+"C4E-ME-9nT.placeholder" = "4";
+
+/* Class = "UIButton"; normalTitle = "4"; ObjectID = "CeS-be-zM4"; */
+"CeS-be-zM4.normalTitle" = "4";
+
+/* Class = "UILabel"; text = "Didn't received ?"; ObjectID = "Dpk-DY-OJ9"; */
+"Dpk-DY-OJ9.text" = "Didn't received ?";
+
+/* Class = "UILabel"; text = "Forgot Password?"; ObjectID = "E9y-cP-F6v"; */
+"E9y-cP-F6v.text" = "Forgot Password?";
+
+/* Class = "UIButton"; normalTitle = "6"; ObjectID = "EaP-pv-Qyt"; */
+"EaP-pv-Qyt.normalTitle" = "6";
+
+/* Class = "UILabel"; text = "Organization"; ObjectID = "Emn-qx-6i3"; */
+"Emn-qx-6i3.text" = "Organization";
+
+/* Class = "UIButton"; normalTitle = "SUBMIT"; ObjectID = "EnB-Qd-Qje"; */
+"EnB-Qd-Qje.normalTitle" = "SUBMIT";
+
+/* Class = "UILabel"; text = "Custom Order"; ObjectID = "GjA-gf-EWW"; */
+"GjA-gf-EWW.text" = "Custom Order";
+
+/* Class = "UILabel"; text = "Please check your email!"; ObjectID = "Gql-ZS-r4m"; */
+"Gql-ZS-r4m.text" = "Please check your email!";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "Kqh-Au-WIB"; */
+"Kqh-Au-WIB.text" = "Now! Quick login with PIN";
+
+/* Class = "UILabel"; text = "Please check your email!"; ObjectID = "LGF-Er-TrH"; */
+"LGF-Er-TrH.text" = "Please check your email!";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "MLq-H4-YAC"; */
+"MLq-H4-YAC.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "English"; ObjectID = "OJO-wO-JuJ"; */
+"OJO-wO-JuJ.text" = "English";
+
+/* Class = "UILabel"; text = "Please check your email!"; ObjectID = "P9t-kB-QbX"; */
+"P9t-kB-QbX.text" = "Please check your email!";
+
+/* Class = "UITextField"; placeholder = "storename"; ObjectID = "RUS-vq-Ehk"; */
+"RUS-vq-Ehk.placeholder" = "storename";
+
+/* Class = "UILabel"; text = "Quick Log in with PIN"; ObjectID = "Shy-mf-R05"; */
+"Shy-mf-R05.text" = "Quick Log in with PIN";
+
+/* Class = "UILabel"; text = "Forgot Password"; ObjectID = "VWe-up-tuK"; */
+"VWe-up-tuK.text" = "Forgot Password";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "Ygn-pc-kSZ"; */
+"Ygn-pc-kSZ.placeholder" = "Email";
+
+/* Class = "UILabel"; text = ".gis247.cloud"; ObjectID = "Ykm-5g-Ohc"; */
+"Ykm-5g-Ohc.text" = ".gis247.cloud";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "a3l-dM-eBH"; */
+"a3l-dM-eBH.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "CLEO DIAMOND LARGE HOOP EARRINGS"; ObjectID = "a5q-FK-pDP"; */
+"a5q-FK-pDP.text" = "CLEO DIAMOND LARGE HOOP EARRINGS";
+
+/* Class = "UILabel"; text = "Enter Pin"; ObjectID = "aVA-Nn-Hw7"; */
+"aVA-Nn-Hw7.text" = "Enter Pin";
+
+/* Class = "UILabel"; text = "OTP Verification"; ObjectID = "bI2-d6-Sbs"; */
+"bI2-d6-Sbs.text" = "OTP Verification";
+
+/* Class = "UIButton"; normalTitle = "3"; ObjectID = "dw1-8L-7Ny"; */
+"dw1-8L-7Ny.normalTitle" = "3";
+
+/* Class = "UIButton"; normalTitle = "5"; ObjectID = "eAX-lJ-aen"; */
+"eAX-lJ-aen.normalTitle" = "5";
+
+/* Class = "UIButton"; normalTitle = "9"; ObjectID = "hO2-ZY-Y3e"; */
+"hO2-ZY-Y3e.normalTitle" = "9";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "kJS-xe-1lM"; */
+"kJS-xe-1lM.text" = "Now! Quick login with PIN";
+
+/* Class = "UIButton"; normalTitle = "SUBMIT"; ObjectID = "kRx-OY-w3p"; */
+"kRx-OY-w3p.normalTitle" = "SUBMIT";
+
+/* Class = "UIButton"; normalTitle = "8"; ObjectID = "lXL-gQ-OOw"; */
+"lXL-gQ-OOw.normalTitle" = "8";
+
+/* Class = "UITextField"; placeholder = "3"; ObjectID = "nLY-sx-26V"; */
+"nLY-sx-26V.placeholder" = "3";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "o4d-4A-UVg"; */
+"o4d-4A-UVg.placeholder" = "Email";
+
+/* Class = "UIButton"; normalTitle = "Login with Password"; ObjectID = "pA5-en-OWc"; */
+"pA5-en-OWc.normalTitle" = "Login with Password";
+
+/* Class = "UIButton"; normalTitle = "Enter"; ObjectID = "q50-c9-tXA"; */
+"q50-c9-tXA.normalTitle" = "Enter";
+
+/* Class = "UILabel"; text = "Forgot Pin"; ObjectID = "rlB-bx-wMD"; */
+"rlB-bx-wMD.text" = "Forgot Pin";
+
+/* Class = "UILabel"; text = "Hello!"; ObjectID = "saU-LB-1Mm"; */
+"saU-LB-1Mm.text" = "Hello!";
+
+/* Class = "UILabel"; text = "00:00"; ObjectID = "tYi-gJ-k6j"; */
+"tYi-gJ-k6j.text" = "00:00";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "trm-cH-37H"; */
+"trm-cH-37H.placeholder" = "Email";
+
+/* Class = "UITextField"; text = ".gis247.cloud"; ObjectID = "trm-cH-37H"; */
+"trm-cH-37H.text" = ".gis247.cloud";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "uVp-yg-Iu9"; */
+"uVp-yg-Iu9.placeholder" = "Email";
+
+/* Class = "UITextField"; text = ".gis247.cloud"; ObjectID = "uVp-yg-Iu9"; */
+"uVp-yg-Iu9.text" = ".gis247.cloud";
+
+/* Class = "UIButton"; normalTitle = "Forgot your PIN?"; ObjectID = "v8Y-f2-xfq"; */
+"v8Y-f2-xfq.normalTitle" = "Forgot your PIN?";
+
+/* Class = "UIButton"; normalTitle = "  RESEND"; ObjectID = "vF1-Cc-vZ4"; */
+"vF1-Cc-vZ4.normalTitle" = "  RESEND";
+
+/* Class = "UITextField"; placeholder = "1"; ObjectID = "vP1-SG-7yT"; */
+"vP1-SG-7yT.placeholder" = "1";
+
+/* Class = "UIButton"; normalTitle = "7"; ObjectID = "xza-TK-vRj"; */
+"xza-TK-vRj.normalTitle" = "7";
+
+/* Class = "UITextField"; placeholder = "6"; ObjectID = "yz5-6a-8LF"; */
+"yz5-6a-8LF.placeholder" = "6";

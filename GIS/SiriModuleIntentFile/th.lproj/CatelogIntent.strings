@@ -1,0 +1,21 @@
+"4UaUnZ" = "รหัส"; // "Id"
+
+"DHzvn1" = "หมวดหมู่"; // "Catalog"
+
+"E8Sw7Y" = "มีบางอย่างผิดพลาด กรุณาลองอีกครั้ง!"; // "Something wrong please try again!"
+
+"JL3Qln" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"TLc4G7" = "มี ${count} ตัวเลือกที่ตรงกัน ‘${id}’. "; // "There are ${count} options matching ‘${id}’."
+
+"Vn5KFh" = "เพื่อยืนยัน คุณต้องการ ‘${id}’ ใช่ไหม?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"VueOCo" = "ค้นหาผลิตภัณฑ์"; // "Search Product"
+
+"bOzerI" = "ผลิตภัณฑ์คือ ${searchProduct}"; // "Product is ${searchProduct}"
+
+"fFQSc4" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"p56i8p" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"sWEkV6" = "Open Catalog";

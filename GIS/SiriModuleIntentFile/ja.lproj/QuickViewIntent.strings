@@ -1,0 +1,24 @@
+"2nrPEg" = "商品を検索"; // "Search Product"
+
+"4fAvtQ" = "${id}で検索"; // "Search by ${id}"
+
+"5nOS4s" = "州"; // "State"
+
+"AE6UM1" = "ID"; // "Id"
+
+"Dnr1i6" = "確認ですが、‘${id}’を希望されていましたか？"; // "Just to confirm, you wanted ‘${id}’?"
+
+"Ju7Mqw" = "‘${id}’に一致するオプションは${count}件あります。"; // "There are ${count} options matching ‘${id}’."
+
+"nfLG3J" = "何かがうまくいきませんでした。もう一度お試しください。"; // "Something went wrong please try again."
+
+"tSIIFI" = "クイックビュー"; // "Quick View"
+
+"uzmHz9" = "${id}で検索"; // "search by ${id}"
+
+"xGxqLq" = "製品は${searchProduct}です"; // "Product is ${searchProduct}"
+
+"ydruGN" = "${id}で検索"; // "search by ${id}"
+
+"RS8bpo" = "Quick View Search";
+

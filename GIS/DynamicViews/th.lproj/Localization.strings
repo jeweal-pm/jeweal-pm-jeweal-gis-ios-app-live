@@ -1,0 +1,679 @@
+/* 
+ Localization.strings
+ GIS
+ 
+ Created by admin on 15/11/21.
+ 
+ */
+/**Login*/   // "ลงชื่อเข้าใช้"
+"Username"    =  "ชื่อผู้ใช้งาน";
+"Password"    =  "รหัสผ่าน";
+"Forgot Passsword"   =  "ลืมรหัสผ่าน";
+"FORGOT PASSWORD?"   =   "ลืมรหัสผ่านใช่ไหม ?";
+"FORGOT PIN?" =    "ลืม PIN ใช่ไหม ?";
+"Login with Password"  =   "ลงชื่อเข้าใช้ด้วยรหัสผ่าน";
+"Enter Pin"   =   "ใส่รหัส";
+"Invalid Pin"  =    "รหัสไม่ถูกต้อง";
+"Forgot Pin"   =   "ลืมรหัสผ่าน";
+"your store name"  =    "ชื่อร้านค้าของคุณ";
+
+"Email"    =  "Email";
+"storename"  =    "ชื่อร้านค้า";
+"Login"   =   "ลงชื่อเข้าใช้";
+"Now! Quick login with PIN"   =   "ลงชื่อเข้าใช้รวดเร็วกว่าด้วย PIN !";
+"Organization"   =   "องค์กร";
+"Choose Store"  =    "เลือกสาขา";
+
+/**Startup*/   // "เริ่มต้น"
+
+"Hello!" = "สวัสดี! 👋";
+"Language"   =   "ภาษา";
+"Enter"   =   "ยืนยัน";
+"Choose Language" = "เลือกภาษา";
+/**Home*/   // "หน้าหลัก"
+
+"INVENTORY"   =   "คลังสินค้า";
+"ITEM SEARCH" =    "ค้นหาสินค้า";
+"STOCK TAKE"    =  "นำออกจากสต๊อก";
+"Stock Take" = "นำออกจากสต๊อก";
+"POS"    =  "POS";
+"GRAPH"   =   "กราฟ";
+"Logout"  =    "ลงชื่อออก";
+"Switch Store"   =   "สลับสาขา";
+
+/**Inventory*/    //คลังสินค้า
+
+"Summary"  =    "สรุป";
+"My Inventory"    =  "คลังสินค้าของฉัน";
+"Stock"   =   "สต๊อก";
+"Reserved"  =    "จอง";
+"Reserve"  =    "จอง";
+"RESERVE"  =    "จอง";
+
+"Available"  =    "เหลือ";
+"Item"   =   "รายการสินค้า";
+"Items"   =   "รายการสินค้า";
+
+ "SKU"  =    "SKU";
+"Location"   =   "สถานที่";
+"Stock"    =  "สต๊อก";
+"Metal"   =   "โลหะ";
+"Stone"   =   "อัญมณี";
+"Size"   =   "ไซส์";
+"item selected"   =   "รายการสินค้าที่ถูกเลือก";
+"items selected"    =  "รายการสินค้าที่ถูกเลือก";
+"StockId"    =  "รหัสสต๊อก";
+"Stock Id"    =  "รหัสสต๊อก";
+"Qty"   =   "จำนวน";
+"Price"   =   "ราคา";
+"Refresh"   =   "รีเฟรช";
+"Share"   =   "แบ่งปัน";
+"Print"   =   "ปริ้น";
+"No items selected to reserve"   =   "ไม่มีรายการสินค้าที่ถูกเลือก";
+
+
+"Sale Person"   =   "พนักงานขาย";
+"Sales Person"   =   "พนักงานขาย";
+
+"Total"    =  "ยอดรวม";
+"Remark"   =   "หมายเหตุ";
+"Remarks"   =   "หมายเหตุ";
+
+"SUBMIT"    =  "ยืนยัน";
+"Cancel"  =    "ยกเลิก";
+"Filter"  =    "ฟิลเตอร์";
+"Clear All"   =   "ล้างรายการทั้งหมด";
+"Location"   =   "สถานที่";
+"Price Range"   =  "ช่วงราคา";
+"Select All"   =  "เลือกทั้งหมด";
+"Deselect" = "ยกเลิกการเลือก";
+/**Item Search*/  //  "ค้นหารายการสินค้า"
+
+"Item Search"   =   "ค้นหารายการสินค้า";
+"Stock Id"   =   "รหัสสต๊อก";
+"Sold"    =  "ขายแล้ว";
+"St"   =   "St";
+"Re"  =    "Re";
+"So"  =    "So";
+"Av"   =   "Av";
+"Order"  =    "คำสั่งซื้อ";
+"Custom Order"   =   "สั่งผลิต";
+"CHECK OUT"  =    "เช็คเอาท์";
+"Create your own design"    =  "สร้างแบบดีไซน์ของคุณ";
+"Create your jewelry by your own design"    =  "สร้างสินค้าด้วยแบบดีไซน์ของคุณ";
+"Concept Design"    =  "คอนเซ็ปดีไซน์";
+"Write your concept design"    =  "เขียนคอนเซ็ปของคุณ";
+"Concept"  =    "คอนเซ็ป";
+"Sketch"   =   "สเก็ตช์";
+"Picture"  =    "รูปภาพ";
+"Text"    =  "ข้อความ";
+"Logo"    =  "โลโก้";
+"Engraving" = "แกะสลัก";
+"Position"  =    "ตำแหน่ง";
+"Font"   =   "ฟอนต์";
+"Write something here"   =   "เขียนที่นี่";
+"Which position would you like to engraving ?"   =   "ตำแหน่งไหนที่คุณต้องการสลัก ?";
+"Select"   =   "เลือก";
+"Upload Logo"     = "อัพโหลดโลโก้";
+"Select File"   =   "เลือกไฟล์";
+"Reserve Records"  =    "บันทึกการจอง";
+
+/**Stock Take*/ //   "การนำออกจากสต๊อก"
+
+"TOTAL"   =   "ยอดรวม";
+"SCANNED"   =   "สแกนแล้ว";
+"UNSCANNED"   =   "ยังไม่สแกน";
+"CONFLICT"   =   "ขัดแย้ง";
+"UNKNOWN"    =  "ไม่รู้จัก";
+"QTY"   =   "จำนวน";
+"TOTAL SKU"  =    "ยอดรวม SKU";
+"START" = "เริ่ม";
+"Power" = "พลัง";
+"Connect" = "เชื่อมต่อ";
+
+/**POS*/    //POS
+
+"More"    =  "อื่นๆ";
+"Inventory"   =   "คลังสินค้า";
+"Payment"   =   "การจ่ายเงิน";
+"Payments"   =   "การจ่ายเงิน";
+"Catalog"   =   "แคตตาล็อก";
+"SNo" = "SNo";
+//"SNo"    =  "เลขที่ใบสั่งซื้อ";
+"Image"   =   "รูปภาพ";
+"Unit"    =  "หน่วย";
+"Dis% "    = "เปอร์เซนต์ลด";
+"Discount"  =    "ราคาลด";
+"Amount"   =   "ยอด";
+"Pcs"   =   "ชิ้น";
+
+
+"ECHANGE"   =   "แลกเปลี่ยน";
+"Refund"  =    "คืนเงิน";
+"Repair Order"   =   "สั่งซ่อม";
+"Wish List"    =  "รายการโปรด";
+"Invoice"  =    "ใบกำกับสินค้า";
+"Date"   =   "วันที่";
+"Purchase History"   =   "ประวัติการสั่งซื้อ";
+"Repair List"  =    "รายการสั่งซ่อม";
+"Select what you'd like to repair"   =   "เลือกรายการที่ต้องการซ่อม";
+
+"Fill the name or register" = "ประวัติการสั่งซื้อ";
+"Customer Search"   =   "ค้นหาลูกค้า";
+"Wishlist"   =   "รายการโปรด";
+"ORDER"   =   "คำสั่งซื้อ";
+"Search"  =    "ค้นหา";
+"ADD TO CART"   =   "เพิ่มในตะกร้า";
+"Inventory List"   =   "รายการสินค้าคงคลัง";
+"Deposit"  =    "มัดจำ";
+"Gift Card"    =  "บัตรของขวัญ";
+"Gift Card Number"   =   "เลขที่รหัสบัตรของขวัญ";
+"Valid Date"   =   "วันที่ใช้ได้";
+"Add Gift Card"   =   "เพิ่มบัตรของขวัญ";
+"Grand Total"   =   "ยอดรวมทั้งหมด";
+"Sub Total"   =   "ยอดรวม";
+"Tax (5%)"   =   "ภาษีมูลค่าเพิ่ม(5%)";
+"ADD NOW" = "เพิ่มตอนนี้";
+"Exhcange Rate" = "อัตราแลกเปลี่ยน";
+/*
+ Add now   เพิ่มตอนนี้
+ إضافة الآن
+
+ 今すぐ追加
+
+ 现在添加
+
+ Register  يسجل
+ */
+/**Check out*/    //เช็คเอาท์
+
+"Check Out"   =   "เช็คเอาท์";
+"Credit Card"    =  "บัตรเครดิต";
+"Cash"     = "เงินสด";
+"Bank"   =   "เงนโอน";
+"Credit note"  =   "ใบลดหนี้";
+"Tax"    =  "ภาษี";
+"Credit/Debit"    =  "เครดิต/เดบิต";
+"Apple Pay"  =    "Apple Pay";
+"Alipay"    =  "Alipay";
+"WeChat Pay"    =  "WeChat Pay";
+"Credit Note"   =   "ใบลดหนี้";
+"Balance Due"    =  "ยอดคงเหลือ";
+"SUB"    =  "ยืนยัน";
+"Type"  =    "ประเภท";
+"Ref No."  =    "หมายเลขอ้างอิง";
+"Item Selected"  =    "รายการสินค้าที่ถูกเลือก";
+"Items Selected"    =  "รายการสินค้าที่ถูกเลือก";
+"PAY NOW"    =  "จ่ายเงิน";
+"Labour"   =   "ค่าแรง";
+"Shipping"   =   "ค่าขนส่ง";
+"Loyalty point"   =   "คะแนนสะสม";
+"Discount (%)"  =    "ส่วนลด(%)";
+"Discount (Amount)"   =  "ส่วนลด(ยอด)";
+"TAX (%)"   =   "ภาษี(%)";
+"TAX (Amount)"   =   "ภาษี(ยอด)";
+
+
+/**Profile*/  //  โปรไฟล์
+"Customer"  =    "ลูกค้า";
+"Month"    =  "เดือน";
+
+
+/**Registration*/   // ลงชื่อเข้าใช้งาน
+"Register" = "ลงทะเบียน";
+"Full Name"  =   "ชื่อเต็ม";
+"Last Name"   =   "นามสกุล";
+"Date of Birth" =     "วันเกิด";
+"Age"   =   "อายุ";
+"Gender"   =   "เพศ";
+"Group"   =   "กลุ่ม";
+"Home"   =  "บ้าน";
+"Mobile"   =   "โทรศัพท์มือถือ";
+"Occasion"   =   "เนื่องในโอกาส";
+"Source"   =   "แหล่งที่มา";
+"Instagram"   =   "Instagram";
+"Company"    =  "บริษัท";
+"Address"  =    "ที่อยู่";
+"Country"  =   " ประเทศ";
+"City"   =   "เมือง";
+"Province / State"    =  "จังหวัด";
+"Zip"   =  "รหัสไปรษณีย์";
+"Tax ID No. (optional)"   = "เลขประจำตัวผู้เสียภาษี";
+"Shipping address same as billing address"   =   "ใช้ที่อยู่จัดส่งเดียวกับที่อยู่เรียกเก็บเงิน";
+"Billing Address"    =  "ที่อยู่เรียกเก็บเงิน";
+"Profile" = "ข้อมูลส่วนตัว";
+"Name" = "ชื่อ";
+"QUICK VIEW" = "ดูด่วน";
+"TRACE" = "การติดตาม";
+"Please enter stock Id to track" = "โปรดป้อนรหัสหุ้นเพื่อติดตาม";
+"Trace with Authenticity" = "ติดตามด้วยความจริงใจ";
+"No Data Found!" = "ไม่พบข้อมูล!";
+
+
+/*New*/
+
+
+
+"POS" =  "POS";
+"Quick View" =  "ดูด่วน";
+"Inventory" =  "คลังสินค้า";
+"Diamond" =  "เพชร";
+"Item Search" =  "ค้นหาสินค้า";
+"Stock Take" =  "การนับสต็อค";
+"Trace" =  "ติดตาม";
+"Graph" =  "กราฟ";
+"Language" =  "ภาษา";
+"log out" =  "ลงชื่อออก";
+"Switch store" =  "เปลี่ยนร้านค้า";
+"Store" =  "ร้านค้า";
+"User" =  "ผู้ใช้งาน";
+"View More" =  "แสดงเพิ่มเติม";
+"Transaction" =  "ธุรกรรม";
+"Customer" =  "ลูกค้า";
+"Total Invoice" =  "ใบแจ้งหนี้ทั้งหมด";
+"Total Quantity" =  "จำนวนรายการทั้งหมด";
+"pcs" =  "ชิ้น";
+"Email" =  "อีเมล";
+"Password" =  "รหัสผ่าน";
+"Forgot Password" =  "ลืมรหัสผ่าน";
+"Log in" =  "เข้าใช้งานระบบ";
+"Quick Log in with PIN" =  "เข้าสู่ระบบด้วย PIN";
+"Organization" =  "องค์กร";
+"Enter  PIN" =  "ใส่ PIN";
+"Forgot PIN" =  "ลืมPIN";
+"Hello" =  "สวัสดี";
+"enter" =  "ตกลง";
+"Search By Stock ID" =  "ค้นหาจาก รหัสสต็อค";
+"Search by Stock ID" =  "ค้นหาจาก รหัสสต็อค";
+
+"Total" =  "ทั้งหมด";
+"Scanned" =  "สแกน";
+"Unscanned" =  "ยังไม่ถูกสแกน";
+"Conflict" =  "ไม่สัมพันธ์";
+"Unknown" =  "ไม่ทราบ";
+"Connect" =  "เชื่อมต่อ";
+"Refresh" =  "รีเฟรช";
+"Power" =  "Power";
+"Save" =  "บันทึก";
+"Search by SKU / Stock ID" =  "ค้นหาจาก SKU/รหัสสต็อค";
+"Search by SKU / Stock Id" =  "ค้นหาจาก SKU/รหัสสต็อค";
+
+"Metal" =  "โลหะ";
+"Stone" =  "อัญมณี";
+"Size" =  "ไซส์";
+"Collection" =  "คอลแลคชั่น";
+"Conflict / Unknown" =  "ไม่สัมพันธ์/ไม่ทราบ";
+"All" =  "ทั้งหมด";
+"Not found devices can connect." =  "ไม่พบอุปกรณ์";
+"Disconnected" =  "ไม่ได้เชื่อมต่อ";
+"Frequency" =  "ความถี่";
+"Max" =  "สูงสุด";
+"Clear All" =  "ล้างทั้งหมด";
+"Item" =  "รายการ";
+"Filters" =  "กรองข้อมูล";
+"Select All" =  "เลือกทั้งหมด";
+"apply" =  "นำมาใช้";
+"Apply" =  "นำมาใช้";
+"APPLY" =  "นำมาใช้";
+
+"Trace with Authenticity" =  "ติดตามอย่างถูกต้อง";
+"Please Scan QR Code or Barcode to track details" =  "กรุณาสแกน QR Code หรือ Barcode เพื่อติดตามข้อมูล";
+"SCAN NOW" =  "สแกนตอนนี้";
+"Scan now" =  "สแกนตอนนี้";
+
+"Please enter your Stock ID to track details" =  "กรุณาใส่รหัสสต็อคเพื่อติดตามข้อมูล";
+"Or" =  "หรือ";
+"Product" =  "สินค้า";
+"Activity" =  "กิจกรรม";
+"Block ID" =  "Block ID";
+"Stock ID" =  "รหัสสต็อค";
+"SKU" =  "SKU";
+"Product Summary" =  "ข้อมูลสินค้า";
+"Price" =  "ราคา";
+"Location" =  "โลเคชั่น";
+"Color" =  "สี";
+"Gross Wt" =  "น้ำหนักสุทธิ";
+"Net Wt" =  "น้ำหนักตัวเรือน";
+"Shape" =  "รูปทรง";
+"Cut" =  "การเจียระไน";
+"Clarity" =  "ความใส";
+"Weight" =  "น้ำหนัก";
+"Setting" =  "การฝัง";
+"Certificate" =  "Certificate";
+"Document ID" =  "รหัสเอกสาร";
+"Transaction Date" =  "วันที่ธุรกรรม";
+"Store name" =  "ชื่อร้านค้า";
+"Store location" =  "โลเคชั่นร้านค้า";
+"Client name" =  "ชื่อลูกค้า";
+"Client country" =  "ประเทศ";
+"Client nationality" =  "สัญชาติ";
+"Qty" =  "จำนวน";
+"Transaction Zone" =  "ประเทศ ";
+"STO" =  "โอนย้ายสต็อค";
+"PU" =  "การจัดซื้อ";
+"From Store" =  "จากร้านค้า";
+"To Store" =  "ถึงร้านค้า";
+"Your store name" =  "ชื่อร้านค้าของคุณ";
+"Submit" =  "ส่ง";
+"face id" =  "Face id ";
+"Preview" =  "แสดง";
+"Carat" =  "กะรัต";
+"Colour" =  "สี";
+"Reserve List" =  "รายการจอง";
+"Search By Stock ID/Customer" =  "ค้นหาจาก รหัสสต็อค/ลูกค้า";
+"Certification" =  "Certification";
+"Due" =  "ครบกำหนด";
+"Remove All" =  "นำออก";
+"REMOVE" =  "นำออก";
+
+"Show More" =  "ดูเพิ่มเติม";
+"Results" =  "ผลลัพธ์";
+"Result" =  "ผลลัพธ์";
+
+"Comparison" =  "เปรียบเทียบ";
+"Reset" =  "รีเซ็ต";
+"Diamond Search" =  "ค้นหาเพชร";
+"GIA Report" =  "รายงาน GIA ";
+"Polish" =  "การขัดเงา";
+"Symmetry" =  "ความสมมาตร";
+"Fluorescence" =  "ความเรืองแสง";
+"Depth" =  "ความลึก";
+"Table" =  "ตาราง";
+"Girdle" =  "ขอบเพชร";
+"Gridle" =  "ขอบเพชร";
+"Culet" =  "ฐานเพชร";
+"Measurements" =  "การวัด";
+"Graded By" =  "ผลตรวจโดย";
+ "Customer Name" =  "ชื่อลูกค้า";
+"Due Date" =  "วันที่ครบกำหนด";
+"Note" =  "โน้ต";
+"Ex. Urgent Order" =  "ตัวอย่าง ออเดอร์เร่งด่วน";
+"Jewelry" =  "จิวเวลรี่";
+
+"Search by SKU/Stock ID" =  "ค้นหาจาก SKU/รหัสสต็อค/ลูกค้า";
+"Search By SKU/Stock ID/Customer" =  "ค้นหาจาก SKU/รหัสสต็อค/ลูกค้า";
+"Delivery" =  "ส่ง";
+"add to cart" =  "เพิ่มในตะกร้า";
+"Search by SKU / Product name" =  "ค้นหาจาก SKU/ชื่อสินค้า";
+"Search to view product information" =  "ค้นหาเพื่อดูข้อมูลสินค้า";
+"can click to view Variant Product/Design Product" =  "สามารถคลิกเพื่อดูแวเรียนต์/ดีไซน์สินค้า";
+"Order" =  "สั่ง";
+"Next" =  "ถัดไป";
+"confirm" =  "คอนเฟิร์ม";
+"CONFIRM" =  "คอนเฟิร์ม";
+"Confirm" =  "คอนเฟิร์ม";
+
+"Variant Product" =  "สินค้าแวเรียนต์";
+"Design Product" =  "สินค้าดีไซน์";
+"Product Details" =  "ข้อมูลสินค้า";
+"Reference No." =  "หมายเลขเอกสารอ้างอิง";
+"Material" =  "วัสดุ ";
+"Search by SKU" =  "ค้นหาจาก SKU";
+"Search to view stock information" =  "ค้นหาเพื่อดูข้อมูลสต็อค";
+"Available" =  "สินค้าพร้อมใช้งาน";
+"Sold" =  "ขายแล้ว";
+"Reserved" =  "จองแล้ว";
+"Stock" =  "สต็อค";
+"Create your own" =  "Create your own";
+"Remark" =  "หมายเหตุ";
+"Grand Total" =  "ยอดรวมทั้งหมด";
+"Deposit" =  "มัดจำ";
+"Outstanding Balance" =  "ยอดค้างชำระ";
+"check out" =  "ชำระเงิน";
+ "Reserve Record" =  "บันทึกการจอง";
+"Sold Record" =  "บันทึกการขาย";
+"Search by Invoice / Stock Id " =  "ค้นหาจาก ใบแจ้งหนี้/รหัสสต็อค/ลูกค้า";
+"Summary" =  "สรุป";
+"My Inventory" =  "คลังสินค้าของฉัน";
+"CANCEL" =  "ยกเลิก";
+"Product ID" =  "รหัสสินค้า";
+"Custom" =  "กำหนด";
+"CREATE NEW CUSTOMER" =  "สร้างลูกค้าใหม่";
+"History" =  "ประวัติ";
+"Advance Options" =  "ตัวเลือกขั้นสูง";
+"Excellent" =  "ยอดเยี่ยม";
+"Very Good" =  "ดีมาก";
+"Good" =  "ดี";
+"Lab" =  "แล็บ";
+"Status" =  "สถานะ";
+"Less Options" =  "ย่อตัวเลือก";
+"None" =  "ไม่มี";
+"Faint" =  "อ่อน";
+"Medium" =  "ปานกลาง";
+"Strong" =  "แข็ง";
+"Phone" =  "เบอร์โทรศัพท์";
+"Add Email" =  "เพิ่มอีเมล";
+"Deselect" =  "ยกเลิกการเลือก";
+"Are you sure want to proceed ?" =  "ต้องการดำเนินการต่อ?";
+"Are you sure want to remove ?" =  "ต้องการนำออกไป?";
+"Items" =  "รายการ";
+"Park" =  "พัก";
+"PARK" =  "พัก";
+"Balance Due" =  "ยอดค้างชำระ";
+"More" =  "เพิ่มเติม";
+"Text" =  "ข้อความ";
+"Credit Card" =  "บัตรเครดิต";
+"Cash" =  "เงินสด";
+"Bank" =  "ธนาคาร";
+"Mobile Number" =  "เบอร์โทรศัพท์";
+"Order Successful" =  "คำสั่งสำเร็จ";
+"Order Summary" =  "สรุปรายการ";
+"BACK TO POS" =  "กลับไป POS";
+"Forgot your PIN?" =  "ลืมรหัส PIN?";
+"Items Selected" =  "รายการที่ถูกเลือก";
+"Gift Card number" =  "หมายเลขบัตรส่วนลด";
+"Cheque" =  "เช็ค";
+"Internet Banking" =  "ธุรกรรมออนไลน์";
+"Account No." =  "หมายเลขบัญชี";
+"Account Name" =  "ชื่อบัญชี";
+"Ref No." =  "หมายเลขเอกสารอ้างอิง";
+"Inst No." =  "หมายเลขเช็ค";
+"take a photo" =  "ถ่ายรูป";
+"Scan QR Code" =  "สแกน QR Code";
+"Clear" =  "支票编号";
+"SUB" =  "เพิ่ม";
+"Card number" =  "หมายเลขบัตร";
+"Card name" =  "ชื่อบัตร";
+"Labour" =  "ค่าแรง";
+"Shipping" =  "จัดส่ง";
+"Loyalty Point" =  "Loyalty Point ";
+"Discount" =  "ส่วนลด";
+"Discount (Amount)" =  "ส่วนลด (จำนวน)";
+"tax" =  "ภาษี";
+"Tax (Amount)" =  "ภาษี(จำนวน)";
+"Exchange Rate" =  "อัตราการแลกเปลี่ยน";
+"The Balance Due is not yet complete." =  "ยอดค้างชำระยังไม่สมบูรณ์";
+"Sub Total" =  "ราคารวมย่อย";
+"Upload ID image" =  "อัพโหลดรูปบัตรประชาชน";
+"Total Amount" =  "จำนวนทั้งหมด";
+"Total Customer" =  "ลูกค้าทั้งหมด";
+"Most Amount" =  "จำนวนมากที่สุด";
+"Clound Account" =  "บัญชีคลาวด์";
+"Sort By" =  "จัดเรียงตาม";
+"Most Invoice" =  "ใบแจ้งหนี้มากที่สุด";
+"Most Quantity" =  "จำนวนมากที่สุด";
+"Oldest Customer" =  "ลูกค้าเก่าที่สุด";
+"Newest Customer" =  "ลูกค้าใหม่ล่าสุด";
+"Gender" =  "เพศ";
+"Birth Date" =  "วันเกิด";
+"Instagram" =  "Instagram";
+"Nationality" =  "สัญชาติ";
+"ID" =  "รหัส";
+"Occasion" =  "โอกาสพิเศษ";
+"Source" =  "แหล่งที่มา";
+"Bill to" =  "ส่งบิลไปที่";
+"Tax ID No." =  "หมายเลขภาษี";
+"Ship to" =  "ส่งถึง";
+"Dis" =  "ส่วนลด";
+"Add Note" =  "เพิ่มโน้ต";
+"Note for the sale you want to park" =  "โน้ตสำหรับรายการขายที่ต้องการพัก";
+"Ex. Customer will come back in 10 minutes." =  "ตัวอย่าง ลูกค้าจะกลับมาใน 10นาที ";
+"park sale" =  "พักการขาย";
+"Parked" =  "พัก";
+"The customer left the wallet in the car. Will be back in 15 minutes." =  "ลูกค้าลืมกระเป๋าเงินในรถ จะกลับมาใน 15นาที";
+"Search" =  "ค้นหา";
+"Select the diamonds you want to compare for comparison." =  "เลือกเพชรที่ต้องการเปรียบเทียบ";
+"Add to" =  "เพิ่ม";
+"Pointer" =  "พอยเตอร์";
+"Order Type" =  "ประเภทคำสั่ง";
+"Select ID" =  "เลือกรหัส";
+"Please fill all required fields." =  "กรุณากรอกข้อมูลในช่องที่ต้องกรอกทั้งหมด";
+"Create Customer" =  "สร้างลูกค้า";
+"Customer Information" =  "ข้อมูลลูกค้า";
+"Customer Id" =  "รหัสลูกค้า";
+"Title" =  "คำนำหน้า";
+"First Name" =  "ชื่อจริง";
+"Middle Name" =  "ชื่อกลาง";
+"Last Name" =  "นามสกุล";
+"Age" =  "อายุ";
+"Group" =  "กรุ๊ปเลือด";
+"Address" =  "ที่อยู่";
+"Province" =  "จังหวัด";
+"Country" =  "ประเทศ";
+"City" =  "เมือง";
+"Zip Code" =  "รหัสไปรษณีย์";
+"Add Phone" =  "เพิ่มเบอร์โทรศัพท์";
+"Select Occasion" =  "เลือกโอกาสพิเศษ";
+"Select Source" =  "เลือกแหล่งที่มา";
+"Billing Address" =  "ที่อยู่ใบเสร็จรับเงิน";
+"Company" =  "บริษัท";
+"Shipping Address" =  "ที่อยู่ของผู้ส่ง";
+"Shipping address same as billing address" =  "ที่อยู่ของผู้ส่งตามใบเสร็จรับเงิน";
+"Privacy" =  "ความเป็นส่วนตัว";
+"Data Handling" =  "การจัดการข้อมูล";
+"Contact Term" =  "เงื่อนไขการติดต่อ";
+"Card Creation SA" =  "Card Creation SA";
+"Customer has opted to receive offers, updates, marketing and promotion by email." =  "ลูกค้าเลือกที่จะรับข้อเสนอ การอัปเดต การตลาดและการส่งเสริมการขายทางอีเมล";
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." =  "ลูกค้ารายนี้ได้รับการยกเว้นภาษี ภาษีทั้งหมดจะถูกลบออกเมื่อมีการจัดสรรโปรไฟล์ลูกค้านี้ให้กับการขาย";
+"Create Customer Successful" =  "สร้างลูกค้าสำเร็จแล้ว";
+"Search Customer" =  "ค้นหาลูกค้า";
+"Payment History" =  "ประวัติการชำระเงิน";
+ "Credit Note" =  "ใบลดหนี้";
+"Edit Customer" =  "แก้ไขลูกค้า";
+"Most Location" =  "โลเคชั่นมากที่สุด";
+"Count" =  "นับ";
+"Name" =  "ชื่อ";
+"Search Country" =  "ค้นหาประเทศ";
+"Search City" =  "ค้นหาเมือง";
+"Print" =  "พิมพ์";
+"Share" =  "แชร์";
+"Repair" =  "ซ่อม";
+"Exchange" =  "แลกเปลี่ยน";
+"REFUND" =  "คืนเงิน";
+"Gift Card" =  "บัตรส่วนลด";
+"Mix & Match" =  "Mix & Match";
+"Select your option" =  "เลือกตัวเลือก";
+"ADD STONE" =  "เพิ่มอัญมณี";
+"REMOVE STONE" =  "นำอัญมณีออก";
+"Concept" =  "คอนเซปต์";
+"Sketch" =  "สเก็ตช์";
+"Picture" =  "รูปภาพ";
+"Engraving" =  "แกะสลัก";
+"Write your concept design..." =  "เขียนคอนเซปต์ของดีไซน์…";
+"next" =  "ถัดไป";
+"Done" =  "เสร็จสิ้น";
+"back" =  "กลับ";
+"logo" =  "โลโก้";
+"Write text you want to engrave" =  "เขียนข้อความที่ต้องการแกะสลัก";
+"Which position would you like to engrave?" =  "ระบุตำแหน่งที่ต้องการแกะสลัก";
+"Font" =  "ตัวอักษร";
+"Position" =  "ตำแหน่ง";
+"finish" =  "เสร็จ";
+"Upload your logo" =  "อัพโหลดโลโก้";
+"Select Setting" =  "เลือกการฝัง";
+"SELECT" =  "เลือก";
+"Change Setting" =  "เปลี่ยนการฝัง";
+"Change Diamond" =  "เปลี่ยนเพชร";
+"Change Engraving" =  "เปลี่ยนการแกะสลัก";
+"Want to deposit money in Credit Note?" =  "ต้องการมัดจำในใบลดหนี้หรือไม่?";
+"add deposit" =  "เพิ่มการมัดจำ";
+"Want to make a gift for a special occasion?" =  "ต้องการเป็นของขวัญในวันพิเศษหรือไม่?";
+"Gift Card Name" =  "ชื่อบัตรส่วนลด";
+"amount" =  "จำนวน";
+"Valid Date" =  "วันที่ใช้ได้";
+"create" =  "สร้าง";
+"Process" =  "กระบวนการ";
+"Write your repair description..." =  "เขียนอธิบาย…..";
+"Repair list" =  "รายการซ่อม";
+"Polishing" =  "ขัดเงา";
+"Ring Re-sizing" =  "เปลี่ยนไซส์แหวน";
+"Finishing" =  "finishing ";
+"Reshape Bent Ring" =  "ปรับแต่งแหวนที่งอ";
+"Plating" =  "ชุบ";
+"Stone Replacement" =  "อัญมณีแทนที่";
+"Prong Repair" =  "ซ่อมพรอง";
+"Laser Spot Solder" =  "เลเซอร์/น้ำประสาน";
+"Chain and Clasp Repair" =  "ซ่อมสร้อยหรือเข็มกลัด";
+"Remodel Jewelery" =  "สร้างเครื่องประดับใหม่";
+"Diamond Details" =  "ข้อมูลเพชร";
+"Most Wishlist" =  "Wishlist มากที่สุด";
+"Female" =  "ผู้หญิง";
+"Male" =  "ผู้ชาย";
+"Couples" =  "คู่รัก";
+"Complete" =  "เสร็จสิ้น";
+"Select Diamond" =  "เลือกเพชร";
+"Description" =  "คำอธิบาย";
+
+"Choose Customer" = "เลือกลูกค้า";
+"Search customer by name, mobile, email, country" = "ค้นหาลูกค้าด้วยชื่อ มือถือ";
+"Apply Filter" = "ใช้ตัวกรอง";
+"Apply Filters" = "ใช้ตัวกรอง";
+"Service Labour" = "แรงงานบริการ";
+"Term" = "ภาคเรียน";
+"DETAIL" = "รายละเอียด";
+"Installment" = "ค่างวดเงินผ่อน";
+"Installments" = "ค่างวดเงินผ่อน";
+"INSTALLMENT" = "ค่างวดเงินผ่อน";
+"Receive Amount" = "รับจำนวนเงิน";
+"Balance" = "สมดุล";
+"Applied Service Labour" = "แรงงานบริการประยุกต์";
+"Full Payment" = "ชำระเงินเต็มจำนวน";
+"LayBy" = "เลย์บาย";
+"Layby" = "เลย์บาย";
+"Email Confirmation" = "การยืนยันอีเมล";
+"Please confirm your email address where invoice to be sent" = "โปรดยืนยันที่อยู่อีเมลของคุณที่จะส่งใบแจ้งหนี้";
+"Receive" = "รับ";
+"Quotation" = "คำอ้างอิง";
+"QUOTE" = "อ้าง";
+"Partial History" = "ประวัติบางส่วน";
+"Purchased Items" = "รายการที่ซื้อ";
+"Certificate No." = "ใบรับรองเลขที่";
+"View Installments" = "ดูค่างวด";
+"View LayBy" = "ดูเลย์บาย";
+"Search by SKU/Customer" = "ค้นหาตาม SKU/ลูกค้า";
+
+"Pick Jewelry" = "เลือกเครื่องประดับ";
+"Pick Diamond" = "เลือกเพชร";
+
+
+"View Less" = "ดูน้อยลง";
+"Payment Confirmation" = "การยืนยันการชำระเงิน";
+"Day" = "วัน";
+"Year" = "ปี";
+"Search by Invoice no / Customer" = "ค้นหาตามเลขที่ใบแจ้งหนี้ / ลูกค้า";
+"Search by Invoice no" = "ค้นหาตามเลขที่ใบแจ้งหนี้";
+
+"Note for the order you want a quotation" = "หมายเหตุ สำหรับการสั่งซื้อที่คุณต้องการใบเสนอราคา";
+"CREATE A QUOTE" = "สร้างใบเสนอราคา";
+"Ex : Hold order" = "ตัวอย่าง: ระงับคำสั่งซื้อ";
+
+
+
+"Quoted Items" = "รายการที่ยกมา";
+"Are you sure want to add to order ?" = "คุณแน่ใจหรือไม่ว่าต้องการเพิ่มคำสั่งซื้อ ?";
+"ADD TO ORDER" = "เพิ่มในการสั่งซื้อ";
+
+"Address Customer" = "ที่อยู่ลูกค้า";
+"Billing Address" = "ที่อยู่เรียกเก็บเงิน";
+"Shipping Address" = "ที่อยู่จัดส่ง";
+"Default Shipping Address" = "ที่อยู่จัดส่งเริ่มต้น";
+"Default Billing Address" = "ที่อยู่การเรียกเก็บเงินเริ่มต้น";
+"Address*" = "ที่อยู่*";
+"Country*" = "ประเทศ*";
+"Edit Billing Address" = "แก้ไขที่อยู่สำหรับการเรียกเก็บเงิน";
+"Add Billing Address" = "เพิ่มที่อยู่สำหรับการเรียกเก็บเงิน";
+"Add billing address" = "เพิ่มที่อยู่สำหรับการเรียกเก็บเงิน";
+"Add Shipping Address" = "เพิ่มที่อยู่จัดส่ง";
+"Add shipping address" = "เพิ่มที่อยู่จัดส่ง";
+"Select billing address" = "เลือกที่อยู่สำหรับการเรียกเก็บเงิน";
+"Select shipping address" = "เลือกที่อยู่สำหรับจัดส่ง";

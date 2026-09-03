@@ -1,0 +1,687 @@
+/* 
+  Localization.strings
+  GIS
+
+  Created by admin on 15/11/21.
+  
+*/
+
+
+/**Login*/    ///ログイン";
+"Username" = "ユーザー名";
+"Password" = "パスワード";
+"Forgot Password" = "パスワードを忘れた場合";
+"FORGOT PASSWORD?" = "パスワード忘れた？";
+"FORGOT PIN?" = "ピンコード忘れた？";
+"Login with Password" = "パスワードでログイン";
+"Enter Pin" = "ピンコード記入";
+"Invalid Pin" = "ピンコード間違い";
+"Forgot Pin" = "ピンコードを忘れた場合";
+"your store name" = "お店の名前";
+    
+"Email" = "E-メール";
+"storename" = "お店の名前";
+"Login" = "ログイン";
+"Now! Quick login with PIN" = "ピンコードでのクイックログイン";
+"Organization" = "組織";
+"Choose Store" = "お店の選択";
+    
+/**Startup*/ //    スタート
+    
+"Hello!" = "こんにちは！ 👋";
+"Language" = "言語";
+"Enter" = "エンター";
+"Choose Language" = "言語を選択";
+    
+/**Home*/    //ホーム
+    
+"INVENTORY" = "在庫";
+"ITEM SEARCH" = "商品検索";
+"STOCK TAKE" = "在庫確認";
+"Stock Take" = "在庫確認";
+"POS" = "POS";
+"GRAPH" = "グラフ";
+"Logout" = "ログアウト";
+
+"Switch Store" = "お店変更";
+    
+/**Inventory*/  //    在庫
+    
+"Summary" = "購入まとめ";
+"My Inventory" = "わたしの在庫";
+"Stock" = "在庫";
+"Reserved" = "予約";
+"Reserve" = "予約";
+"RESERVE" = "予約";
+
+"Available" = "残り";
+"Item" = "商品リスト";
+"Items" = "商品リスト";
+
+"Collection" = "コレクション";
+"SKU" = "SKU";
+"Location" = "場所";
+"Stock" = "在庫";
+"Metal" = "メタル";
+"Stone" = "宝石";
+"Size" = "サイズ";
+"item selected" = "選択した商品";
+"items selected" = "選択した商品";
+"StockID" = "在庫ID";
+"Qty" = "個数";
+"Price" = "価格";
+"Refresh" = "リフレッシュ";
+"Share" = "ㇱエア";
+"Print" = "印刷";
+"No items selected to reserve" = "選択されたものがない";
+    
+"Sale Person" = "営業担当者";
+"Sales Person" = "售货员";
+
+"Total" = "合計";
+"SUBMIT" = "提出";
+"CANCEL" = "取り消す";
+"Filter" = "フィルター";
+"Clear All" = "全クリア";
+"Location" = "場所";
+"Price Range" = "価格レンジ";
+"Select All" = "全選択";
+    
+/**Item Search*/ //    商品検索
+    
+"Item Search" = "商品検索";
+"Stock Id" = "在庫ID";
+"StockId" = "在庫ID";
+
+"Sold" = "売却済み";
+"St" = "St";
+"Re" = "Re";
+"So" = "So";
+"Av" = "Av";
+"Order" = "注文";
+"Custom Order" = "カスタムオーダー";
+"CHECK OUT" = "チェックアウト";
+"Create your own design" = "自分のデザインで作る";
+"Create your jewelry by your own design" = "自分のデザインで宝石を作る";
+"Concept Design" = "コンセプトデザイン";
+"Write your concept design" = "コンセプトを書いて下さい";
+"Concept" = "コンセプト";
+"Sketch" = "スケッチ";
+"Picture" = "写真";
+"Text" = "テキスト";
+"Logo" = "ロゴ";
+"Engraving" = "彫刻";
+
+"Position" = "位置";
+"Font" = "フォント";
+"Write something here" = "ここに書いてください";
+"Which position would you like to engraving ?" = "どこに彫刻を入れますか";
+"Select" = "選択";
+"Upload Logo" = "ロゴアップロード";
+"Select File" = "ファイル選択";
+"Reserve Records" = "予約記録セーブ";
+    
+/**Stock Take*/ //    在庫確認
+    
+"TOTAL" = "合計";
+"SCANNED" = "スキャン済";
+"UNSCANNED" = "スキャン未完了";
+"CONFLICT" = "干渉";
+"UNKNOWN" = "未知";
+"QTY" = "個数";
+"TOTAL SKU" = "SKU合計";
+"START" = "始める";
+"Power" = "力";
+"Connect" = "接続";
+
+
+    /**POS*///    POS
+    
+"More" = "その他";
+"Inventory" = "在庫";
+"Payment" = "支払い";
+"Payments" = "支払い";
+
+//"SNo" = "発注番号";
+"SNo" = "SNo";
+"Image" = "写真";
+"Unit" = "単位";
+"Dis%" = "値引き率";
+"Discount" = "値引き";
+"Amount" = "合計";
+"Pcs" = "個";
+    
+    
+"EXCHANGE" = "交換";
+"REFUND" = "払い戻し";
+"Repair Order" = "修理依頼";
+"Wish List" = "お気に入りアイテム";
+"Invoice" = "請求書";
+"Date" = "日付";
+"Purchase History" = "購入履歴";
+"Repair List" = "修理依頼リスト";
+"Select what you'd like to repair" = "修理アイテム選択";
+    
+    
+
+"Fill the name or register" = "名前・会員記入";
+"Customer Search" = "顧客検索";
+"Wishlist" = "お気に入りアイテム";
+"ORDER" = "注文";
+"Search" = "検索";
+"ADD TO CART" = "買い物かごに入れる";
+"Inventory List" = "在庫リスト";
+"Deposit" = "前払い";
+"Gift Card" = "ギフトカード";
+"Gift Card Number" = "ギフトカード番号";
+"Valid Date" = "有効日";
+"Add Gift Card" = "ギフトカード追加";
+"Grand Total" = "総計";
+"Sub Total" = "小計";
+"Tax (5%)" = "税金５％";
+"ADD NOW" = "今すぐ追加";
+"Exchange Rate" = "為替レート";
+/*
+ Add now   เพิ่มตอนนี้
+ إضافة الآن
+
+ 今すぐ追加
+
+ 现在添加
+
+ Register  يسجل
+ */
+/**Check out*/ //    チェックアウト
+    
+"Check Out" = "チェックアウト";
+"Credit Card" = "クレジットカード";
+"Cash" = "現金";
+"Bank" = "振り込み";
+"Credit note" = "クレジットノート";
+"Tax" = "税金";
+"Credit/Debit" = "クレジット / デビット";
+"Apple Pay" = "Apple Pay";
+"Alipay" = "Alipay";
+"WeChat Pay" = "ウィーチャットペイ";
+"Credit Note" = "クレジットノート";
+"Balance Due" = "未払い残高";
+"SUB" = "確認";
+"Type" = "種類";
+"Ref No." = "参照番号";
+"Item Selected" = "選択した商品リスト";
+"Items Selected" = "選択した商品リスト";
+"PAY NOW" = "支払い";
+"Labour" = "手数料";
+"Shipping" = "送料";
+"Loyalty point" = "ポイント";
+"Discount (%)" = "値引き率";
+"Discount (Amount)" = "値引金額";
+"TAX (%)" = "税金（％）";
+"TAX (Amount)" = "税金合計";
+    
+    
+/**Profile*/    //プロファイル;
+"Customer" = "顧客";
+"Month" = "月";
+    
+    
+/**Registration*///    会員登録
+"Register" = "登録";
+"Full Name" = "名";
+"Last Name" = "姓";
+"Date of Birth" = "生年月日";
+"Age" = "年齢";
+"Gender" = "性";
+"Group" = "グループ";
+"Home" = "住所";
+"Mobile" = "携帯番号";
+"Occasion" = "オッケーション";
+"Source" = "ソース";
+"Instagram" = "インスタグラム";
+"Company" = "会社名";
+"Address" = "住所";
+"Country" = "国";
+"City" = "町";
+"Province" = "県";
+"Zip" = "ポストコード";
+"Tax ID No. (optional)" = "納税者番号";
+"Shipping address same as billing address" = "請求先住所と同じ配送先住所";
+"Billing Address" = "請求先住所";
+"Profile" = "プロフィール";
+"Name" = "名前";
+"QUICK VIEW" = "クイックビュー";
+"TRACE" = "追跡";
+"Please enter stock Id to track" = "追跡する在庫IDを入力してください";
+"Trace with Authenticity" = "信頼性のあるトレース";
+"No Data Found!" = "何もデータが見つかりませんでした！";
+
+
+
+/*New*/    "POS" =  "店頭";
+"Quick View" =  "クイックビュー";
+"Inventory" =  "在庫";
+"Diamond" =  "金剛石";
+"Item Search" =  "製品を探す";
+"Stock Take" =  "棚卸しをする";
+"Trace" =  "Trace";
+"Catalog" =  "カタログ";
+"Graph" =  "グラフ";
+"Language" =  "言語";
+"log out" =  "ログアウト";
+"Switch store" =  "店を変える";
+"Store" =  "店";
+"User" =  "使用者";
+"View More" =  "もっと見る";
+"Transaction" =  "取引";
+"Customer" =  "顧客";
+"Total Invoice" =  "合計請求書　";
+"Total Quantity" =  "合計数量";
+"pcs" =  "Pcs";
+"Email" =  "Eメール";
+"Password" =  "パスワード";
+"Forgot Password" =  "パスワードを忘れた";
+"Log in" =  "ログイン";
+"Quick Log in with PIN" =  "PINでログイン";
+"Organization" =  "組織";
+"Enter  PIN" =  "PIN入力";
+"Forgot PIN" =  "PIN忘れた";
+"Hello" =  "こんにちは";
+"enter" =  "入力";
+"Search By Stock ID" =  "ストックIDから探す";
+"Search by Stock ID" =  "ストックIDから探す";
+
+"Total" =  "トータル";
+"Scanned" =  "スキャンした";
+"Unscanned" =  "スキャンしていない";
+"Conflict" =  "コンフリクト/関係ない";
+"Unknown" =  "アンノウン";
+"Connect" =  "接続/コネクト";
+"Refresh" =  "リフレッシュ";
+"Power" =  "パワー";
+"Save" =  "保存";
+"Search by SKU / Stock Id" =  "SKU/ストックIDから探す";
+"Search by SKU / Stock ID" =  "SKU/ストックIDから探す";
+
+"Metal" =  "金属";
+"Stone" =  "宝石";
+"Size" =  "サイズ";
+ "Conflict / Unknown" =  "コンフリクト/アンノウン";
+"All" =  "全て";
+"Not found devices can connect." =  "デバイスが見 つからない";
+"Disconnected" =  "切り離された/ディスコネクト";
+"Frequency" =  "周波数";
+"Max" =  "最大";
+"Clear All" =  "すべて削除";
+"Item" =  "アイテム";
+"Filters" =  "フィルター";
+"Select All" =  "すべて選択 ";
+"apply" =  "応用";
+"APPLY" =  "応用";
+"Apply" =  "応用";
+
+"Trace with Authenticity" =  "Trace with Authenticity";
+"Please Scan QR Code or Barcode to track details" =  "情報を追跡にはQRコードまたはバーコードをスキャンする";
+"SCAN NOW" =  "今すぐスキャン";
+"Scan now" =  "今すぐスキャン";
+
+"Please enter your Stock ID to track details" =  "情報を追跡にはストックIDを入力する";
+"Or" =  "それとも";
+"Product" =  "製品";
+"Activity" =  "活動";
+"Block ID" =  "ブロックID";
+"Stock ID" =  "ストックID";
+"SKU" =  "SKU";
+"Product Summary" =  "製品情報";
+"Price" =  "価格";
+"Location" =  "ロケーション";
+"Color" =  "色";
+"Gross Wt" =  "総重量";
+"Net Wt" =  "正味重量";
+"Shape" =  "形/シェイプ";
+"Cut" =  "研削";
+"Clarity" =  "明瞭さ";
+"Weight" =  "重量";
+"Setting" =  "付く";
+"Certificate" =  "Certificate";
+"Document ID" =  "ドキュメント ID";
+"Transaction Date" =  "取引日";
+"Store name" =  "店名";
+"Store location" =  "ストアの場所";
+"Client name" =  "名前";
+"Client country" =  "国";
+"Client nationality" =  "国籍";
+"Qty" =  "数量";
+"Transaction Zone" =  "製造国";
+"STO" =  "株式移転";
+"PU" =  "購入";
+"From Store" =  "ストアから/店から";
+"To Store" =  "ストアまで/店まで";
+"Your store name" =  "あなたの店名/あなたのストア名";
+"submit" =  "提出";
+"Submit" =  "提出";
+"SUBMIT" =  "提出";
+
+"face id" =  "Face id";
+"Preview" =  "プレビュー";
+"Carat" =  "カラット";
+"Colour" =  "色";
+"Reserve List" =  "予約リスト";
+"Search By Stock ID/Customer" =  "ストックID/顧客から探す";
+"Certification" =  "Certification";
+"Due" =  "納期";
+"Remove All" =  "削除";
+"REMOVE" =  "削除";
+
+"Show More" =  "もっと見る";
+"Results" =  "結果";
+"Result" =  "結果";
+
+"Comparison" =  "比較";
+"Reset" =  "リセット";
+"Diamond Search" =  "金剛石を探す";
+"GIA Report" =  "GIA のレポート";
+"Polish" =  "研磨";
+"Symmetry" =  "対称性";
+"Fluorescence" =  "蛍光性";
+"Depth" =  "深さ";
+"Table" =  "表";
+"Girdle" =  "Girdle";
+"Gridle" =  "Girdle";
+
+"Culet" =  "Culet";
+"Measurements" =  "測定";
+"Graded By" =  "～から結果";
+"Customer Name" =  "顧客名";
+"Due Date" =  "期日";
+"Note" =  "ノート";
+"Ex. Urgent Order" =  "例・緊急注文";
+"Jewelry" =  "ジューリー";
+"Search by SKU/Stock ID" =  "SKU/ストックID/顧客から探す";
+"Search By SKU/Stock ID/Customer" =  "SKU/ストックID/顧客から探す";
+"Delivery" =  "配達";
+"add to cart" =  "カートに追加";
+"Search by SKU / Product name" =  "SKU/製品名から探す";
+"Search to view product information" =  "製品検索";
+"can click to view Variant Product/Design Product" =  "バリアント製品/デザイン製品をクリックして表示";
+"Order" =  "注文";
+"Next" =  "次";
+"confirm" =  "確認";
+"CONFIRM" =  "確認";
+
+"Variant Product" =  "バリアント製品";
+"Design Product" =  "デザイン製品";
+"Product Details" =  "製品情報";
+"Reference No." =  "参考資料の番号";
+"Material" =  "材料";
+"Search by SKU" =  "SKUから探す";
+"Search to view stock information" =  "ストック情報を検索";
+"Available" =  "利用可能";
+"Sold" =  "Sold";
+"Reserved" =  "Reserved";
+"Stock" =  "ストック";
+"Create your own" =  "自分で作る";
+"Remark" =  "備考";
+"Remarks" =  "備考";
+
+"Grand Total" =  "総計";
+"Deposit" =  "前金";
+"Outstanding Balance" =  "未払い額";
+"check out" =  "チェックアウト";
+ "Reserve Record" =  "予約記録";
+"Sold Record" =  "販売記録";
+"Search by Invoice / Stock Id" =  "請求書/ストックID/顧客から探す";
+"Summary" =  "要約";
+"My Inventory" =  "私の在庫";
+"Cancel" =  "キャンセル";
+"CANCEL" =  "キャンセル";
+
+"Product ID" =  "製品ID";
+"Custom" =  "決める";
+"CREATE NEW CUSTOMER" =  "新規顧客";
+"History" =  "履歴";
+"Advance Options" =  "高度なオプション";
+"Excellent" =  "素晴らしい";
+"Very Good" =  "とても良い";
+"Good" =  "良い";
+"Lab" =  "ラボ";
+"Status" =  "ステータス";
+"Less Options" =  "詳細オプションを絞る";
+"None" =  "ありません";
+"Faint" =  "弱";
+"Medium" =  "中";
+"Strong" =  "鮮やか";
+"Phone" =  "携帯番号";
+"Add Email" =  "Eメールを追加";
+"Deselect" =  "解除";
+"Are you sure want to proceed ?" =  "継続しますか？";
+"Are you sure want to remove ?" =  "削除しますか？";
+"Items" =  "アイテム";
+"Park" =  "とめる";
+"PARK" =  "とめる";
+
+"Balance Due" =  "未回収残高";
+"More" =  "もっと";
+"Text" =  "テキスト";
+"Credit Card" =  "クレジットカード";
+"Cash" =  "現金";
+"Bank" =  "銀行";
+"Mobile Number" =  "携帯番号";
+"Order Successful" =  "注文が成功";
+"Order Summary" =  "オーダー要約";
+"BACK TO POS" =  "店頭に戻る";
+"Forgot your PIN?" =  "PINを忘れましたか？";
+"Items Selected" =  "選択したアイテム";
+"Gift Card number" =  "割引券の番号";
+"Cheque" =  "小切手";
+"Internet Banking" =  "ネットバンキング";
+"Account No." =  "アカウント番号";
+"Account Name" =  "アカウント名";
+"Ref No." =  "参考資料の番号";
+"Inst No." =  "小切手番号";
+"take a photo" =  "写真を撮る";
+"Scan QR Code" =  "QRコードをスキャン";
+"Clear" =  "クリア";
+"SUB" =  "SUB";
+"Card number" =  "カードナンバー";
+"Card name" =  "カードネーム";
+"Labour" =  "労働費";
+"Shipping" =  "運送中";
+"Loyalty Point" =  "Loyalty Point ";
+"Discount" =  "割引";
+"Discount (Amount)" =  "割引　(数量)";
+"tax" =  "税金";
+"Tax (Amount)" =  "税金　(数量)";
+"The Balance Due is not yet complete." =  "未回収残高はまだ完成していません";
+"Sub Total" =  "小計";
+"Upload ID image" =  "身分証明書をアップロード ";
+"Total Amount" =  "総額";
+"Total Customer" =  "全体的な顧客";
+"Most Amount" =  "最大量";
+"Clound Account" =  "クラウドアカウント";
+"Sort By" =  "～でソート";
+"Most Invoice" =  "一番多くの請求書";
+"Most Quantity" =  "最大量";
+"Oldest Customer" =  "最も古い顧客";
+"Newest Customer" =  "最新の顧客";
+"Gender" =  "性別";
+"Birth Date" =  "誕生日";
+"Instagram" =  "Instagram";
+"Nationality" =  "国籍";
+"ID" =  "ID";
+"Occasion" =  "特別な行事";
+"Source" =  "情報源";
+"Bill to" =  "請求先住所";
+"Tax ID No." =  "納税者番号";
+"Ship to" =  "～に送信";
+"Dis" =  "Dis";
+"Add Note" =  "ノートを追加";
+"Note for the sale you want to park" =  "ノートには販売をとめる";
+"Ex. Customer will come back in 10 minutes." =  "例　お客様は１０分までに戻ってきます";
+"park sale" =  "販売をとめる";
+"Parked" =  "とめた";
+"The customer left the wallet in the car. Will be back in 15 minutes." =  "お客様は車に財布を忘れましたから、１５分までに戻ってきます";
+"Search" =  "探す";
+"Select the diamonds you want to compare for comparison." =  "比較ために、金剛石を選択する";
+"Add to" =  "追加";
+"Pointer" =  "ポインター";
+"Order Type" =  "オーダータイプ";
+"Select ID" =  "IDを選ぶ";
+"Please fill all required fields." =  "すべての必須フィールドに記入 してください";
+"Create Customer" =  "顧客を作成";
+"Customer Information" =  "顧客情報";
+"Customer Id" =  "顧客ID";
+"Title" =  "タイトル";
+"First Name" =  "名前";
+"Middle Name" =  "中間名";
+"Last Name" =  "名字";
+"Age" =  "年齢";
+"Group" =  "血液型";
+"Address" =  "住所";
+"Province/State" =  "県";
+"Country" =  "国";
+"City" =  "市 ";
+"Zip Code" =  "郵便番号";
+"Add Phone" =  "携帯番号を追加";
+"Select Occasion" =  "特別な行事を選ぶ";
+"Select Source" =  "情報源を選ぶ";
+"Billing Address" =  "請求先住所";
+"Company" =  "会社";
+"Shipping Address" =  "送付先住所";
+"Shipping address same as billing address" =  "請求先の住所は配送先の住所と一緒";
+"Privacy" =  "プライバシー";
+"Data Handling" =  "データ処理";
+"Contact Term" =  "連絡の条件";
+"Card Creation SA" =  "Card Creation SA";
+"Customer has opted to receive offers, updates, marketing and promotion by email." =  "お客様はEメールでオファーを受け、アップデート、マーケティングと促進を受け取りました";
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." =  "このお客様は課税されません　お客様に販売のプロフィールをアロケートする場合は全ての税金を削除されます";
+"Create Customer Successful" =  "顧客を作成された";
+"Search Customer" =  "顧客を探す";
+"Payment History" =  "支払い履歴";
+ "Credit Note" =  "貸方票";
+"Edit Customer" =  "顧客を編集";
+"Most Location" =  "一番多くのロケーション";
+"Count" =  "数える";
+"Name" =  "名前";
+"Search Country" =  "国を探す";
+"Search City" =  "県を探す";
+"Print" =  "印刷";
+"Share" =  "シェア";
+"Repair" =  "修理";
+"Exchange" =  "交換";
+"Refund" =  "返金";
+"Gift Card" =  "割引券";
+"Mix & Match" =  "ミックスマッチ";
+"Select your option" =  "オプションを選択";
+"ADD STONE" =  "宝石を追加";
+"REMOVE STONE" =  "宝石を削除";
+"Concept" =  "コンセプト";
+"Sketch" =  "スケッチ";
+"Picture" =  "写真";
+"Engraving" =  "テキス トの彫刻を書く";
+"Write your concept design..." =  "コンセプトデザインを書く…";
+"next" =  "次";
+"Done" =  "完了";
+"back" =  "戻る";
+"logo" =  "ロゴ";
+"Write text you want to engrave" =  "彫刻้したいテキス トを書く";
+"Which position would you like to engrave?" =  "彫刻をピンポイント";
+"Font" =  "フォント";
+"Position" =  "位置";
+"finish" =  "終わる";
+"Upload your logo" =  "ロゴをアップロード";
+"Select Setting" =  "付くことを選ぶ";
+"SELECT" =  "選ぶ";
+"Change Setting" =  "付くことを変更";
+"Change Diamond" =  "金剛石を変更";
+"Change Engraving" =  "彫刻を変更";
+"Want to deposit money in Credit Note?" =  "貸方票に前金を預けますか？";
+"add deposit" =  "前金を追加";
+"Want to make a gift for a special occasion?" =  "特別な行事にプレゼントを作りたいですか？";
+"Gift Card Name" =  "割引券の名前";
+"amount" =  "数量";
+"Valid Date" =  "有効な日付";
+"create" =  "作成";
+"Process" =  "処理";
+"Write your repair description..." =  "説明を書く…";
+"Repair list" =  "修繕指図書";
+"Polishing" =  "研磨";
+"Ring Re-sizing" =  "指輪のサイズを変更";
+"Finishing" =  "finishing ";
+"Reshape Bent Ring" =  "変形した指輪を修理";
+"Plating" =  "めっき";
+"Stone Replacement" =  "宝石の代わりに";
+"Prong Repair" =  "プロングを修理";
+"Laser Spot Solder" =  "レーザー/硼酸";
+"Chain and Clasp Repair" =  "チェーンとクラスプを修理";
+"Remodel Jewelery" =  "ジュエリーを改造";
+"Diamond Details" =  "金剛石の情報";
+"Most Wishlist" =  "最もWishlist";
+"Female" =  "女性";
+"Male" =  "男性";
+"Couples" =  "カップル";
+"Complete" =  "完了";
+"Select Diamond" =  "金剛石を選択";
+"Description" =  "説明";
+
+
+
+"Choose Customer" = "顧客を選択してください";
+"Search customer by name, mobile, email, country" = "名前、携帯電話、メールアドレス、国で顧客を検索";
+"Apply Filter" = "フィルターを適用する";
+"Apply Filters" = "フィルターを適用する";
+"Service Labour" = "サービス労働";
+"Term" = "学期";
+"DETAIL" = "詳細";
+"Installment" = "取り付け";
+"Installments" = "取り付け";
+"INSTALLMENT" = "取り付け";
+"Receive Amount" = "受け取り金額";
+"Balance" = "バランス";
+"Applied Service Labour" = "応用サービス労働";
+"Full Payment" = "全額支払い";
+"LayBy" = "レイバイ";
+"Layby" = "レイバイ";
+"Email Confirmation" = "メール確認";
+"Please confirm your email address where invoice to be sent" = "請求書の送付先のメールアドレスをご確認ください";
+"Receive" = "受け取る";
+"Quotation" = "引用";
+"QUOTE" = "引用";
+"Partial History" = "部分的な歴史";
+"Purchased Items" = "購入したアイテム";
+"Certificate No." = "証明書の番号。";
+"View Installments" = "分割払いを見る";
+"View LayBy" = "レイバイを見る";
+"Search by SKU/Customer" = "SKU/顧客で検索";
+
+"Pick Jewelry" = "ジュエリーを選ぶ";
+"Pick Diamond" = "ダイヤモンドを選ぶ";
+"View Less" = "表示を減らす";
+"Payment Confirmation" = "支払いの確認";
+"Day" = "日";
+"Year" = "年";
+"Search by Invoice no / Customer" = "請求書番号/顧客で検索";
+"Search by Invoice no" = "請求書番号で検索";
+
+"Note for the order you want a quotation" = "お見積りをご希望の場合の注意事項";
+"CREATE A QUOTE" = "見積書を作成する";
+"Ex : Hold order" = "例：ホールド注文";
+
+"Quoted Items" = "引用項目";
+"Are you sure want to add to order ?" = "注文に追加してもよろしいですか?";
+
+"ADD TO ORDER" = "注文に追加";
+
+"Address Customer" = "顧客に宛てて";
+"Billing Address" = "請求先住所";
+"Shipping Address" = "お届け先の住所";
+"Default Shipping Address" = "デフォルトの配送先住所";
+"Default Billing Address" = "デフォルトの請求先住所";
+"Address*" = "住所*";
+"Country*" = "国*";
+"Edit Billing Address" = "請求先住所の編集";
+"Add Billing Address" = "請求先住所を追加";
+"Add billing address" = "請求先住所を追加";
+"Add Shipping Address" = "配送先住所を追加";
+"Add shipping address" = "配送先住所を追加";
+"Select billing address" = "請求先住所を選択してください";
+"Select shipping address" = "配送先住所を選択してください";

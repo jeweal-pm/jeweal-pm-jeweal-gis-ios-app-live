@@ -1,0 +1,680 @@
+/* 
+  Localization.strings
+  GIS
+
+  Created by admin on 15/11/21.
+  
+*/
+
+/**Login*/   // 登录";
+
+"Username" = "用户名";
+"Password" = "密码";
+"Forgot Password" = "忘记密码";
+"FORGOT PASSWORD?" = "是否忘记密码？";
+"FORGOT PIN?" = "是否忘记个人识别码";
+"Login with Password" = "使用密码登录";
+"Enter Pin" = "填个人识别码";
+"Invalid Pin" = "个人识别码错误";
+"Forgot Pin" = "忘记PIN码";
+"your store name" = "您的店铺名字";
+    
+"Email" = "电子邮箱";
+"storename" = "店铺名";
+"Login" = "登录";
+"Now! Quick login with PIN" = "使用PIN码更快登录";
+"Organization" = "团体";
+"Choose Store" = "选分店";
+    
+/**Startup*/  //  开始
+    
+"Hello!" = "你好！👋";
+"Language" = "语言";
+"Enter" = "确定";
+"Choose Language" = "选择语言";
+
+    
+/**Home*/    //主页
+    
+"INVENTORY" = "存库";
+"ITEM SEARCH" = "搜索产品";
+"STOCK TAKE" = "从仓库移除";
+"Stock Take" = "从仓库移除";
+"POS" = "POS";
+"GRAPH" = "图表";
+"Logout" = "退出";
+"Switch Store" = "换分店";
+    
+/**Inventory*/// //    存库
+    
+"Summary" = "总结";
+"My Inventory" = "我的存库";
+"Stock" = "库存";
+"Reserved" = "订货";
+"Reserve" = "预订";
+"RESERVE" = "预订";
+
+"Available" = "剩";
+"Item" = "产品表";
+"Items" = "产品表";
+
+"Collection" = "搜集";
+"SKU" = "SKU";
+"Location" = "地点";
+"Stock" = "库存";
+"Metal" = "金属";
+"Stone" = "宝石";
+"Size" = "尺码";
+"item selected" = "已选择的产品项目";
+"items selected" = "已选择的产品项目";
+"StockID" = "产品密码";
+"Qty" = "数量";
+"Price" = "价格";
+"Refresh" = "刷新";
+"Share" = "分享";
+"Print" = "打印";
+"No items selected to reserve" = "没有已选的产品项目";
+    
+    
+"Sale Person" = "售货员";
+"Sales Person" = "售货员";
+
+"Total" = "结算";
+"Remarks" = "备注";
+"Submit" = "确定";
+"SUBMIT" = "确定";
+
+"CANCEL" = "取消";
+"Filter" = "滤镜";
+"Clear All" = "全部删除";
+"Location" = "地点";
+"Price Range" = "价格范围";
+"Select All" = "全选";
+    
+/**Item Search*///  //  搜索产品项目
+    
+"Item Search" = "搜索产品项目";
+"Stock Id" = "产品密码";
+"StockId" = "产品密码";
+
+"Sold" = "已销售";
+"St" = "St";
+"Re" = "Re";
+"So" = "So";
+"Av" = "Av";
+"Order" = "订单";
+"Custom Order" = "生产产品";
+"CHECK OUT" = "支付";
+"Create your own design" = "创建您的设计";
+"Create your jewelry by your own design" = "用您的设计来制作宝石";
+"Concept Design" = "设计概念";
+"Write your concept design" = "写您的概念";
+"Concept" = "概念";
+"Sketch" = "素描";
+"Picture" = "图片";
+"Engraving" = "雕刻";
+
+"Text" = "文字";
+"Logo" = "徽记";
+"Position" = "位置";
+"Font" = "字体";
+"Write something here" = "这里写";
+"Which position would you like to engraving ?" = "您要刻的位置";
+"SELECT" = "选择";
+"Upload Logo" = "上传徽记";
+"Select File" = "选文件";
+"Reserve Records" = "保存订单";
+    
+/**StockTake*/    //从仓库移除
+    
+"TOTAL" = "结算";
+"SCANNED" = "已扫描";
+"UNSCANNED" = "未扫描";
+"CONFLICT" = "矛盾";
+"UNKNOWN" = "不认识";
+"QTY" = "数量";
+"TOTAL SKU" = "SKU结算";
+"START" = "开始";
+"Power" = "力量";
+"Connect" = "连接";
+
+
+/**POS*/    //POS
+    
+"More" = "其他";
+"Inventory" = "存库";
+"Payment" = "支付";
+"Payments" = "支付";
+//"SNo" = "订单编号";
+
+"SNo" = "SNo";
+"Image" = "图片";
+"Unit" = "单位";
+"Dis%" = "折扣百分比";
+"Discount" = "折扣";
+"Amount" = "总计";
+"Pcs" = "个";
+    
+    
+"EXCHANGE" = "兑换";
+"REFUND" = "退款";
+"Repair Order" = "维修";
+"Wish List" = "收藏";
+"Invoice" = "发票";
+"Date" = "日期";
+"Purchase History" = "订单历史记录";
+"Repair List" = "维修清单";
+"Select what you'd like to repair"  = "选要修理的项目";
+    
+    
+"Fill the name or register" = "填姓名或者注册";
+"Customer Search" = "搜索客户";
+"Wishlist" = "收藏";
+"ORDER" = "订单";
+"Search" = "搜索";
+"ADD TO CART" = "加入购物车";
+"Inventory List" = "产品项目";
+"Deposit" = "定金";
+"Gift Card" = "礼券";
+"Gift Card Number" = "礼券编号";
+"Valid Date" = "有效日期";
+"Add Gift Card" = "加礼券";
+"Grand Total" = "结算";
+"Sub Total" = "合计";
+"Tax (5%)" = "增值税 (5税率)";
+"ADD NOW" = "现在添加";
+"Exchange Rate" = "汇率";
+/*
+ Add now   เพิ่มตอนนี้
+ إضافة الآن
+
+ 今すぐ追加
+
+ 现在添加
+
+ Register  يسجل
+ */
+/**Check out*/    //支付
+    
+"Check Out" = "支付";
+"Credit Card" = "信用卡";
+"Cash" = "现金";
+"Bank" = "汇款";
+"Credit note" = "贷记通知单";
+"Tax" = "税款";
+"Credit/Debit" = "信用 / 借记";
+"Apple Pay" = "Apple Pay";
+"Alipay" = "Alipay";
+"WeChat Pay" = "微信支付";
+"Credit Note" = "减免证";
+"Balance Due" = "余额";
+"SUB" = "确定";
+"Type" = "种类";
+"Ref No." = "参考编号";
+"Item Selected" = "已选的产品项目";
+"Items Selected" = "已选的产品项目";
+"PAY NOW" = "立即支付";
+"Labour" = "工资";
+"Shipping" = "运费";
+"Loyalty point" = "积分";
+"Discount (%)" = "折扣百分比";
+"Discount (Amount)" = "折扣数额";
+"TAX (%)" = "税率";
+"TAX (Amount)" = "税款";
+    
+    
+/**Profile*///    //头像
+"Customer" = "客户";
+"Month" = "月";
+    
+    
+/**Registration*///    登录
+"Register" = "登记";
+"Full Name  " = "姓名";
+"Last Name" = "姓";
+"Date of Birth" = "出生日期";
+"Age" = "年龄";
+"Gender" = "性别";
+"Group" = "群";
+"Home" = "家";
+"Mobile" = "手机";
+"Occasion" = "值此";
+"Source" = "来源";
+"Instagram" = "Instagram";
+"Company" = "公司";
+"Address" = "地址";
+"Country" = "国家";
+"City" = "城市";
+"Province / State" = "府";
+"Zip" = "邮政编码";
+"Tax ID No. (optional)" = "税号标识";
+"Shipping address same as billing address" = "收货地址跟账单地址相同";
+"Billing Address" = "账单地址";
+"Profile" = "轮廓";
+"Name" = "姓名";
+"QUICK VIEW" = "快速浏览";
+"TRACE" = "追踪";
+"Please enter stock Id to track" = "请输入股票编号进行追踪";
+"Trace with Authenticity" = "追踪真实性";
+"No Data Found!" = "没有找到数据！";
+
+
+//追跡
+//追踪
+
+/*New Names*/
+
+"POS" =  "POS";
+"Quick View" =  "快速浏览";
+"Inventory" =  "仓库";
+"Diamond" =  "钻石";
+"Item Search" =  "搜寻";
+"Stock Take" =  "库存计数";
+"Trace" =  "痕迹";
+"Catalog" =  "产品目录";
+"Graph" =  "图形";
+"Language" =  "语言";
+"log out" =  "退出";
+"Switch store" =  "更改商店";
+"Store" =  "商店";
+"User" =  "用户";
+"View More" =  "展开";
+"Transaction" =  "交易";
+"Customer" =  "客户";
+"Total Invoice" =  "发票总额";
+"Total Quantity" =  "总数量";
+"pcs" =  "个";
+"Email" =  "电子邮件";
+"Password" =  "密码";
+"Forgot Password" =  "忘记密码";
+"Log in" =  "登录";
+"Quick Log in with PIN" =  "使用 PIN 码登录";
+"Organization" =  "机构";
+"Enter  PIN" =  "请输入PIN";
+"Forgot PIN" =  "忘记PIN";
+"Hello" =  "你好";
+"enter" =  "协议";
+"Search By Stock ID" =  "按股票ID搜索";
+"Search by Stock ID" =  "按股票ID搜索";
+
+"Total" =  "合计";
+"Scanned" =  "扫描";
+"Unscanned" =  "未扫描";
+"Conflict" =  "衝突";
+"Unknown" =  "未知数";
+"Connect" =  "连接";
+"Refresh" =  "刷新";
+"Power" =  "power";
+"Save" =  "保存";
+"Search by SKU / Stock ID" =  "按SKU/股票代码搜索";
+"Search by SKU / Stock Id" =  "按SKU/股票代码搜索";
+
+"Metal" =  "金属";
+"Stone" =  "宝石";
+"Size" =  "尺码";
+ "Conflict / Unknown" =  "不相关/未知";
+"All" =  "全部";
+"Not found devices can connect." =  "未找到设备";
+"Disconnected" =  "未连接";
+"Frequency" =  "频率";
+"Max" =  "最高";
+"Clear All" =  "全部清除";
+"Item" =  "产品";
+"Filters" =  "填写";
+"Select All" =  "选择全部";
+"apply" =  "应用";
+"APPLY" =  "应用";
+"Apply" =  "应用";
+
+"Trace with Authenticity" =  "正确跟踪";
+"SCAN NOW" =  "立即扫描";
+"Scan now" =  "立即扫描";
+
+"Please enter your Stock ID to track details" =  "请输入库存代码以跟踪信息。";
+"Or" =  "或";
+"Product" =  "产品";
+"Activity" =  "活动";
+"Block ID" =  "Block ID";
+"Stock ID" =  "库存代码";
+"SKU" =  "SKU";
+"Product Summary" =  "产品信息";
+"Price" =  "价格";
+"Location" =  "位置";
+"Color" =  "颜色";
+"Gross Wt" =  "净重";
+"Net Wt" =  "表壳重量";
+"Shape" =  "形状";
+"Cut" =  "研磨";
+"Clarity" =  "透明度";
+"Weight" =  "重量";
+"Setting" =  "嵌入";
+"Certificate" =  "Certificate";
+"Document ID" =  "文档 ID";
+"Transaction Date" =  "交易记录日期";
+"Store name" =  "商店名称";
+"Store location" =  "商店位置";
+"Client name" =  "客户名称";
+"Client country" =  "国家";
+"Client nationality" =  "国籍";
+"Qty" =  "数量";
+"Transaction Zone" =  "国家/地区";
+"STO" =  "转移库存";
+"PU" =  "采购";
+"From Store" =  "从商店";
+"To Store" =  "到商店";
+"Your store name" =  "您的商店名称";
+"submit" =  "发送";
+"face id" =  "Face id";
+"Preview" =  "显示";
+"Carat" =  "克拉";
+"Colour" =  "颜色";
+"Reserve List" =  "预订列表";
+"Search By Stock ID/Customer" =  "按库存代码/客户搜索";
+"Certification" =  "Certification";
+"Due" =  "到期日";
+"Remove All" =  "删除";
+"REMOVE" =  "删除";
+
+"Show More" =  "查看更多";
+"Results" =  "结果";
+"Result" =  "结果";
+
+"Comparison" =  "比较";
+"Reset" =  "重置";
+"Diamond Search" =  "钻石搜索";
+"GIA Report" =  "GIA 报告";
+"Polish" =  "抛光";
+"Symmetry" =  "对称性";
+"Fluorescence" =  "发光度";
+"Depth" =  "深度";
+"Table" =  "表";
+"Girdle" =  "钻石边缘";
+"Gridle" =  "钻石边缘";
+"Culet" =  "钻石底座";
+"Measurements" =  "测量";
+"Graded By" =  "结果由";
+"Customer Name" =  "客户名称";
+"Due Date" =  "到期日期";
+"Note" =  "笔记";
+"Ex. Urgent Order" =  "加急订单示例";
+"Jewelry" =  "珠宝";
+"Search by SKU/Stock ID" =  "按 SKU 搜索/库存代码/客户";
+"Search By SKU/Stock ID/Customer" =  "按 SKU 搜索/库存代码/客户";
+"Delivery" =  "交货";
+"add to cart" =  "加入购物车";
+"Search by SKU / Product name" =  "按 SKU 搜索/产品名";
+"Search to view product information" =  "以查看产品信息";
+"can click to view Variant Product/Design Product" =  "查看产品设计";
+"Order" =  "订购";
+"Next" =  "下一页";
+"CONFIRM" =  "配置";
+"Confirm" =  "配置";
+"Variant Product" =  "瓦里安特产品";
+"Design Product" =  "设计产品";
+"Product Details" =  "产品信息";
+"Reference No." =  "参考文档编号";
+"Material" =  "材料";
+"Search by SKU" =  "从 SKU 搜索";
+"Search to view stock information" =  "搜索以查看库存信息";
+"Available" =  "产品可用";
+"Sold" =  "已售完";
+"Reserved" =  "已预订";
+"Stock" =  "库存";
+"Create your own" =  "创建您自己的";
+"Remark" =  "注意：";
+"Grand Total" =  "总计";
+"Deposit" =  "押金";
+"Outstanding Balance" =  "未付余额";
+"check out" =  "付款";
+ "Reserve Record" =  "保存预订";
+"Sold Record" =  "销售记录";
+"Search by Invoice / Stock Id" =  "按搜索发票/库存代码/客户";
+"Summary" =  "摘要";
+"My Inventory" =  "我的仓库";
+"Cancel" =  "取消";
+"Product ID" =  "产品代码";
+"Custom" =  "定义";
+"CREATE NEW CUSTOMER" =  "创建新客户";
+"History" =  "历史";
+"Advance Options" =  "高级选项";
+"Excellent" =  "优秀";
+"Very Good" =  "非常好";
+"Good" =  "好";
+"Lab" =  "实验室";
+"Status" =  "地位";
+"Less Options" =  "更少的选项";
+"None" =  "没有";
+"Faint" =  "软";
+"Medium" =  "中等";
+"Strong" =  "刚性";
+"Phone" =  "电话号码";
+"Add Email" =  "添加电子邮件";
+"Deselect" =  "取消选中";
+"Are you sure want to proceed ?" =  "想要继续？";
+"Are you sure want to remove? " =  "想把它拿走吗？";
+"Items" =  "列表";
+"Park" =  "住宿";
+"PARK" =  "住宿";
+"Balance Due" =  "未付余额";
+"More" =  "更多";
+"Text" =  "消息";
+"Credit Card" =  "信用卡";
+"Cash" =  "现金";
+"Bank" =  "银行";
+"Mobile Number" =  "电话号码";
+"Order Successful" =  "命令成功。";
+"Order Summary" =  "列表摘要";
+"BACK TO POS" =  "返回 POS";
+"Forgot your PIN?" =  "忘记 PIN 码？";
+"Items Selected" =  "选择的项目";
+"Gift Card number" =  "折扣卡号";
+"Cheque" =  "检查";
+"Internet Banking" =  "在线交易";
+"Account No." =  "帐号";
+"Account Name" =  "帐户名称";
+"Ref No." =  "参考文档编号";
+"Inst No." =  "支票编号";
+"take a photo" =  "拍照";
+"Scan QR Code" =  "扫描二维码";
+"Clear" =  "冲洗";
+"SUB" =  "添加";
+"Card number" =  "卡号";
+"Card name" =  "卡名";
+"Labour" =  "人工成本";
+"Shipping" =  "送货";
+"Loyalty Point" =  "Loyalty Poin";
+"Discount" =  "折扣";
+"Discount (Amount)" =  "折扣（数量）";
+"tax" =  "税收";
+"Tax (Amount)" =  "税收 （数量）";
+"The Balance Due is not yet complete." =  "未结余额尚未完成。";
+"Sub Total" =  "子价格";
+"Upload ID image" =  "上传身份证照片";
+"Total Amount" =  "总计";
+"Total Customer" =  "所有客户";
+"Most Amount" =  "最大数量";
+"Clound Account" =  "云帐户";
+"Sort By" =  "排序依据";
+"Most Invoice" =  "大多数发票";
+"Most Quantity" =  "最大数量";
+"Oldest Customer" =  "最老的客户";
+"Newest Customer" =  "最新客户";
+"Gender" =  "性别";
+"Birth Date" =  "生日";
+"Instagram" =  "Instagram";
+"Nationality" =  "国籍";
+"ID" =  "代码";
+"Occasion" =  "特殊场合";
+"Source" =  "来源";
+"Bill to" =  "将帐单发送到";
+"Tax ID No." =  "税号";
+"Ship to" =  "发送至";
+"Dis" =  "折扣";
+"Add Note" =  "添加注释";
+"Note for the sale you want to park" =  "要保留的销售项目备注";
+"Ex. Customer will come back in 10 minutes." =  "例如，客户将在 10 分钟内返回。";
+"park sale" =  "暂停销售";
+"Parked" =  "住宿";
+"The customer left the wallet in the car. Will be back in 15 minutes." =  "客户忘记在车里掏钱，15分钟后回来取回。";
+"Search" =  "搜索";
+"Select the diamonds you want to compare for comparison." =  "选择要比较的钻石。";
+"Add to" =  "添加";
+"Pointer" =  "点";
+"Order Type" =  "命令类型";
+"Select ID" =  "选择代码。";
+"Please fill all required fields." =  "请填写所有必填的字段";
+"Create Customer" =  "创建客户";
+"Customer Information" =  "客户信息";
+"Customer Id" =  "客户 ID";
+"Title" =  "前缀";
+"First Name" =  "真实姓名";
+"Middle Name" =  "中间名";
+"Last Name" =  "姓氏";
+"Age" =  "年龄";
+"Group" =  "血型";
+"Address" =  "地址";
+"Province" =  "省";
+"Country" =  "国家/地区";
+"City" =  "城市";
+"Zip Code" =  "邮政编码";
+"Add Phone" =  "添加电话号码";
+"Select Occasion" =  "选择特殊场合";
+"Select Source" =  "选择源";
+"Billing Address" =  "收据地址";
+"Company" =  "公司";
+"Shipping Address" =  "发件人的地址";
+"Shipping address same as billing address" =  "发件人的收据地址";
+"Privacy" =  "隐私";
+"Data Handling" =  "数据管理";
+"Contact Term" =  "联系条件";
+"Card Creation SA" =  "Card Creation SA";
+"Create Customer Successful" =  "创建客户成功";
+"Search Customer" =  "查找客户";
+"Payment History" =  "付款历史记录";
+ "Credit Note" =  "贷方通知单";
+"Edit Customer" =  "编辑客户";
+"Most Location" =  "大多数位置";
+"Count" =  "计数";
+"Name" =  "姓名";
+"Search Country" =  "搜索国家/地区";
+"Search City" =  "搜索城市";
+"Print" =  "打印";
+"Share" =  "共享";
+"Repair" =  "维修";
+"Exchange" =  "交换";
+"Refund" =  "退款";
+"Gift Card" =  "折扣卡";
+"Mix & Match" =  "混合搭配";
+"Select your option" =  "选择一个选项。";
+"ADD STONE" =  "添加宝石";
+"remove stone" =  "取出宝石";
+"Concept" =  "概念";
+"Sketch" =  "草图";
+"Picture" =  "照片";
+"Engraving" =  "雕刻";
+"Write your concept design..." =  "一个设计的概念...";
+"next" =  "下一页";
+"Done" =  "完成";
+"back" =  "返回";
+"logo" =  "徽标";
+"Write text you want to engrave" =  "写要雕刻的文本。";
+"Which position would you like to engrave?" =  "指定要雕刻的位置。";
+"Font" =  "字母表";
+"Position" =  "位置";
+"finish" =  "完成";
+"Upload your logo" =  "上传徽标";
+"Select Setting" =  "选择嵌入";
+"select" =  "选择";
+"Change Setting" =  "更改嵌入";
+"Change Diamond" =  "更换钻石";
+"Change Engraving" =  "更改雕刻";
+"Want to deposit money in Credit Note?" =  "需要贷方通知单上的定金吗？";
+"add deposit" =  "增加押金";
+"Want to make a gift for a special occasion?" =  "想在特殊的日子送礼物吗？";
+"Gift Card Name" =  "折扣卡名称";
+"amount" =  "数量";
+"Valid Date" =  "有效日期";
+"create" =  "创建";
+"Process" =  "流程";
+"Write your repair description..." =  "写一个解释...";
+"Repair list" =  "维修项目";
+"Polishing" =  "抛光";
+"Ring Re-sizing" =  "更改戒指尺寸";
+"Finishing" =  "finishing";
+"Reshap Bent Ring" =  "自定义弯曲的环";
+"Plating" =  "电镀";
+"Stone Replacement" =  "石头更换";
+"Prong Repair" =  "爪镶修改/包镶修改";
+"Laser Spot Solder" =  "激光/硼砂（作为粘合剂）";
+"Chain and Clasp Repair" =  "修理项链或胸针";
+"Remodel Jewelery" =  "创建新的珠宝";
+"Diamond Details" =  "钻石信息";
+"Most Wishlist" =  "最威什列表";
+"Female" =  "女性";
+"Male" =  "男士";
+"Couples" =  "情侣";
+"Complete" =  "完成";
+"Select Diamond" =  "选择钻石";
+"Description" =  "描述";
+ 
+"Customer has opted to receive offers, updates, marketing and promotion by email." =  "客户选择通过电子邮件接收优惠、更新、营销和促销信息。";
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." =  "该客户是免税的。 当将此客户资料分配给销售时，将取消所有税费。";
+"Please Scan QR Code or Barcode to track details" = "请扫描二维码或条形码追踪详情";
+"Choose Customer" = "选择客户";
+"Search customer by name, mobile, email, country" = "按姓名、手机、电子邮件、国家/地区搜索客户";
+"Apply Filter" = "应用过滤器";
+"Apply Filters" = "应用过滤器";
+"Service Labour" = "劳务劳务";
+"Term" = "学期";
+"DETAIL" = "细节";
+"Installment" = "分期付款";
+"Installments" = "分期付款";
+"INSTALLMENT" = "分期付款";
+"Receive Amount" = "接收金额";
+"Balance" = "平衡";
+"Applied Service Labour" = "应用服务劳工";
+"Full Payment" = "全额付款";
+"LayBy" = "莱比";
+"Layby" = "莱比";
+"Email Confirmation" = "邮件确认";
+"Please confirm your email address where invoice to be sent" = "请确认您要发送发票的电子邮件地址";
+"Receive" = "收到";
+"Quotation" = "引述";
+"QUOTE" = "引用";
+"Partial History" = "部分历史";
+"Purchased Items" = "购买的物品";
+"Certificate No." = "证书号码。";
+"View Installments" = "查看分期付款";
+"View LayBy" = "查看LayBy";
+"Search by SKU/Customer" = "按 SKU/客户搜索";
+"Pick Jewelry" = "挑选珠宝";
+"Pick Diamond" = "挑选钻石";
+"View Less" = "查看更少";
+"Payment Confirmation" = "付款确认";
+"Day" = "天";
+"Year" = "年";
+"Search by Invoice no / Customer" = "按发票号/客户搜索";
+"Search by Invoice no" = "按发票号搜索";
+
+"Note for the order you want a quotation" = "请备注您想要报价的订单";
+"CREATE A QUOTE" = "创建报价";
+"Ex : Hold order" = "例如：保留订单";
+
+"Quoted Items" = "引用的项目";
+"Are you sure want to add to order ?" = "您确定要添加到订单吗？";
+"ADD TO ORDER" = "添加至订单";
+
+"Address Customer" = "称呼客户";
+"Billing Address" = "帐单地址";
+"Shipping Address" = "收件地址";
+"Default Shipping Address" = "默认送货地址";
+"Default Billing Address" = "默认账单地址";
+"Address*" = "默认账单地址*";
+"Country*" = "国家*";
+"Edit Billing Address" = "编辑帐单地址";
+"Add Billing Address" = "添加帐单地址";
+"Add billing address" = "添加帐单地址";
+"Add Shipping Address" = "添加送货地址";
+"Add shipping address" = "添加送货地址";
+"Select billing address" = "选择帐单地址";
+"Select shipping address" = "选择送货地址";

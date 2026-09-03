@@ -1,0 +1,672 @@
+/* 
+Localization.strings
+GIS
+
+Created by admin on 15/11/21.
+
+*/
+
+/**Login*/    /**تسجيل الدخول*/
+"Username" =       "اسم المستخدم";
+"Password" =  "كلمه السر";
+"Forgot Password" =  "نسيت كلمة المرور";
+"FORGOT PASSWORD?" =  "هل نسيت كلمة السر؟";
+"FORGOT PIN?" =   "هل نسيت رقم التعريف الشخصي؟";
+"Login with Password" =   "تسجيل الدخول باستخدام كلمة المرور";
+"Enter Pin" =     "أدخل رقم التعريف الشخصي";
+"Invalid Pin" =       "رقم التعريف الشخصي غير صالح";
+"Forgot Pin" =      "نسيت رقم التعريف الشخصي";
+"your store name" =      "اسم متجرك";
+
+"Email" =      "بريد الالكتروني";
+"storename" =      "اسم المخزن";
+"Login" =      "تسجيل الدخول";
+"Now! Quick login with PIN" =       "حاليا! تسجيل الدخول السريع باستخدام رقم التعريف";
+"Organization" =       "منظمة";
+"Choose Store" =       "اختر المتجر";
+
+/**Startup*/    /**بدء*/
+
+"Hello!" =  "!أهلا";
+"Language" =       "لغة";
+"Enter" =       "ادخل";
+"Choose Language" = "اختر اللغة";
+
+/**Home*/    /**الصفحة الرئيسية*/
+
+"INVENTORY" =       "المخزون";
+"ITEM SEARCH" =      "بحث العنصر";
+"STOCK TAKE" =      "جرد المخزون";
+"Stock Take" =  "جرد المخزون";
+"POS" =       "نقاط البيع";
+"GRAPH" =      "رسم بياني";
+"Logout" =       "تسجيل خروج";
+"Switch Store" =       "تبديل المتجر";
+
+/**Inventory*/    /**المخزون*/
+
+"Summary" =      "ملخص";
+"My Inventory" =      "الجرد الخاص بي";
+"Stock" =       "المخزون";
+"Reserved" =      "محجوز";
+"Reserve" =      "محجوز";
+"RESERVE" =      "محجوز";
+
+"Available" =       "متوفرة";
+"Item" =      "عنصر";
+"Items" =      "عنصر";
+
+"Collection" =      "مجموعة";
+"SKU" =       "SKU";
+"Location" =       "موقع";
+"Stock" =       "المخزون";
+"Metal" =       "معدن";
+"Stone" =    "حجر";
+"Size" =      "مقاس";
+"item selected" =     "عنصر محدد";
+"items selected" =     "العناصر المحددة";
+"StockID" =       "معرف المخزون";
+"Qty" =      "الكمية";
+"Price" =      "سعر";
+"Refresh" =      "تحديث";
+"Share" =      "مشاركة";
+"Print" =      "طباعة";
+"No items selected to reserve"  =      "لا توجد عناصر محددة للحجز";
+
+
+"Sale Person" =      "مندوب مبيعات";
+"Sales Person" =      "مندوب مبيعات";
+
+"Total" =      "المجموع";
+"Remark" =      "ملاحظة";
+"Remarks" =      "ملاحظة";
+
+"Submit" =      "يقدم";
+"SUBMIT" =      "يقدم";
+
+"Cancel" =      "يلغي";
+"Filter" =     "ترشيح";
+"Clear All" =       "امسح الكل";
+"Location" =       "موقع";
+"Price Range" =       "نطاق السعر";
+"Select All" =      "اختر الكل";
+
+/**Item Search*/
+"Item Search" =      "البحث عن عنصر";
+"Stock Id" =      "معرف المخزون";
+"Sold" =       "مباع";
+"St" =       "St";
+"Re" =       "Re";
+"So" =       "So";
+"Av" =       "Av";
+"Order" =      "طلب";
+"Custom Order" =      "طلبية الزبون";
+"CHECK OUT" =       "الدفع";
+"Create your own design" =       "قم بإنشاء التصميم الخاص بك";
+"Create your jewelry by your own design" =       "اصنع مجوهراتك بالتصميم الخاص بك";
+"Concept Design" =       "مفهوم التصميم";
+"Write your concept design" =       "اكتب مفهومك";
+"Concept" =       "مفهوم";
+"Sketch" =      "رسم";
+"Picture" =      "صورة";
+"Text" =      "نص";
+"Engraving" = "نقش";
+"Logo" =       "شعار";
+"Position" =       "موقع";
+"Font" =       "الخط";
+"Write something here" =       "اكتب شيئًا هنا";
+"Which position would you like to engraving ?" =       "ما هو الموقف الذي ترغب في نقشه؟";
+"Select" =       "يختار";
+"Upload Logo" =      "تحميل الشعار";
+"Select File" =      "حدد ملف";
+"Reserve Records" =       "سجل الحجز";
+
+/**Stock Take*/
+
+"TOTAL" =      "المجموع";
+"SCANNED" =       "ممسوحة ضوئيا";
+"UNSCANNED" =      "غير ممسوح";
+"CONFLICT" =      "نزاع";
+"UNKNOWN" =      "غير معروف";
+"QTY" =       "الكمية";
+"TOTAL SKU" =       "إجمالي SKU";
+
+"START" = "بداية";
+"Power" = "قوة";
+"Connect" = "الاتصال";
+
+/**POS*/    /**نقاط البيع*/
+
+"More" =       "المزيد";
+"Inventory" =      "المخزون";
+"Payment" =       "دفع";
+"Payments" =       "دفع";
+"SNo" = "SNo";
+//"SNo" =       "سيريال";
+"Image" =       "صورة";
+"Unit" =      "وحدة";
+"Dis%" =       "خصم%";
+"Discount" =       "خصم";
+"Amount" =       "المبلغ";
+"Pcs" =       "قطع";
+
+
+"EXCHANGE" =      "استبدال";
+"REFUND" =       "استرداد";
+"Repair Order" =      "طلب تصليح";
+"Wish List" =      "قائمة الرغبات";
+"Invoice" =      "فاتورة";
+"Date" =      "تاريخ";
+"Purchase History" =       "تاريخ شراء";
+"Repair List" =       "قائمة الإصلاح";
+"Select what you'd like to repair" =      "حدد ما تريد إصلاحه";
+
+
+"Fill the name or register" =       "املأ الاسم أو التسجيل";
+"Customer Search" =       "بحث العملاء";
+"Wishlist" =       "قائمة الرغبات";
+"ORDER" =       "طلب";
+"Search" =      "بحث";
+"ADD TO CART" =       "أضف إلى السلة";
+"Inventory List" =       "قائمة الجرد";
+"Deposit" =      "الوديعة";
+"Gift Card" =       "كرت هدية";
+"Gift Card Number" =       "رقم بطاقة الهدية";
+"Valid Date" =       "تاريخ صالح";
+"Add Gift Card" =      "أضف بطاقة هدية";
+"Grand Total" =      "المبلغ الإجمالي";
+"Sub Total" =      "المجموع الفرعي";
+"Tax (5%)" =      "الضريبة (5٪)";
+"ADD NOW" = "إضافة الآن";
+"Exchange Rate" = "سعر الصرف";
+
+
+/**Check out*/    /**الدفع*/
+
+"Check Out" =       "الدفع";
+"Credit Card" =       "بطاقة ائتمان";
+"Cash" =      "نقدا";
+"Bank" =      "البنك";
+"Credit note" =      "اشعار دائن";
+"Tax" =       "ضريبة";
+"Credit/Debit" =      "الائتمان / الخصم";
+"Apple Pay" =      "ابل بي";
+"Alipay" =      "علي بي";
+"WeChat Pay" =       "دفع WeChat";
+"Credit Note" =      "اشعار دائن";
+"Balance Due" =       "الرصيد المستحق";
+"SUB" =      "الفرعية";
+"Type" =      "نوع";
+"Ref No." =      "مصدر رقم.";
+"Item Selected" =       "البند المحدد";
+"Items Selected" =      "العناصر المحددة";
+"PAY NOW" =      "ادفع الآن";
+"Labour" =      "مصنعية";
+"Shipping" =     "شحن";
+"Loyalty point" =       "نقطة الولاء";
+"Discount (%)" =      "خصم (٪)";
+"Discount (Amount)" =      "مقدار الخصم)";
+"TAX (%)" =      "الضرائب (٪)";
+"TAX (Amount)" =       "قيمة الضريبة)";
+
+
+/**Profile*/    /**الملف الشخصي*/
+"Customer" =      "عميل";
+"Month" =       "شهر";
+
+
+/**Registration*/    /**تسجيل*/
+"Register" = "يسجل";
+"Full Name" =      "الاسم بالكامل";
+"Last Name" =     "الكنية";
+"Date of Birth" =       "تاريخ الولادة";
+"Age" =      "العمر";
+"Gender" =      "الجنس";
+"Group" =      "مجموعة";
+"Home" =       "الصفحة الرئيسية";
+"Mobile" =      "موبايل";
+"Occasion" =       "مناسبات";
+"Source" =       "مصدر";
+"Instagram" =      "انستغرام";
+"Company" =       "شركة";
+"Address" =      "عنوان";
+"Country" =       "دولة";
+"City" =       "مدينة";
+"Province / State" =       "المقاطعة / الولاية";
+"Zip" =      "أزيز";
+"Tax ID No. (optional)" = "رقم المعرف الضريبي (اختياري)";
+"Shipping address same as billing address" =       "عنوان الشحن هو نفس عنوان الفواتير";
+"Billing Address" =      "عنوان وصول الفواتير ";
+"Profile" = "الملف الشخصي";
+"Name" = "اسم";
+
+"QUICK VIEW" = "نظرة سريعة";
+"TRACE" = "تتبع";
+"Please enter stock Id to track" = "الرجاء إدخال معرف المخزون للتتبع";
+"Trace with Authenticity" = "تتبع مع الأصالة";
+"No Data Found!" = "لاتوجد بيانات!";
+
+
+/*New*/
+
+
+ 
+"POS" =  "نقطة البيع";
+"Quick View" =  "نظرة سريعة";
+"Inventory" =  "المخزون";
+"Diamond" =  "الماس";
+"Item Search" =  "البحث عن منتج";
+"Stock Take" =  "جرد المخزون";
+"Trace" =  "يتعقب";
+"Catalog" =  "كتالوج";
+"Graph" =  "رسم بياني";
+"Language" =  "اللغة";
+"log out" =  "تسجيل خروج";
+"Switch store" =  "تغيير الفرع";
+"Store" =  "محل";
+"User" =  "مستخدم";
+"View More" =  "عرض المزيد";
+"Transaction" =  "عملية";
+"Customer" =  "عميل";
+"Total Invoice" =  "إجمالي الفاتورة";
+"Total Quantity" =  "الكمية الإجمالية";
+"pcs" =  "قطعة";
+"Email" =  "بريد إلكتروني";
+"Password" =  "كلمة المرور";
+"Forgot Password" =  "هل نسيت كلمة السر";
+"Log in" =  "تسجيل الدخول";
+"Quick Log in with PIN" =  "تسجيل الدخول السريع باستخدام PIN";
+"Organization" =  "منظمة";
+"Enter  PIN" =  "أدخل رقم التعريف الشخصي";
+"Forgot PIN" =  "نسيت رقم التعريف الشخصي";
+"Hello" =  "مرحبًا";
+"enter" =  "يدخل";
+"Search By Stock ID" =  "البحث عن طريق معرف المخزون";
+"Search by Stock ID" =  "البحث عن طريق معرف المخزون";
+
+"Total" =  "المجموع";
+"Scanned" =  "الممسوحة ضوئيا";
+"Unscanned" =  "غير ممسوح";
+"Conflict" =  "مكرر";
+"Unknown" =  "مجهول";
+"Connect" =  "اتصال";
+"Refresh" =  "إعادة تحمل";
+"Power" =  "قوة";
+"Save" =  "حفظ";
+"Search by SKU / Stock ID" =  "البحث عن طريق SKU / معرف المخزون";
+"Search by SKU / Stock Id" =  "البحث عن طريق SKU / معرف المخزون";
+
+"Metal" =  "معدن";
+"Stone" =  "حجر";
+"Size" =  "مقاس";
+ "Conflict / Unknown" =  "الصراع / غير معروف";
+"All" =  "الجميع";
+"Not found devices can connect." =  "لم يتم العثور على الأجهزة يمكن الاتصال.";
+"Disconnected" =  "انقطع الاتصال";
+"Frequency" =  "التردد";
+"Max" =  "الأعلى";
+"Clear All" =  "امسح الكل";
+"Item" =  "منتج";
+"Filters" =  "المرشحات";
+"Select All" =  "اختر الكل";
+"apply" =  "تقديم";
+"APPLY" =  "تقديم";
+"Apply" =  "تقديم";
+
+"Trace with Authenticity" =  "تتبع مع الأصالة";
+"Please Scan QR Code or Barcode to track details" =  "يرجى مسح رمز الاستجابة السريعة أو الرمز الشريطي لتتبع التفاصيل.";
+"SCAN NOW" =  "ابدأ المسح الان";
+"Scan now" =  "ابدأ المسح الان";
+
+"Please enter your Stock ID to track details" =  "الرجاء إدخال معرف المخزون الخاص بك لتتبع التفاصيل";
+"Or" =  "أو";
+"Product" =  "منتج";
+"Activity" =  "نشاط";
+"Block ID" =  "معرف الكتلة";
+"Stock ID" =  "معرف المخزون";
+"SKU" =  "SKU";
+"Product Summary" =  "معلومات المنتج";
+"Price" =  "سعر";
+"Location" =  "موقع";
+"Color" =  "لون";
+"Gross Wt" =  "بالوزن الإجمالي";
+"Net Wt" =  "الوزن الصافي";
+"Shape" =  "شكل";
+"Cut" =  "يقطع";
+"Clarity" =  "وضوح";
+"Weight" =  "وزن";
+"Setting" =  "جلسة";
+"Certificate" =  "شهادة";
+"Document ID" =  "معرف المستند";
+"Transaction Date" =  "تاريخ الصفقة";
+"Store name" =  "اسم المتجر";
+"Store location" =  "موقع المتجر";
+"Client name" =  "اسم العميل";
+"Client country" =  "بلد العميل";
+"Client nationality" =  "جنسية العميل";
+"Qty" =  "الكمية";
+"Transaction Zone" =  "منطقة المعاملات";
+"STO" =  "STO";
+"PU" =  "بو";
+"From Store" =  "من المتجر";
+"To Store" =  "للتخزين";
+"Your store name" =  "اسم متجرك";
+"submit" =  "يُقدِّم";
+"face id" =  "معرف الوجه";
+"Preview" =  "معاينة";
+"Carat" =  "قيراط";
+"Colour" =  "لون";
+"Reserve List" =  "قائمة الاحتياطيات";
+"Search By Stock ID/Customer" =  "البحث عن طريق معرف المخزون / العميل";
+"Certification" =  "شهادة";
+"Due" =  "حق";
+"Remove All" =  "يزيل";
+"REMOVE" =  "يزيل";
+
+"Show more" =  "أظهر المزيد";
+"Results" =  "نتائج";
+"Result" =  "نتائج";
+"Comparison" =  "مقارنة";
+"Reset" =  "إعادة ضبط";
+"Diamond Search" =  "البحث الماسي";
+"GIA Report" =  "تقرير GIA";
+"Polish" =  "تلميع";
+"Symmetry" =  "تناظر";
+"Fluorescence" =  "ضوئي";
+"Depth" =  "عمق";
+"Table" =  "طاولة";
+"Girdle" =  "حزام";
+"Gridle" =  "حزام";
+
+"Culet" =  "كوليت";
+"Measurements" =  "قياسات";
+"Graded By" =  "متدرج من قبل";
+ "Customer Name" =  "اسم الزبون";
+"Due Date" =  "تاريخ الاستحقاق";
+"Note" =  "ملحوظة";
+"Ex. Urgent Order" =  "السابق. امر طارئ";
+"Jewelry" =  "مجوهرات";
+
+"Search by SKU/Stock ID" =  "البحث عن طريق SKU / معرف المخزون / العميل";
+"Search By SKU/Stock ID/Customer" =  "البحث عن طريق SKU / معرف المخزون / العميل";
+"Delivery" =  "توصيل";
+"add to cart" =  "أضف إلى السلة";
+"Search by SKU / Product name" =  "البحث عن طريق SKU / اسم المنتج";
+"Search to view product information" =  "ابحث لعرض معلومات المنتج";
+"can click to view Variant Product/Design Product" =  "يمكن النقر لعرض المنتج المتغير / منتج التصميم";
+"Order" =  "طلب";
+"Next" =  "التالي";
+"Confirm" =  "يتأكد";
+"CONFIRM" =  "يتأكد";
+
+"Variant Product" =  "المنتج المتغير";
+"Design Product" =  "منتج التصميم";
+"Product Details" =  "تفاصيل المنتج";
+"Reference No." =  "رقم المرجع.";
+"Material" =  "مادة";
+"Search by SKU" =  "البحث عن طريق SKU";
+"Search to view stock information" =  "بحث لعرض معلومات الأسهم";
+"Available" =  "متاح";
+"Sold" =  "مُباع";
+"Reserved" =  "محجوز";
+"Stock" =  "مخزون";
+"Create your own" =  "إنشاء الخاصة بك";
+"Grand Total" =  "المجموع الإجمالي";
+"Deposit" =  "إيداع";
+"Outstanding Balance" =  "اتزان رائع";
+"check out" =  "الدفع";
+"Wishlist" =  "قائمة الرغبات";
+"Reserve Record" =  "سجل الاحتياطي";
+"Sold Record" =  "سجل مباع";
+"Search by Invoice / Stock Id" =  "البحث عن طريق الفاتورة / معرف المخزون / الزبون";
+"Summary" =  "ملخص";
+"My Inventory" =  "الجرد الخاص بي";
+"CANCEL" =  "يلغي";
+"Product ID" =  "معرف المنتج";
+"Custom" =  "مخصص";
+"CREATE NEW CUSTOMER" =  "إنشاء عميل جديد";
+"History" =  "تاريخ";
+"Advance Options" =  "خيارات متقدمة";
+"Excellent" =  "ممتاز";
+"Very Good" =  "جيد جدًا";
+"Good" =  "جيد";
+"Lab" =  "مختبر";
+"Status" =  "حالة";
+"Less Options" =  "خيارات أقل";
+"None" =  "لا أحد";
+"Faint" =  "إِغماء";
+"Medium" =  "واسطة";
+"Strong" =  "قوي";
+"Phone" =  "هاتف";
+"Add Email" =  "أضف بريدًا إلكترونيًا";
+"Deselect" =  "إلغاء";
+"Are you sure want to proceed ?" =  "هل انت متأكد انك تريد المتابعة؟";
+"Are you sure want to remove ?" =  "هل أنت متأكد من أنك تريد إزالة؟";
+"Items" =  "أغراض";
+"Park" =  "حديقة";
+"PARK" =  "حديقة";
+"Balance Due" =  "الرصيد المستحق";
+"More" =  "أكثر";
+"Text" =  "نص";
+"Credit Card" =  "بطاقة إئتمان";
+"Cash" =  "نقدي";
+"Bank" =  "بنك";
+"Mobile Number" =  "رقم الهاتف المحمول";
+"Order Successful" =  "الطلب ناجح";
+"Order Summary" =  "ملخص الطلب";
+"BACK TO POS" =  "العودة إلى نقاط البيع";
+"Forgot your PIN?" =  "نسيت رقم التعريف الشخصي الخاص بك؟";
+"Items Selected" =  "العناصر المحددة";
+"Gift Card number" =  "رقم بطاقة الهدية";
+"Cheque" =  "يفحص";
+"Internet Banking" =  "الخدمات المصرفية عبر الإنترنت";
+"Account No." =  "رقم الحساب";
+"Account Name" =  "إسم الحساب";
+"Ref No." =  "مصدر رقم.";
+"Inst No." =  "رقم Inst";
+"take a photo" =  "التقاط صورة";
+"Scan QR Code" =  "مسح رمز الاستجابة السريعة";
+"Clear" =  "واضح";
+"SUB" =  "الفرعية";
+"Card number" =  "رقم البطاقة";
+"Card name" =  "اسم البطاقة";
+"Labour" =  "تَعَب";
+"Shipping" =  "شحن";
+"Loyalty Point" =  "نقطة الولاء";
+"Discount" =  "تخفيض";
+"Discount (Amount)" =  "مقدار الخصم)";
+"tax" =  "ضريبة";
+"Tax (Amount)" =  "قيمة الضريبة)";
+"The Balance Due is not yet complete." =  "الرصيد المستحق لم يكتمل بعد.";
+"Sub Total" =  "المجموع الفرعي";
+"Upload ID image" =  "تحميل صورة الهوية";
+"Total Amount" =  "المبلغ الإجمالي";
+"Total Customer" =  "إجمالي العميل";
+"Most Amount" =  "معظم المبلغ";
+"Clound Account" =  "حساب Clound";
+"Sort By" =  "ترتيب حسب";
+"Most Invoice" =  "معظم الفاتورة";
+"Most Quantity" =  "معظم الكمية";
+"Oldest Customer" =  "أقدم زبون";
+"Newest Customer" =  "أحدث زبون";
+"Gender" =  "جنس";
+"Birth Date" =  "تاريخ الميلاد";
+"Instagram" =  "انستغرام";
+"Nationality" =  "جنسية";
+"ID" =  "بطاقة تعريف";
+"Occasion" =  "مناسبات";
+"Source" =  "مصدر";
+"Bill to" =  "مشروع قانون ل";
+"Tax ID No." =  "رقم المعرف الضريبي";
+"Ship to" =  "سافر على متن سفينة لِـ";
+"Dis" =  "ديس";
+"Add Note" =  "اضف ملاحظة";
+"Note for the sale you want to park" =  "ملاحظة للبيع تريد إيقافها";
+"Ex. Customer will come back in 10 minutes." =  "السابق. سوف يعود العميل في غضون 10 دقائق.";
+"park sale" =  "بيع الحديقة";
+"Parked" =  "متوقفة";
+"The customer left the wallet in the car. Will be back in 15 minutes." =  "ترك العميل المحفظة في السيارة. سأعود في غضون 15 دقيقة.";
+"Search" =  "يبحث";
+"Select the diamonds you want to compare for comparison." =  "حدد الماس الذي تريد مقارنته للمقارنة.";
+"Add to" =  "اضف إليه";
+"Pointer" =  "المؤشر";
+"Order Type" =  "نوع الطلب";
+"Select ID" =  "حدد المعرف";
+"Please fill all required fields." =  "يرجى تعبئة جميع الحقول المطلوبة.";
+"Create Customer" =  "إنشاء العميل";
+"Customer Information" =  "معلومات العملاء";
+"Customer Id" =  "هوية الزبون";
+"Title" =  "عنوان";
+"First Name" =  "الاسم الأول";
+"Middle Name" =  "الاسم الأوسط";
+"Last Name" =  "اسم العائلة";
+"Age" =  "عمر";
+"Group" =  "مجموعة";
+"Address" =  "عنوان";
+"Province" =  "المقاطعة / الولاية";
+"Country" =  "دولة";
+"City" =  "مدينة";
+"Zip Code" =  "الرمز البريدي";
+"Add Phone" =  "أضف الهاتف";
+"Select Occasion" =  "حدد المناسبة";
+"Select Source" =  "اختر مصدر";
+"Billing Address" =  "عنوان وصول الفواتير";
+"Company" =  "شركة";
+"Shipping Address" =  "عنوان الشحن";
+"Shipping address same as billing address" =  "عنوان الشحن هو نفس عنوان الفواتير";
+"Privacy" =  "خصوصية";
+"Data Handling" =  "معالجة البيانات";
+"Contact Term" =  "مصطلح الاتصال";
+"Card Creation SA" =  "Card Creation SA";
+"Customer has opted to receive offers, updates, marketing and promotion by email." =  "اختار العميل تلقي العروض والتحديثات والتسويق والترويج عبر البريد الإلكتروني";
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." =  "هذا العميل معفي من الضرائب. ستتم إزالة جميع الضرائب عندما يتم تخصيص ملف تعريف العميل هذا لعملية بيع";
+"Create Customer Successful" =  "إنشاء عميل ناجح";
+"Search Customer" =  "البحث عن العملاء";
+"Payment History" =  "تاريخ الدفع";
+ "Credit Note" =  "اشعار دائن";
+"Edit Customer" =  "تحرير العميل";
+"Most Location" =  "معظم الموقع";
+"Count" =  "عدد";
+"Name" =  "اسم";
+"Search Country" =  "بحث البلد";
+"Search City" =  "البحث في المدينة";
+"Print" =  "مطبعة";
+"Share" =  "يشارك";
+"Repair" =  "بصلح";
+"Exchange" =  "تبادل";
+"Refund" =  "استرداد";
+"Gift Card" =  "كرت هدية";
+"Mix & Match" =  "مباراة مختلطة";
+"Select your option" =  "حدد خيارك";
+"ADD STONE" =  "أضف الحجر";
+"REMOVE STONE" =  "إزالة الحجر";
+"Concept" =  "مفهوم";
+"Sketch" =  "رسم";
+"Picture" =  "صورة";
+"Engraving" =  "نقش";
+"Write your concept design..." =  "اكتب تصميم المفهوم الخاص بك ...";
+"next" =  "التالي";
+"Done" =  "منتهي";
+"back" =  "خلف";
+"logo" =  "شعار";
+"Write text you want to engrave" =  "اكتب النص الذي تريد نقشه";
+"Which position would you like to engrave?" =  "ما هو الموقف الذي ترغب في نقشه؟";
+"Font" =  "الخط";
+"Position" =  "موضع";
+"finish" =  "ينهي";
+"Upload your logo" =  "قم بتحميل شعارك";
+"Select Setting" =  "حدد الإعداد";
+"SELECT" =  "يختار";
+"Change Setting" =  "تغيير الإعدادات";
+"Change Diamond" =  "تغيير الماس";
+"Change Engraving" =  "تغيير النقش";
+"Want to deposit money in Credit Note?" =  "تريد إيداع الأموال في مذكرة الائتمان؟";
+"add deposit" =  "إضافة الإيداع";
+"Want to make a gift for a special occasion?" =  "هل تريد تقديم هدية لمناسبة خاصة؟";
+"Gift Card Name" =  "اسم بطاقة الهدايا";
+"amount" =  "كمية";
+"Valid Date" =  "تاريخ صالح";
+"create" =  "يخلق";
+"Process" =  "عملية";
+"Write your repair description..." =  "اكتب وصف الإصلاح الخاص بك ...";
+"Repair list" =  "قائمة الإصلاح";
+"Polishing" =  "تلميع";
+"Ring Re-sizing" =  "تغيير حجم الخاتم";
+"Finishing" =  "التشطيب";
+"Reshape Bent Ring" =  "خاتم ريشاب بنت";
+"Plating" =  "تصفيح";
+"Stone Replacement" =  "استبدال الحجر";
+"Prong Repair" =  "إصلاح الشق";
+"Laser Spot Solder" =  "بقعة لحام الليزر";
+"Chain and Clasp Repair" =  "إصلاح السلسلة والمشبك";
+"Remodel Jewelery" =  "إعادة تشكيل المجوهرات";
+"Diamond Details" =  "تفاصيل الماس";
+"Most Wishlist" =  "قائمة الرغبات الأكثر";
+"Female" =  "أنثى";
+"Male" =  "ذكر";
+"Couples" =  "أزواج";
+"Complete" =  "مكتمل";
+"Select Diamond" =  "حدد الماس";
+"Description" =  "وصف";
+
+
+
+"Choose Customer" = "اختر الزبون";
+"Search customer by name, mobile, email, country" = "ابحث عن العميل بالاسم والجوال والبريد الإلكتروني والبلد";
+"Apply Filter" = "تطبيق المرشحات";
+"Apply Filters" = "تطبيق المرشحات";
+"Service Labour" = "العمل الخدمي";
+"Term" = "شرط";
+"DETAIL" = "التفاصيل";
+"Installment" = "تقسيط";
+"Installments" = "تقسيط";
+"INSTALLMENT" = "تقسيط";
+"Receive Amount" = "استلام المبلغ";
+"Balance" = "توازن";
+"Applied Service Labour" = "العمل الخدمي التطبيقي";
+"Full Payment" = "دفع كامل";
+"LayBy" = "LayBy";
+"Layby" = "LayBy";
+"Email Confirmation" = "تأكيد البريد الإلكتروني";
+"Please confirm your email address where invoice to be sent" = "يرجى تأكيد عنوان بريدك الإلكتروني حيث سيتم إرسال الفاتورة";
+"Receive" = "يستلم";
+"Quotation" = "اقتباس";
+"QUOTE" = "يقتبس";
+"Partial History" = "التاريخ الجزئي";
+"Purchased Items" = "البنود التي تم شراؤها";
+"Certificate No." = "شهادة رقم.";
+"View Installments" = "عرض الأقساط";
+"View LayBy" = "مشاهدة ملف LayBy";
+"Search by SKU/Customer" = "البحث عن طريق SKU / العميل";
+
+"Pick Jewelry" = "اختر مجوهرات";
+"Pick Diamond" = "اختر الماس";
+"View Less" = "عرض أقل";
+"Payment Confirmation" = "تأكيد الدفعة";
+"Day" = "يوم";
+"Year" = "سنة";
+"Search by Invoice no / Customer" = "البحث عن طريق رقم الفاتورة / العميل";
+"Search by Invoice no" = "البحث عن طريق الفاتورة لا";
+
+"Note for the order you want a quotation" = "ملاحظة للترتيب الذي تريد عرض أسعار";
+"CREATE A QUOTE" = "إنشاء اقتباس";
+"Ex : Hold order" = "على سبيل المثال: عقد الأمر";
+
+"Quoted Items" = "العناصر المقتبسة";
+"Are you sure want to add to order ?" = "هل أنت متأكد من رغبتك في الإضافة إلى الطلب؟";
+"ADD TO ORDER" = "اضافة للأمر";
+
+"Address Customer" = "عنوان العميل";
+"Billing Address" = "عنوان وصول الفواتير";
+"Shipping Address" = "عنوان الشحن";
+"Default Shipping Address" = "عنوان الشحن الافتراضي";
+"Default Billing Address" = "عنوان الفواتير الافتراضي";
+"Address*" = "عنوان*";
+"Country*" = "دولة*";
+"Edit Billing Address" = "تحرير عنوان الفواتير";
+"Add Billing Address" = "إضافة عنوان الفواتير";
+"Add billing address" = "إضافة عنوان الفواتير";
+"Add Shipping Address" = "أضف عنوان الشحن";
+"Add shipping address" = "أضف عنوان الشحن";
+"Select billing address" = "اختر عنوان الفواتير";
+"Select shipping address" = "حدد عنوان الشحن";

@@ -1,0 +1,6 @@
+framework module Pods_GIS_GISUITests {
+  umbrella header "Pods-GIS-GISUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

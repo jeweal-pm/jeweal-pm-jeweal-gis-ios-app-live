@@ -1,0 +1,583 @@
+/* 
+  Localization.strings
+  GIS
+
+  Created by admin on 15/11/21.
+  
+*/
+/**Login*/    /**Login*/
+"Username" = "Username";
+"Password" = "Password";
+"Forgot Passsword" = "Forgot Passsword";
+"FORGOT PASSWORD?" = "FORGOT PASSWORD?";
+"FORGOT PIN? " = "FORGOT PIN?";
+"Login with Password" = "Login with Password";
+"Enter Pin" = "Enter Pin";
+"Invalid Pin" = "Invalid Pin";
+"Forgot Pin" = "Forgot Pin";
+"your store name" = "your store name";
+    
+"Email" = "Email";
+"storename" = "storename";
+"Login" = "Login";
+"Now! Quick login with PIN" = "Now! Quick login with PIN";
+"Organization" = "Organization";
+"Choose Store" = "Choose Store";
+    
+/**Startup*/    /**Startup*/
+    
+"Hello!" = "Hello! 👋";
+"Language" = "Language";
+"Enter" = "Enter";
+"Choose Language" = "Choose Language";
+    
+/**Home*/    /**Home*/
+    
+"INVENTORY" = "INVENTORY";
+"ITEM SEARCH" = "ITEM SEARCH";
+"STOCK TAKE" = "STOCK TAKE";
+"Stock Take" = "Stock Take";
+"POS" = "POS";
+"GRAPH" = "GRAPH";
+"Logout" = "Logout";
+"Switch Store" = "Switch Store";
+    
+/**Inventory*/    /**Inventory*/
+    
+"Summary" = "Summary";
+"My Inventory" = "My Inventory";
+"Stock" = "Stock";
+"Reserved" = "Reserved";
+"Reserve" = "Reserve";
+"RESERVE" = "RESERVE";
+
+"Available" = "Available";
+"Item" = "Item";
+"Collection" = "Collection";
+"SKU" = "SKU";
+"Location" = "Location";
+"Stock" = "Stock";
+"Metal" = "Metal";
+"Stone" = "Stone";
+"Size" = "Size";
+"item selected" = "item selected";
+"items selected" = "items selected";
+"StockID" = "StockID";
+"StockId" = "StockId";
+"Stock Id" = "Stock Id";
+
+"Qty" = "Qty";
+"Price" = "Price";
+"Refresh" = "Refresh";
+"Share" = "Share";
+"Print" = "Print";
+"No items selected to reserve" = "No items selected to reserve";
+    
+    
+"Sale Person" = "Sale Person";
+"Sales Person" = "Sale Person";
+
+"Total" = "Total";
+"Remark" = "Remark";
+"Remarks" = "Remarks";
+
+"SUBMIT" = "SUBMIT";
+"Submit" = "Submit";
+
+"Cancel" = "Cancel";
+"CANCEL" = "CANCEL";
+
+"Filter" = "Filter";
+"Clear All" = "Clear All";
+"Location" = "Location";
+"Price Range" = "Price Range";
+"Select All" = "Select All";
+    
+/**Item Search*/    /**Item Search*/
+    
+"Item Search" = "Item Search";
+"Stock Id" = "Stock Id";
+"Sold" = "Sold";
+"St" = "St";
+"Re" = "Re";
+"So" = "So";
+"Av" = "Av";
+"Order" = "Order";
+"Custom Order" = "Custom Order";
+"CHECK OUT" = "CHECK OUT";
+"Create your own design" = "Create your own design";
+"Create your jewelry by your own design" = "Create your jewelry by your own design";
+"Concept Design" = "Concept Design";
+"Write your concept design" = "Write your concept design";
+"Concept" = "Concept";
+"Sketch" = "Sketch";
+"Picture" = "Picture";
+"Engraving" = "Engraving";
+
+
+"Text" = "Text";
+"Logo" = "Logo";
+"Position" = "Position";
+"Font" = "Font";
+"Write something here" = "Write something here";
+"Which position would you like to engraving ?" = "Which position would you like to engraving ?";
+"Select" = "Select";
+"Upload Logo" = "Upload Logo";
+"Select File" = "Select File";
+"Reserve Records" = "Reserve Records";
+    
+/**Stock Take*/    /**Stock Take*/
+    
+"TOTAL" = "TOTAL";
+"SCANNED" = "SCANNED";
+"UNSCANNED" = "UNSCANNED";
+"CONFLICT" = "CONFLICT";
+"UNKNOWN" = "UNKNOWN";
+"QTY" = "QTY";
+"TOTAL SKU" = "TOTAL SKU";
+"START" = "START";
+"Power" = "Power";
+"Connect" = "Connect";
+
+/**POS*/    /**POS*/
+    
+"More" = "More";
+"Inventory" = "Inventory";
+"Payment" = "Payment";
+"Payments" = "Payments";
+"Catalog" = "Catalog";
+"SNo" = "SNo";
+"Image" = "Image";
+"Unit" = "Unit";
+"Dis%" = "Dis%";
+"Discount" = "Discount";
+"Amount" = "Amount";
+"Pcs" = "Pcs";
+  
+"EXCHANGE" = "EXCHANGE";
+"Exchange" = "Exchange";
+"Refund" = "Refund";
+"REFUND" = "REFUND";
+
+"Repair Order" = "Repair Order";
+"Wish List" = "Wish List";
+"Invoice" = "Invoice";
+"Date" = "Date";
+"Purchase History" = "Purchase History";
+"Repair List" = "Repair List";
+"Select what you'd like to repair" = "Select what you'd like to repair";
+    
+    
+
+"Fill the name or register" = "Fill the name or register";
+"Customer Search" = "Customer Search";
+"Wishlist" = "Wishlist";
+"ORDER" = "ORDER";
+"Search" = "Search";
+"ADD TO CART" = "ADD TO CART";
+"Inventory List" = "Inventory List";
+"Deposit" = "Deposit";
+"Gift Card" = "Gift Card";
+"Gift Card number" = "Gift Card Number";
+"Valid Date" = "Valid Date";
+"Add Gift Card" = "Add Gift Card";
+"Grand Total" = "Grand Total";
+"Sub Total" = "Sub Total";
+"Tax (5%)" = "Tax (5%)";
+ "ADD NOW" = "ADD NOW";
+"Exchange Rate" = "Exchange Rate";
+
+/**Check out*/    /**Check out*/
+    
+"Check Out" = "Check Out";
+"Credit Card" = "Credit Card";
+"Cash" = "Cash";
+"Bank" = "Bank";
+"Credit note" = "Credit note";
+"Tax" = "Tax";
+"Credit/Debit" = "Credit/Debit";
+"Apple Pay" = "Apple Pay";
+"Alipay" = "Alipay";
+"WeChat Pay" = "WeChat Pay";
+"Credit Note" = "Credit Note";
+"Balance Due" = "Balance Due";
+"SUB" = "SUB";
+"Type" = "Type";
+"Ref No." = "Ref No.";
+"Item Selected" = "Item Selected";
+"Items Selected" = "Items Selected";
+"PAY NOW" = "PAY NOW";
+"Labour" = "Labour";
+"Shipping" = "Shipping";
+"Loyalty point" = "Loyalty point";
+"Discount (%)" = "Discount (%)";
+"Discount (Amount)" = "Discount (Amount)";
+"TAX (%)" = "TAX (%)";
+"TAX (Amount)" = "TAX (Amount)";
+    
+    
+/**Profile*/    /**Profile*/
+"Customer" = "Customer";
+"Month" = "Month";
+    
+    
+/**Registration*/    /**Registration*/
+"Full Name" = "Full Name";
+"Last Name" = "Last Name";
+"Date of Birth" = "Date of Birth";
+"Age" = "Age";
+"Gender" = "Gender";
+"Group" = "Group";
+"Home" = "Home";
+"Mobile" = "Mobile";
+"Occasion" = "Occasion";
+"Source" = "Source";
+"Instagram" = "Instagram";
+"Company" = "Company";
+"Address" = "Address";
+"Country" = "Country";
+"City" = "City";
+"Province" = "Province / State";
+"Zip" = "Zip";
+"Tax ID No. (optional)" = "Tax ID No. (Optional)";
+"Shipping address same as billing address" = "Shipping address same as billing address";
+"Billing Address" = "Billing Address";
+"Profile"    = "Profile";
+"Name" = "Name";
+"QUICK VIEW" = "QUICK VIEW";
+"TRACE" = "TRACE";
+"Please enter stock Id to track" = "Please enter your stock Id to track details";
+"Trace with Authenticity" = "Trace with Authenticity";
+"No Data Found!" = "No Data Found!";
+
+        
+/*New Names*/
+
+"Service Labour" = "Service Labour";
+"items" = "items";
+"Outstanding Balance" = "Outstanding Balance";
+
+"Next" = "Next";
+"Search by SKU / StockId" = "Search by SKU/StockId";
+"Search by SKU / StockID" = "Search by SKU/StockId";
+
+"Customer name" = "Customer name";
+"Park" = "Park";
+"PARK" = "PARK";
+"CREATE NEW CUSTOMER" = "CREATE NEW CUSTOMER" ;
+"Material" = "Material";
+"Certificate" = "Certificate";
+"Diamond" = "Diamond";
+"Reference No." = "Reference No.";
+"Jewelry" = "Jewelry";
+"Clear" = "Clear";
+"Account No." = "Account No.";
+"Account Name" = "Account Name";
+"Inst No" = "Inst No";
+"Are you sure want to proceed ?" = "Are you sure want to proceed ?";
+"Confirm" = "Confirm";
+"CONFIRM" = "CONFIRM";
+
+"Order Summary" = "Order Summary";
+
+"First Name" = "First Name";
+"Middle Name" = "Middle Name";
+"Birth Date" = "Birth Date";
+"Nationality" = "Nationality";
+"ID" = "ID";
+"Zip Code" = "Zip Code";
+"Add phone" = "Add phone";
+"Privacy" = "Privacy";
+"Data Handling" = "Data Handling";
+"Contact Term" = "Contact Term";
+"Card Creation SA" = "Card Creation SA";
+"Customer has opted to receive offers, updates, marketing and promotion by email." = "Customer has opted to receive offers, updates, marketing and promotion by Email";
+
+"This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale." = "This customer is tax exempt. All taxes to be removed when this customer profile is allocated to a sale";
+"SUBMIT" = "SUBMIT";
+"Please fill all required fields." = "Please fill all required fields.";
+"Gross Wt" = "Gross Wt";
+"Net Wt" = "Net Wt";
+"Shape" = "Shape";
+"Cut" = "Cut";
+"Clarity" = "Clarity";
+"Weight" = "Weight";
+"Setting" = "Setting";
+"Document ID" = "Document ID";
+"Transaction Date" = "Transaction Date";
+"Store location" = "Store location";
+"Client name" = "Client name";
+"Client country" = "Client country";
+"Client nationality" = "Client nationality";
+"Transaction Zone" = "Transaction Zone";
+"STO" = "STO";
+"PU" = "PU";
+"From Store" = "From Store";
+"To Store" = "To Store";
+"face id" = "face id";
+"Preview" = "Preview";
+"Carat" = "Carat";
+"Colour" = "Colour";
+"Reserve List" = "Reserve List";
+"Search By Stock ID/Customer" = "Search By Stock ID/Customer";
+"Search by Stock ID" = "Search by Stock ID";
+
+"Certification" = "Certification";
+"Remove All" = "Remove All";
+"REMOVE" = "REMOVE";
+
+"Show More" = "Show More";
+"Results" = "Results";
+"Result" = "Result";
+
+"Comparison" = "Comparison";
+"Reset" = "Reset";
+"Diamond Search" = "Diamond Search";
+"GIA Report" = "GIA Report";
+"Polish" = "Polish";
+"Symmetry" = "Symmetry";
+"Fluorescence" = "Fluorescence";
+"Depth" = "Depth";
+"Table" = "Table";
+"Girdle" = "Girdle";
+"Gridle" = "Girdle";
+"Culet" = "Culet";
+"Measurements" = "Measurements";
+"Graded By" = "Graded By";
+"Due Date" = "Due Date";
+"EX. Urgent Order" = "Ex. Urgent Order";
+"Search By SKU/Stock ID/Customer" = "Search By SKU/Stock ID/Customer";
+"Delivery" = "Delivery Date";
+"add to cart" = "add to cart";
+"Search by SKU / Product name" = "Search By SKU/Product Name";
+"Search to view product information" = "Search to view product information";
+"can click to view Variant Product/Design Product" = "can click to view Variant Product/Design Product";
+"Product Details" = "Product Details";
+"Reference No." = "Reference No.";
+"Search by SKU" = "Search By SKU";
+"Search to view stock information" = "Search to view stock information";
+"Reserve Record" = "Reserve Record";
+"Sold Record" = "Sold Record";
+"Search by Invoice / Stock Id" = "Search by Invoice/Stock Id";
+"Product ID" = "Product ID";
+"Custom" = "Custom";
+"Advance Options" = "Advanced Options";
+"Excellent" = "Excellent";
+"Very Good" = "Very Good";
+"Good" = "Good";
+"Lab" = "Lab";
+"Status" = "Status";
+"Less Options" = "Less Options";
+"None" = "None";
+"Faint" = "Faint";
+"Medium" = "Medium";
+"Strong" = "Strong";
+"Phone" = "Phone";
+"Add Email" = "Add Email";
+"Deselect" = "Deselect";
+"Are you sure you want to proceed ?" = "Are you sure you want to proceed?";
+"Are you sure you want to remove ?" = "Are you sure you want to remove?";
+"Items" = "Items";
+"More" = "More";
+"Mobile Number" = "Mobile Number";
+"Order Successful" = "Order Successful";
+"BACK TO POS" = "BACK TO POS";
+
+"Forgot your PIN?" = "Forgot your PIN?";
+"Cheque" = "Cheque";
+"Internet Banking" = "Internet Banking";
+"Account No." = "Account No.";
+"Ref No." = "Ref No.";
+"Inst No." = "Inst No.";
+"take a photo" = "take a photo";
+"Scan QR Code" = "Scan QR Code";
+"Clear" = "Clear";
+"SUB" = "SUB";
+"Card number" = "Card Number";
+"Card name" = "Card Name";
+"The Balance Due is not yet complete." = "The Balance Due is not yet complete.";
+"Upload ID image" = "Upload ID image";
+"Total Amount" = "Total Amount";
+"Total Customer" = "Total Customer";
+"Most Amount" = "Most Amount";
+"Clound Account" = "Clound Account";
+"Sort By" = "Sort By";
+"Most Invoice" = "Most Invoice";
+"Most Quantity" = "Most Quantity";
+"Oldest Customer" = "Oldest Customer";
+"Newest Customer" = "Newest Customer";
+"Bill to" = "Bill to";
+"Tax ID No." = "Tax ID No.";
+"Ship to" = "Ship to";
+"Add Note" = "Add Note";
+"Note for the sale you want to park" = "Note for the sale you want to park";
+"Ex. Customer will come back in 10 minutes." = "Ex. Customer will come back in 10 minutes.";
+"park sale" = "park sale";
+"Parked" = "Parked";
+"The customer left the wallet in the car. Will be back in 15 minutes." = "The customer left the wallet in the car. Will be back in 15 minutes.";
+"Search" = "Search";
+"Select the diamonds you want to compare for comparison." = "Select the diamonds you want to compare for comparison.";
+"Add to" = "Add to";
+"Pointer" = "Pointer";
+"Order Type" = "Order Type";
+"Select ID" = "Select ID";
+"Please fill all required fields." = "Please fill all required fields.";
+"Create Customer" = "Create Customer";
+"Customer Information" = "Customer Information";
+"Customer ID" = "Customer ID";
+"Customer Id" = "Customer Id";
+
+"Title" = "Title";
+"Province/State" = "Province/State";
+"Select Occasion" = "Select Occasion";
+"Select Source" = "Select Source";
+"Create Customer Successful" = "Create Customer Successful";
+"Search Customer" = "Search Customer";
+"Payment History" = "Payment History";
+"Edit Customer" = "Edit Customer";
+"Most Location" = "Most Location";
+"Count" = "Count";
+"Name" = "Name";
+"Search Country" = "Search Country";
+"Search City" = "Search City";
+"Repair" = "Repair";
+"Mix & Match" = "Mix & Match";
+"Select your option" = "Select your option";
+"ADD STONE" = "ADD STONE";
+"REMOVE STONE" = "REMOVE STONE";
+"Write your concept design..." = "Write your concept design...";
+"Done" = "Done";
+"back" = "back";
+"Write text you want to engrave" = "Write text you want to engrave";
+"Which position would you like to engrave?" = "Which position would you like to engrave?";
+"finish" = "finish";
+"Upload your logo" = "Upload your logo";
+"Select Setting" = "Select Setting";
+"select" = "select";
+"SELECT" = "SELECT";
+"Change Setting" = "Change Setting";
+"Change Diamond" = "Change Diamond";
+"Change Engraving" = "Change Engraving";
+"Want to deposit money in Credit Note?" = "Want to deposit money in Credit Note?";
+"add deposit" = "add deposit";
+"Want to make a gift for a special occasion?" = "Want to make a gift for a special occasion?";
+"Gift Card Name" = "Gift Card Name";
+"amount" = "amount";
+"create" = "CREATE";
+"Process" = "Process";
+"Write your repair description..." = "Write your repair description...";
+"Polishing" = "Polishing";
+"Ring Re-sizing" = "Ring Re-sizing";
+"Finishing" = "Finishing";
+"Reshap Bent Ring" = "Reshap Bent Ring";
+"Plating" = "Plating";
+"Stone Replacement" = "Stone Replacement";
+"Prong Repair" = "Prong Repair";
+"Laser Spot Solder" = "Laser Spot Solder";
+"Chain and Clasp Repair" = "Chain and Clasp Repair";
+"Remodel Jewelery" = "Remodel Jewelery";
+"Diamond Details" = "Diamond Details";
+"Most Wishlist" = "Most Wishlist";
+"Female" = "Female";
+"Male" = "Male";
+"Couples" = "Couples";
+"Complete" = "Complete";
+"Select Diamond" = "Select Diamond";
+"Description" = "Description";
+"POS" = "POS";
+"log out" = "log out";
+"Store" = "Store";
+"User" = "User";
+"View More" = "View More";
+"Transaction" = "Transactions";
+"Customer" = "Customer";
+"Total Invoice" = "Total Invoice";
+"Total Quantity" = "Total Quantity";
+"Email" = "Email";
+"Log in" = "Log in";
+"Quick Log in with PIN" = "Quick Log in with PIN";
+"Enter  PIN" = "Enter  PIN";
+"Total" = "Total";
+"Save" = "Save";
+"Conflict / Unknown" = "Conflict / Unknown";
+"All" = "All";
+"Not found devices can connect." = "Not found devices can connect.";
+"Disconnected" = "Disconnected";
+"Frequency" = "Frequency";
+"Max" = "Max";
+"Item" = "Item";
+"Items" = "Items";
+
+"Filters" = "Filters";
+"apply" = "apply";
+"Apply" = "Apply";
+"APPLY" = "APPLY";
+
+"Please Scan QR Code or Barcode to track details" = "Please Scan QR Code or Barcode to track details.";
+"SCAN NOW" = "SCAN NOW";
+"Scan now" = "Scan now";
+
+"Or" = "Or";
+"Product" = "Product";
+"Activity" = "Activity";
+"Block ID" = "Block ID";
+"SKU" = "SKU";
+"Product Summary" = "Product Summary";
+"Color" = "Color";
+
+
+
+"Choose Customer" = "Choose Customer";
+"Search customer by name, mobile, email, country" = "Search customer by Name & Phone no.";
+"Apply Filter" = "Apply Filter";
+"Apply Filters" = "Apply Filters";
+"Term" = "Term";
+"DETAIL" = "DETAIL";
+"Installment" = "Installment";
+"Installments" = "Installments";
+"INSTALLMENT" = "INSTALLMENT";
+"Receive Amount" = "Receive Amount";
+"Balance" = "Balance";
+"Applied Service Labour" = "Applied Service Labour";
+"Full Payment" = "Full Payment";
+"LayBy" = "LayBy";
+"Layby" = "LayBy";
+"Email Confirmation" = "Email Confirmation";
+"Please confirm your email address where invoice to be sent" = "Please confirm your email address where invoice to be sent";
+"Receive" = "Receive";
+"Quotation" = "Quotations";
+"QUOTE" = "QUOTE";
+"Partial History" = "Partial History";
+"Purchased Items" = "Purchased Items";
+"Certificate No." = "Certificate No.";
+"View Installments" = "View Installments";
+"View LayBy" = "View LayBy";
+"Search by SKU/Customer" = "Search by SKU/Customer";
+"Pick Jewelry" = "Pick Jewelry";
+"Pick Diamond" = "Pick Diamond";
+"View Less" = "View Less";
+"Payment Confirmation" = "Payment Confirmation";
+"Day" = "Day";
+"Year" = "Year";
+"Search by Invoice no / Customer" = "Search by Invoice no / Customer";
+"Search by Invoice no" = "Search by Invoice no";
+
+"Note for the order you want a quotation" = "Note for the order you want a quotation";
+"CREATE A QUOTE" = "CREATE A QUOTE";
+"Ex : Hold order" = "Ex : Hold order";
+"Quoted Items" = "Quoted Items";
+"Are you sure want to add to order ?" = "Are you sure want to add to order ?";
+"ADD TO ORDER" = "ADD TO ORDER";
+
+"Address Customer" = "Address Customer";
+"Billing Address" = "Billing Address";
+"Shipping Address" = "Shipping Address";
+"Default Shipping Address" = "Default Shipping Address";
+"Default Billing Address" = "Default Billing Address";
+"Address*" = "Address*";
+"Country*" = "Country*";
+"Edit Billing Address" = "Edit Billing Address";
+"Add Billing Address" = "Add Billing Address";
+"Add Shipping Address" = "Add Shipping Address";
+"Select billing address" = "Select billing address";
+"Select shipping address" = "Select shipping address";

@@ -1,0 +1,24 @@
+"2nrPEg" = "Поиск продукта"; // "Search Product"
+
+"4fAvtQ" = "Поиск по ${id}"; // "Search by ${id}"
+
+"5nOS4s" = "Штат"; // "State"
+
+"AE6UM1" = "ID"; // "Id"
+
+"Dnr1i6" = "Чтобы подтвердить, вы хотели ‘${id}’?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"Ju7Mqw" = "Существует ${count} варианта, соответствующего ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"nfLG3J" = "Что-то пошло не так, пожалуйста, попробуйте еще раз."; // "Something went wrong please try again."
+
+"tSIIFI" = "Быстрый просмотр"; // "Quick View"
+
+"uzmHz9" = "Поиск по ${id}"; // "search by ${id}"
+
+"xGxqLq" = "Продукт: ${searchProduct}"; // "Product is ${searchProduct}"
+
+"ydruGN" = "Поиск по ${id}"; // "search by ${id}"
+
+"RS8bpo" = "Quick View Search";
+

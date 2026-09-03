@@ -1,0 +1,3534 @@
+
+/* Class = "UILabel"; text = "R12000E-DWG"; ObjectID = "00F-ej-UcA"; */
+"00F-ej-UcA.text" = "R12000E-DWG";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "032-fn-Y1r"; */
+"032-fn-Y1r.placeholder" = "0.00";
+
+/* Class = "UITextField"; text = "1561-2561-2565"; ObjectID = "03e-45-jDH"; */
+"03e-45-jDH.text" = "1561-2561-2565";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "06D-IL-LcP"; */
+"06D-IL-LcP.text" = "Wishlist";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "06L-5z-vxa"; */
+"06L-5z-vxa.text" = "Remark";
+
+/* Class = "UILabel"; text = "Age"; ObjectID = "06m-sN-6eB"; */
+"06m-sN-6eB.text" = "Age";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "07D-ae-RFB"; */
+"07D-ae-RFB.text" = "Location";
+
+/* Class = "UITextField"; text = "1561-2561-2565"; ObjectID = "0Bq-jI-ZK3"; */
+"0Bq-jI-ZK3.text" = "1561-2561-2565";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "0CG-DB-dlJ"; */
+"0CG-DB-dlJ.placeholder" = "Email";
+
+/* Class = "UILabel"; text = "Stock ID"; ObjectID = "0Ke-XN-4qQ"; */
+"0Ke-XN-4qQ.text" = "Stock ID";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "0MA-eb-aQy"; */
+"0MA-eb-aQy.text" = "Qty";
+
+/* Class = "UIButton"; normalTitle = "3"; ObjectID = "0Ni-eA-m65"; */
+"0Ni-eA-m65.normalTitle" = "3";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "0OV-9d-IwO"; */
+"0OV-9d-IwO.text" = "0.00";
+
+/* Class = "UILabel"; text = " - "; ObjectID = "0Oi-7S-kFV"; */
+"0Oi-7S-kFV.text" = " - ";
+
+/* Class = "UILabel"; text = "Date"; ObjectID = "0Re-lX-rEs"; */
+"0Re-lX-rEs.text" = "Date";
+
+/* Class = "UILabel"; text = "# CLEO CHARM BEADED CHAIN NECKLACE"; ObjectID = "0Rk-3m-O3p"; */
+"0Rk-3m-O3p.text" = "# CLEO CHARM BEADED CHAIN NECKLACE";
+
+/* Class = "UILabel"; text = "Instagram"; ObjectID = "0SS-vz-ati"; */
+"0SS-vz-ati.text" = "Instagram";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "0UE-nZ-9U1"; */
+"0UE-nZ-9U1.text" = "Anastasia Steel";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "0gK-6E-iE0"; */
+"0gK-6E-iE0.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "0gm-oJ-AvP"; */
+"0gm-oJ-AvP.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Profile"; ObjectID = "0h1-Oi-Yec"; */
+"0h1-Oi-Yec.text" = "Profile";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "0iO-7x-yZl"; */
+"0iO-7x-yZl.text" = "100001";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "0mT-0h-4Q0"; */
+"0mT-0h-4Q0.text" = "100001";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "0nv-ql-yPH"; */
+"0nv-ql-yPH.text" = "0.00";
+
+/* Class = "UILabel"; text = "Reserve"; ObjectID = "0ol-9w-Lj1"; */
+"0ol-9w-Lj1.text" = "Reserve";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "0ph-af-MIU"; */
+"0ph-af-MIU.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "0s1-ng-ry4"; */
+"0s1-ng-ry4.text" = "Select";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "0vj-QN-Lh8"; */
+"0vj-QN-Lh8.text" = "Location";
+
+/* Class = "UILabel"; text = "Reserved"; ObjectID = "148-1C-4he"; */
+"148-1C-4he.text" = "Reserved";
+
+/* Class = "UILabel"; text = "CONFLICT"; ObjectID = "1Al-Mf-6bR"; */
+"1Al-Mf-6bR.text" = "CONFLICT";
+
+/* Class = "UILabel"; text = "Sub Total"; ObjectID = "1Cr-dT-8rz"; */
+"1Cr-dT-8rz.text" = "Sub Total";
+
+/* Class = "UITextField"; text = "Bandidta"; ObjectID = "1Lz-Zt-z2J"; */
+"1Lz-Zt-z2J.text" = "Bandidta";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "1Nu-hG-ap6"; */
+"1Nu-hG-ap6.text" = "Print";
+
+/* Class = "UILabel"; text = "Bandita Meetim"; ObjectID = "1Pw-wr-dQZ"; */
+"1Pw-wr-dQZ.text" = "Bandita Meetim";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "1QT-FX-LfM"; */
+"1QT-FX-LfM.text" = "Print";
+
+/* Class = "UILabel"; text = "Address"; ObjectID = "1Za-JI-cYU"; */
+"1Za-JI-cYU.text" = "Address";
+
+/* Class = "UITextField"; placeholder = "+66"; ObjectID = "1hM-bJ-fiU"; */
+"1hM-bJ-fiU.placeholder" = "+66";
+
+/* Class = "UILabel"; text = "Upload Logo"; ObjectID = "1jC-Xo-K7E"; */
+"1jC-Xo-K7E.text" = "Upload Logo";
+
+/* Class = "UILabel"; text = "Necklace"; ObjectID = "1lT-k0-0dp"; */
+"1lT-k0-0dp.text" = "Necklace";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "1q9-9K-5M0"; */
+"1q9-9K-5M0.text" = "Metal";
+
+/* Class = "UILabel"; text = "GIS20001"; ObjectID = "1r9-Q8-Hmm"; */
+"1r9-Q8-Hmm.text" = "GIS20001";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "1un-IN-5hl"; */
+"1un-IN-5hl.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "1wI-jF-Adq"; */
+"1wI-jF-Adq.text" = "Stone";
+
+/* Class = "UIButton"; normalTitle = "Logo"; ObjectID = "1we-b9-0ib"; */
+"1we-b9-0ib.normalTitle" = "Logo";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "1zE-SG-HkB"; */
+"1zE-SG-HkB.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "20e-ed-usP"; */
+"20e-ed-usP.text" = "SKU";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "2Dx-dk-eCP"; */
+"2Dx-dk-eCP.text" = "0";
+
+/* Class = "UILabel"; text = "(c) GIS , 2020 All Rights Reserved."; ObjectID = "2F8-s2-N1K"; */
+"2F8-s2-N1K.text" = "(c) GIS , 2020 All Rights Reserved.";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "2GK-GK-4Ss"; */
+"2GK-GK-4Ss.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Date of Birth"; ObjectID = "2JY-bi-vbn"; */
+"2JY-bi-vbn.text" = "Date of Birth";
+
+/* Class = "UILabel"; text = "Sub Total"; ObjectID = "2Oj-1Z-mK5"; */
+"2Oj-1Z-mK5.text" = "Sub Total";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "2Q1-h4-7Ol"; */
+"2Q1-h4-7Ol.text" = "--";
+
+/* Class = "UILabel"; text = "EN"; ObjectID = "2Si-oh-CTQ"; */
+"2Si-oh-CTQ.text" = "EN";
+
+/* Class = "UITextField"; placeholder = "Steel"; ObjectID = "2Va-p8-wRL"; */
+"2Va-p8-wRL.placeholder" = "Steel";
+
+/* Class = "UITextField"; text = "85-902-1100"; ObjectID = "2bz-Po-n8O"; */
+"2bz-Po-n8O.text" = "85-902-1100";
+
+/* Class = "UILabel"; text = "Alipay"; ObjectID = "2hA-1h-nXZ"; */
+"2hA-1h-nXZ.text" = "Alipay";
+
+/* Class = "UILabel"; text = "#ROCK BLOSSOM OVAL CHARM RING"; ObjectID = "2ht-ca-eYt"; */
+"2ht-ca-eYt.text" = "#ROCK BLOSSOM OVAL CHARM RING";
+
+/* Class = "UILabel"; text = "Bank"; ObjectID = "2jO-Sw-UbP"; */
+"2jO-Sw-UbP.text" = "Bank";
+
+/* Class = "UILabel"; text = "Province"; ObjectID = "2se-UL-uBS"; */
+"2se-UL-uBS.text" = "Province";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "2vK-26-rX4"; */
+"2vK-26-rX4.text" = "0.00";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "2vb-lt-F5r"; */
+"2vb-lt-F5r.text" = "0.00";
+
+/* Class = "UILabel"; text = "Reserve Records"; ObjectID = "2vx-Gy-qlC"; */
+"2vx-Gy-qlC.text" = "Reserve Records";
+
+/* Class = "UILabel"; text = "Province / State"; ObjectID = "2w2-Ai-Y8c"; */
+"2w2-Ai-Y8c.text" = "Province / State";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "2ye-yW-Q0F"; */
+"2ye-yW-Q0F.text" = "Invoice";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "348-cH-IpH"; */
+"348-cH-IpH.text" = "176,898";
+
+/* Class = "UILabel"; text = "Billing Address"; ObjectID = "38R-QL-gO7"; */
+"38R-QL-gO7.text" = "Billing Address";
+
+/* Class = "UILabel"; text = "Bank"; ObjectID = "3CK-Xd-hUG"; */
+"3CK-Xd-hUG.text" = "Bank";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "3CT-l8-EJQ"; */
+"3CT-l8-EJQ.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Sketch"; ObjectID = "3Cz-Z9-uoz"; */
+"3Cz-Z9-uoz.text" = "Sketch";
+
+/* Class = "UILabel"; text = "Item"; ObjectID = "3G3-CH-HOn"; */
+"3G3-CH-HOn.text" = "Item";
+
+/* Class = "UILabel"; text = "$5000"; ObjectID = "3Jk-IB-2no"; */
+"3Jk-IB-2no.text" = "$5000";
+
+/* Class = "UILabel"; text = "Inventory"; ObjectID = "3PZ-MQ-xQ1"; */
+"3PZ-MQ-xQ1.text" = "Inventory";
+
+/* Class = "UITextField"; text = "Meetim"; ObjectID = "3Qw-Hf-fCn"; */
+"3Qw-Hf-fCn.text" = "Meetim";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "3Tk-yk-EvX"; */
+"3Tk-yk-EvX.normalTitle" = "Select All";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "3Yt-HS-ogu"; */
+"3Yt-HS-ogu.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "5"; ObjectID = "3d1-e0-UXF"; */
+"3d1-e0-UXF.text" = "5";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "3fV-kP-FCz"; */
+"3fV-kP-FCz.text" = "AN_CCBCN_1230000";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "3hw-E3-NZY"; */
+"3hw-E3-NZY.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Country"; ObjectID = "3ne-CL-OtG"; */
+"3ne-CL-OtG.text" = "Country";
+
+/* Class = "UILabel"; text = "Picture"; ObjectID = "3oU-ep-3mr"; */
+"3oU-ep-3mr.text" = "Picture";
+
+/* Class = "UILabel"; text = "Discount"; ObjectID = "3sp-QM-k05"; */
+"3sp-QM-k05.text" = "Discount";
+
+/* Class = "UILabel"; text = "Facebook"; ObjectID = "44p-Py-msf"; */
+"44p-Py-msf.text" = "Facebook";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "46w-BT-cuU"; */
+"46w-BT-cuU.text" = "190001";
+
+/* Class = "UILabel"; text = "Tax ID No. (optional)"; ObjectID = "472-lh-tPZ"; */
+"472-lh-tPZ.text" = "Tax ID No. (optional)";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "47N-Gn-mpe"; */
+"47N-Gn-mpe.text" = "Size";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "4E5-w9-KzX"; */
+"4E5-w9-KzX.text" = "--";
+
+/* Class = "UILabel"; text = "ROCK CRISS-CROSS RING"; ObjectID = "4Hk-7r-utx"; */
+"4Hk-7r-utx.text" = "ROCK CRISS-CROSS RING";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "4N1-J4-X32"; */
+"4N1-J4-X32.text" = "Total";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "4Qq-kd-NxI"; */
+"4Qq-kd-NxI.text" = "Sale person";
+
+/* Class = "UILabel"; text = "Change Due"; ObjectID = "4cb-Dl-XbA"; */
+"4cb-Dl-XbA.text" = "Change Due";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "4dO-kZ-tXt"; */
+"4dO-kZ-tXt.text" = "Seattle, USA";
+
+/* Class = "UITextField"; placeholder = "Bankok"; ObjectID = "4dl-zw-NLK"; */
+"4dl-zw-NLK.placeholder" = "Bankok";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "4gt-n9-Js1"; */
+"4gt-n9-Js1.text" = "0.00";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "4jM-0A-08a"; */
+"4jM-0A-08a.text" = "1";
+
+/* Class = "UIButton"; normalTitle = "GO BACK TO HOME"; ObjectID = "4l1-br-frJ"; */
+"4l1-br-frJ.normalTitle" = "GO BACK TO HOME";
+
+/* Class = "UILabel"; text = "Type"; ObjectID = "4o6-qd-b5i"; */
+"4o6-qd-b5i.text" = "Type";
+
+/* Class = "UITextField"; placeholder = "born@jeweal.com"; ObjectID = "4qd-8G-GSj"; */
+"4qd-8G-GSj.placeholder" = "born@jeweal.com";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "4ra-Zk-WZF"; */
+"4ra-Zk-WZF.text" = "Price";
+
+/* Class = "UILabel"; text = "Labour"; ObjectID = "4t8-FF-g71"; */
+"4t8-FF-g71.text" = "Labour";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "4yF-HY-nAp"; */
+"4yF-HY-nAp.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "4yl-W5-FAz"; */
+"4yl-W5-FAz.text" = "4";
+
+/* Class = "UILabel"; text = "Price Range"; ObjectID = "4zS-pD-Gnn"; */
+"4zS-pD-Gnn.text" = "Price Range";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "4zj-2P-a2p"; */
+"4zj-2P-a2p.text" = "Total";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "50M-gU-b8Q"; */
+"50M-gU-b8Q.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "Source"; ObjectID = "527-TF-xyx"; */
+"527-TF-xyx.text" = "Source";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "56l-fw-cPA"; */
+"56l-fw-cPA.text" = "1";
+
+/* Class = "UILabel"; text = "UAE"; ObjectID = "57J-4s-WTv"; */
+"57J-4s-WTv.text" = "UAE";
+
+/* Class = "UILabel"; text = "Discount (%)"; ObjectID = "5ER-RA-5gG"; */
+"5ER-RA-5gG.text" = "Discount (%)";
+
+/* Class = "UIButton"; normalTitle = "1"; ObjectID = "5GM-ap-scf"; */
+"5GM-ap-scf.normalTitle" = "1";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "5Gz-Tm-ZBe"; */
+"5Gz-Tm-ZBe.text" = "StockID";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "5Is-dn-VEE"; */
+"5Is-dn-VEE.text" = "Print";
+
+/* Class = "UILabel"; text = "16"; ObjectID = "5KF-9d-o3O"; */
+"5KF-9d-o3O.text" = "16";
+
+/* Class = "UILabel"; text = "QTY  : 1"; ObjectID = "5Mc-rj-n0c"; */
+"5Mc-rj-n0c.text" = "QTY  : 1";
+
+/* Class = "UILabel"; text = "Repair Order"; ObjectID = "5NL-Pd-FTA"; */
+"5NL-Pd-FTA.text" = "Repair Order";
+
+/* Class = "UILabel"; text = "$100,000"; ObjectID = "5Pb-jX-LBB"; */
+"5Pb-jX-LBB.text" = "$100,000";
+
+/* Class = "UILabel"; text = "Discount (Amount)"; ObjectID = "5QU-9z-5g8"; */
+"5QU-9z-5g8.text" = "Discount (Amount)";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "5Sk-Ae-c7f"; */
+"5Sk-Ae-c7f.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Text"; ObjectID = "5Sv-wA-pMm"; */
+"5Sv-wA-pMm.text" = "Text";
+
+/* Class = "UILabel"; text = "Tax"; ObjectID = "5XQ-Te-L1o"; */
+"5XQ-Te-L1o.text" = "Tax";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "5cR-iH-9hJ"; */
+"5cR-iH-9hJ.text" = "Stone";
+
+/* Class = "UITextField"; placeholder = "00.00"; ObjectID = "5i0-h4-8ep"; */
+"5i0-h4-8ep.placeholder" = "00.00";
+
+/* Class = "UITextField"; placeholder = "storename"; ObjectID = "5j1-oA-lHr"; */
+"5j1-oA-lHr.placeholder" = "storename";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "5jU-co-bYT"; */
+"5jU-co-bYT.text" = "SKU";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "5lG-j9-Ci3"; */
+"5lG-j9-Ci3.text" = "Amount";
+
+/* Class = "UILabel"; text = "Stock Take"; ObjectID = "5nW-rz-IBC"; */
+"5nW-rz-IBC.text" = "Stock Take";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "5xY-Qf-UTb"; */
+"5xY-Qf-UTb.text" = "Share";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "60i-n5-ieN"; */
+"60i-n5-ieN.text" = "190001";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "63S-yJ-lHh"; */
+"63S-yJ-lHh.text" = "1";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "63v-LU-nsd"; */
+"63v-LU-nsd.text" = "Remark";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "64c-nO-RKO"; */
+"64c-nO-RKO.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "6A3-Qo-aOg"; */
+"6A3-Qo-aOg.text" = "0.00";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "6D3-gc-0JW"; */
+"6D3-gc-0JW.text" = "0.00";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "6Dw-XC-pow"; */
+"6Dw-XC-pow.text" = "Anastasia Steel";
+
+/* Class = "UIButton"; normalTitle = "Sale person"; ObjectID = "6KO-L2-5Hg"; */
+"6KO-L2-5Hg.normalTitle" = "Sale person";
+
+/* Class = "UILabel"; text = "Cash"; ObjectID = "6N0-3N-x2t"; */
+"6N0-3N-x2t.text" = "Cash";
+
+/* Class = "UITextField"; placeholder = "00.00"; ObjectID = "6Nn-va-NB9"; */
+"6Nn-va-NB9.placeholder" = "00.00";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "6Re-w9-uOh"; */
+"6Re-w9-uOh.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Price Range"; ObjectID = "6VQ-s8-HxJ"; */
+"6VQ-s8-HxJ.text" = "Price Range";
+
+/* Class = "UIButton"; normalTitle = "Siam Paragon"; ObjectID = "6fv-MG-lh7"; */
+"6fv-MG-lh7.normalTitle" = "Siam Paragon";
+
+/* Class = "UITextField"; placeholder = "123ABC"; ObjectID = "6kI-eA-RsW"; */
+"6kI-eA-RsW.placeholder" = "123ABC";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "6l2-iT-5H8"; */
+"6l2-iT-5H8.text" = "Qty";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "6pq-v2-Rsd"; */
+"6pq-v2-Rsd.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "CODE"; ObjectID = "6ql-u1-hq8"; */
+"6ql-u1-hq8.text" = "CODE";
+
+/* Class = "UIButton"; normalTitle = "VIEW MORE"; ObjectID = "71d-P9-CUf"; */
+"71d-P9-CUf.normalTitle" = "VIEW MORE";
+
+/* Class = "UIButton"; normalTitle = "Login"; ObjectID = "72T-pi-9SA"; */
+"72T-pi-9SA.normalTitle" = "Login";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "74j-zA-mrl"; */
+"74j-zA-mrl.text" = "1";
+
+/* Class = "UILabel"; text = "***"; ObjectID = "75m-AQ-h3S"; */
+"75m-AQ-h3S.text" = "***";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "77D-Fb-nRG"; */
+"77D-Fb-nRG.text" = "Amount";
+
+/* Class = "UILabel"; text = "2,000.00"; ObjectID = "79k-dO-et8"; */
+"79k-dO-et8.text" = "2,000.00";
+
+/* Class = "UILabel"; text = "Mr. Margot Robbie"; ObjectID = "7C0-SN-occ"; */
+"7C0-SN-occ.text" = "Mr. Margot Robbie";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "7Ej-eP-9ft"; */
+"7Ej-eP-9ft.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Language"; ObjectID = "7HL-cO-rX0"; */
+"7HL-cO-rX0.text" = "Language";
+
+/* Class = "UILabel"; text = "**** **** **** 2343"; ObjectID = "7IJ-Sp-Rn6"; */
+"7IJ-Sp-Rn6.text" = "**** **** **** 2343";
+
+/* Class = "UILabel"; text = "5"; ObjectID = "7Pc-0e-Fp5"; */
+"7Pc-0e-Fp5.text" = "5";
+
+/* Class = "UILabel"; text = "Profile"; ObjectID = "7Pt-2G-ElB"; */
+"7Pt-2G-ElB.text" = "Profile";
+
+/* Class = "UILabel"; text = "Cleo Collection"; ObjectID = "7TW-GV-KD2"; */
+"7TW-GV-KD2.text" = "Cleo Collection";
+
+/* Class = "UITextView"; text = "Purchase Coupon for Jenifer!"; ObjectID = "7Vk-2s-zvZ"; */
+"7Vk-2s-zvZ.text" = "Purchase Coupon for Jenifer!";
+
+/* Class = "UIButton"; normalTitle = "2"; ObjectID = "7eD-kA-jag"; */
+"7eD-kA-jag.normalTitle" = "2";
+
+/* Class = "UITextField"; placeholder = "00.00"; ObjectID = "7gI-Gn-Qvg"; */
+"7gI-Gn-Qvg.placeholder" = "00.00";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "7m7-40-TaV"; */
+"7m7-40-TaV.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "00"; ObjectID = "7mC-2P-1VJ"; */
+"7mC-2P-1VJ.normalTitle" = "00";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "7ov-8Q-wOJ"; */
+"7ov-8Q-wOJ.text" = "Total";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "7pW-bJ-Xlk"; */
+"7pW-bJ-Xlk.text" = "Size";
+
+/* Class = "UIButton"; normalTitle = "00"; ObjectID = "7rO-30-L2P"; */
+"7rO-30-L2P.normalTitle" = "00";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "7u8-em-8IV"; */
+"7u8-em-8IV.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "81H-EW-XMc"; */
+"81H-EW-XMc.text" = "SKU";
+
+/* Class = "UILabel"; text = "Cashier Margot Ronnie"; ObjectID = "89q-pq-CSw"; */
+"89q-pq-CSw.text" = "Cashier Margot Ronnie";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "8BM-3J-2Af"; */
+"8BM-3J-2Af.text" = "Size";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "8Iw-gU-HMN"; */
+"8Iw-gU-HMN.text" = "0";
+
+/* Class = "UILabel"; text = "QTY  : --"; ObjectID = "8LV-KE-a0i"; */
+"8LV-KE-a0i.text" = "QTY  : --";
+
+/* Class = "UILabel"; text = "Shipping address same as billing address"; ObjectID = "8Ld-de-Zbq"; */
+"8Ld-de-Zbq.text" = "Shipping address same as billing address";
+
+/* Class = "UILabel"; text = "Forgot Password"; ObjectID = "8PT-Uq-Vqv"; */
+"8PT-Uq-Vqv.text" = "Forgot Password";
+
+/* Class = "UITextField"; placeholder = "Jeweal Prosoft Co., Ltd"; ObjectID = "8Si-VS-G0R"; */
+"8Si-VS-G0R.placeholder" = "Jeweal Prosoft Co., Ltd";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "8TS-dQ-fTN"; */
+"8TS-dQ-fTN.text" = "AN_CCBCN_1230000";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "8UE-Az-fxp"; */
+"8UE-Az-fxp.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "8Wr-D5-rgk"; */
+"8Wr-D5-rgk.text" = "Sale person";
+
+/* Class = "UILabel"; text = "QTY  : --"; ObjectID = "8Zp-6M-uWi"; */
+"8Zp-6M-uWi.text" = "QTY  : --";
+
+/* Class = "UILabel"; text = "Remark : "; ObjectID = "8jV-7c-bDg"; */
+"8jV-7c-bDg.text" = "Remark : ";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "8ku-LN-jn7"; */
+"8ku-LN-jn7.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Full Name"; ObjectID = "8la-bF-Pcd"; */
+"8la-bF-Pcd.text" = "Full Name";
+
+/* Class = "UILabel"; text = "Position"; ObjectID = "8od-o4-st3"; */
+"8od-o4-st3.text" = "Position";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "8qg-SW-N34"; */
+"8qg-SW-N34.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "8u8-FF-hdi"; */
+"8u8-FF-hdi.text" = "Seattle, USA";
+
+/* Class = "UITabBarItem"; title = "More"; ObjectID = "8vT-7t-rfN"; */
+"8vT-7t-rfN.title" = "More";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "8wc-DF-wDW"; */
+"8wc-DF-wDW.text" = "Select";
+
+/* Class = "UILabel"; text = "Billing Address"; ObjectID = "8we-Q4-doh"; */
+"8we-Q4-doh.text" = "Billing Address";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "8xW-EJ-Q08"; */
+"8xW-EJ-Q08.text" = "Invoice";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "938-I6-YLg"; */
+"938-I6-YLg.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "94G-bf-zde"; */
+"94G-bf-zde.text" = "Size";
+
+/* Class = "UILabel"; text = "Ref No."; ObjectID = "98e-mL-hrz"; */
+"98e-mL-hrz.text" = "Ref No.";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "98l-P7-vfY"; */
+"98l-P7-vfY.text" = "176,898";
+
+/* Class = "UILabel"; text = "Order"; ObjectID = "9Eo-8j-Q2D"; */
+"9Eo-8j-Q2D.text" = "Order";
+
+/* Class = "UILabel"; text = "003"; ObjectID = "9Fb-Xp-x5f"; */
+"9Fb-Xp-x5f.text" = "003";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "9Mw-Gd-7I9"; */
+"9Mw-Gd-7I9.text" = "Metal";
+
+/* Class = "UITextField"; text = "Jeweal Prosoft Co., Ltd"; ObjectID = "9U7-dH-yJv"; */
+"9U7-dH-yJv.text" = "Jeweal Prosoft Co., Ltd";
+
+/* Class = "UILabel"; text = "Tax(0%)"; ObjectID = "9UL-z3-RCe"; */
+"9UL-z3-RCe.text" = "Tax(0%)";
+
+/* Class = "UILabel"; text = "0000098"; ObjectID = "9dV-I2-qNP"; */
+"9dV-I2-qNP.text" = "0000098";
+
+/* Class = "UILabel"; text = "Custom Order"; ObjectID = "9fL-Tc-dQm"; */
+"9fL-Tc-dQm.text" = "Custom Order";
+
+/* Class = "UITextField"; text = "0"; ObjectID = "9rc-dt-tIC"; */
+"9rc-dt-tIC.text" = "0";
+
+/* Class = "UIButton"; normalTitle = "4"; ObjectID = "9s2-k7-nhk"; */
+"9s2-k7-nhk.normalTitle" = "4";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "9tk-od-OGS"; */
+"9tk-od-OGS.text" = "1";
+
+/* Class = "UILabel"; text = "Marli New York"; ObjectID = "A5o-CR-Wk3"; */
+"A5o-CR-Wk3.text" = "Marli New York";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "A8e-Pv-JVZ"; */
+"A8e-Pv-JVZ.text" = "+1408280225";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "A9g-nF-Kot"; */
+"A9g-nF-Kot.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "15/09/2020"; ObjectID = "ABO-1C-uPI"; */
+"ABO-1C-uPI.text" = "15/09/2020";
+
+/* Class = "UILabel"; text = "Add Gift Card"; ObjectID = "ABT-ww-c0O"; */
+"ABT-ww-c0O.text" = "Add Gift Card";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "AF8-bK-Dqv"; */
+"AF8-bK-Dqv.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "# CLEO CHARM BEADED CHAIN NECKLACE"; ObjectID = "AOV-di-FFg"; */
+"AOV-di-FFg.text" = "# CLEO CHARM BEADED CHAIN NECKLACE";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "AP1-dL-iJ1"; */
+"AP1-dL-iJ1.text" = "0.00";
+
+/* Class = "UITextField"; placeholder = "Which position would you like to engraving ?"; ObjectID = "AXN-I4-Bfg"; */
+"AXN-I4-Bfg.placeholder" = "Which position would you like to engraving ?";
+
+/* Class = "UILabel"; text = "Sketch"; ObjectID = "AYc-bt-AEl"; */
+"AYc-bt-AEl.text" = "Sketch";
+
+/* Class = "UITabBarItem"; title = "Payment"; ObjectID = "Aa9-HX-it4"; */
+"Aa9-HX-it4.title" = "Payment";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "AaE-mC-tWs"; */
+"AaE-mC-tWs.text" = "Size";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "Aie-gu-nms"; */
+"Aie-gu-nms.text" = "1";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Aje-cT-eaS"; */
+"Aje-cT-eaS.text" = "--";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "Ajz-pJ-ZvV"; */
+"Ajz-pJ-ZvV.text" = "Wishlist";
+
+/* Class = "UITextField"; placeholder = "Select Date"; ObjectID = "AtN-0X-oRS"; */
+"AtN-0X-oRS.placeholder" = "Select Date";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "AvG-lE-06o"; */
+"AvG-lE-06o.text" = "Stone";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "B1m-69-glK"; */
+"B1m-69-glK.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "BA0-WG-uv2"; */
+"BA0-WG-uv2.text" = "Anastasia Steel";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "BAK-gg-3Dc"; */
+"BAK-gg-3Dc.placeholder" = "Customer Search";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "BBg-gd-1hV"; */
+"BBg-gd-1hV.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Type"; ObjectID = "BGS-k9-yAb"; */
+"BGS-k9-yAb.text" = "Type";
+
+/* Class = "UILabel"; text = "Forgot Pin"; ObjectID = "BHw-QF-Jh8"; */
+"BHw-QF-Jh8.text" = "Forgot Pin";
+
+/* Class = "UILabel"; text = "002"; ObjectID = "BJ1-WV-VhF"; */
+"BJ1-WV-VhF.text" = "002";
+
+/* Class = "UITextField"; placeholder = "********"; ObjectID = "BWL-er-yuc"; */
+"BWL-er-yuc.placeholder" = "********";
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "BXE-ce-Qhk"; */
+"BXE-ce-Qhk.text" = "Name";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000000"; ObjectID = "BYr-bY-79i"; */
+"BYr-bY-79i.text" = "AN_CCBCN_123000000";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "Bcm-rl-2Cw"; */
+"Bcm-rl-2Cw.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Active"; ObjectID = "Bez-Mv-hn3"; */
+"Bez-Mv-hn3.text" = "Active";
+
+/* Class = "UIButton"; normalTitle = "0"; ObjectID = "Bnj-Lg-LzR"; */
+"Bnj-Lg-LzR.normalTitle" = "0";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "ByB-Xb-b0u"; */
+"ByB-Xb-b0u.text" = "SKU";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "C2D-kI-YDG"; */
+"C2D-kI-YDG.text" = "StockID";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "C7L-nR-5Vc"; */
+"C7L-nR-5Vc.text" = "1";
+
+/* Class = "UILabel"; text = "$500"; ObjectID = "CBy-gd-YnD"; */
+"CBy-gd-YnD.text" = "$500";
+
+/* Class = "UILabel"; text = "21,000.00"; ObjectID = "CFn-85-wmN"; */
+"CFn-85-wmN.text" = "21,000.00";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "CGU-C7-rOg"; */
+"CGU-C7-rOg.text" = "Remark";
+
+/* Class = "UILabel"; text = "Tax ID No. (optional)"; ObjectID = "CUp-RV-oDF"; */
+"CUp-RV-oDF.text" = "Tax ID No. (optional)";
+
+/* Class = "UIButton"; normalTitle = "PAY NOW"; ObjectID = "CWJ-c4-dOD"; */
+"CWJ-c4-dOD.normalTitle" = "PAY NOW";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "CcN-Og-6Vj"; */
+"CcN-Og-6Vj.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "Cci-Tq-Cxd"; */
+"Cci-Tq-Cxd.text" = "Price";
+
+/* Class = "UIButton"; normalTitle = "4"; ObjectID = "CeS-be-zM4"; */
+"CeS-be-zM4.normalTitle" = "4";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "Cfw-96-Ajn"; */
+"Cfw-96-Ajn.text" = "Sale person";
+
+/* Class = "UILabel"; text = "153765"; ObjectID = "CgS-n4-4Fj"; */
+"CgS-n4-4Fj.text" = "153765";
+
+/* Class = "UILabel"; text = "Siam Paragon"; ObjectID = "Cht-vj-UgV"; */
+"Cht-vj-UgV.text" = "Siam Paragon";
+
+/* Class = "UILabel"; text = "Code"; ObjectID = "D0D-Mn-lie"; */
+"D0D-Mn-lie.text" = "Code";
+
+/* Class = "UILabel"; text = "Bank"; ObjectID = "D1j-dQ-uPL"; */
+"D1j-dQ-uPL.text" = "Bank";
+
+/* Class = "UILabel"; text = "TAX (Amount)"; ObjectID = "D96-Bl-fNQ"; */
+"D96-Bl-fNQ.text" = "TAX (Amount)";
+
+/* Class = "UILabel"; text = "100"; ObjectID = "D9T-SL-FeC"; */
+"D9T-SL-FeC.text" = "100";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "DGz-hS-DCT"; */
+"DGz-hS-DCT.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "00.00"; ObjectID = "DIF-hm-aiU"; */
+"DIF-hm-aiU.text" = "00.00";
+
+/* Class = "UILabel"; text = "Country"; ObjectID = "DIr-9Y-4k4"; */
+"DIr-9Y-4k4.text" = "Country";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "DRy-Al-akF"; */
+"DRy-Al-akF.text" = "Price";
+
+/* Class = "UILabel"; text = "Reserved"; ObjectID = "DVa-Hf-K8D"; */
+"DVa-Hf-K8D.text" = "Reserved";
+
+/* Class = "UILabel"; text = "$100,000"; ObjectID = "DbJ-Ik-C7N"; */
+"DbJ-Ik-C7N.text" = "$100,000";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "DbL-wp-0cI"; */
+"DbL-wp-0cI.text" = "Sale person";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "DdB-gj-rnj"; */
+"DdB-gj-rnj.text" = "Metal";
+
+/* Class = "UIButton"; normalTitle = "Clear All"; ObjectID = "DeM-BZ-gwu"; */
+"DeM-BZ-gwu.normalTitle" = "Clear All";
+
+/* Class = "UILabel"; text = "Bank"; ObjectID = "Di5-OV-ppV"; */
+"Di5-OV-ppV.text" = "Bank";
+
+/* Class = "UILabel"; text = "USD"; ObjectID = "Dml-wu-XBm"; */
+"Dml-wu-XBm.text" = "USD";
+
+/* Class = "UILabel"; text = "Home"; ObjectID = "Dtn-0b-bNq"; */
+"Dtn-0b-bNq.text" = "Home";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "Dvh-rR-OdT"; */
+"Dvh-rR-OdT.text" = "Qty";
+
+/* Class = "UILabel"; text = "Bankok"; ObjectID = "Dwy-lJ-jbx"; */
+"Dwy-lJ-jbx.text" = "Bankok";
+
+/* Class = "UIButton"; normalTitle = "Cleo Collection"; ObjectID = "E0k-Dd-tcB"; */
+"E0k-Dd-tcB.normalTitle" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "Company"; ObjectID = "E29-aL-CX9"; */
+"E29-aL-CX9.text" = "Company";
+
+/* Class = "UILabel"; text = "Shipping address same as billing address"; ObjectID = "E2E-va-z3j"; */
+"E2E-va-z3j.text" = "Shipping address same as billing address";
+
+/* Class = "UILabel"; text = "Gift Card"; ObjectID = "E2M-Ou-HuN"; */
+"E2M-Ou-HuN.text" = "Gift Card";
+
+/* Class = "UILabel"; text = "Tax"; ObjectID = "E6k-LU-RkZ"; */
+"E6k-LU-RkZ.text" = "Tax";
+
+/* Class = "UILabel"; text = "FORGOT PASSWORD?"; ObjectID = "E9y-cP-F6v"; */
+"E9y-cP-F6v.text" = "FORGOT PASSWORD?";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "EB5-id-Fr4"; */
+"EB5-id-Fr4.text" = "Qty";
+
+/* Class = "UILabel"; text = "Payment"; ObjectID = "EMW-AK-IjJ"; */
+"EMW-AK-IjJ.text" = "Payment";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "EOa-i6-rlu"; */
+"EOa-i6-rlu.text" = "Stone";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "EUf-ND-O1u"; */
+"EUf-ND-O1u.text" = "4";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "EXY-Xy-faV"; */
+"EXY-Xy-faV.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "TOTAL"; ObjectID = "EYd-Y9-lXb"; */
+"EYd-Y9-lXb.text" = "TOTAL";
+
+/* Class = "UIButton"; normalTitle = "6"; ObjectID = "EaP-pv-Qyt"; */
+"EaP-pv-Qyt.normalTitle" = "6";
+
+/* Class = "UITabBarItem"; title = "Inventory"; ObjectID = "Ear-zd-v67"; */
+"Ear-zd-v67.title" = "Inventory";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "Eel-mk-Xkq"; */
+"Eel-mk-Xkq.text" = "7";
+
+/* Class = "UILabel"; text = "Facebook"; ObjectID = "Eht-GH-EUk"; */
+"Eht-GH-EUk.text" = "Facebook";
+
+/* Class = "UILabel"; text = "Female"; ObjectID = "Ei9-ju-8qq"; */
+"Ei9-ju-8qq.text" = "Female";
+
+/* Class = "UILabel"; text = "Account"; ObjectID = "Emn-qx-6i3"; */
+"Emn-qx-6i3.text" = "Account";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "En0-XD-jr4"; */
+"En0-XD-jr4.text" = "--";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "EnB-Qd-Qje"; */
+"EnB-Qd-Qje.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Credit Card"; ObjectID = "Eod-ig-rpM"; */
+"Eod-ig-rpM.text" = "Credit Card";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "ErV-9A-Bh1"; */
+"ErV-9A-Bh1.text" = "Sale person";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "Es1-1e-61A"; */
+"Es1-1e-61A.text" = "4";
+
+/* Class = "UIButton"; normalTitle = "Add More"; ObjectID = "EzY-Ki-034"; */
+"EzY-Ki-034.normalTitle" = "Add More";
+
+/* Class = "UITextView"; text = "ROCK CRISS-CROSS RING"; ObjectID = "F3K-NW-bXM"; */
+"F3K-NW-bXM.text" = "ROCK CRISS-CROSS RING";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "F3n-x5-lFA"; */
+"F3n-x5-lFA.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "F59-hJ-aKT"; */
+"F59-hJ-aKT.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "F7P-SU-6x4"; */
+"F7P-SU-6x4.text" = "Sale person";
+
+/* Class = "UILabel"; text = "Code"; ObjectID = "FCO-wK-vCv"; */
+"FCO-wK-vCv.text" = "Code";
+
+/* Class = "UILabel"; text = "SCANNED"; ObjectID = "FGy-oL-WFC"; */
+"FGy-oL-WFC.text" = "SCANNED";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "FIw-NJ-zKM"; */
+"FIw-NJ-zKM.text" = "Wishlist";
+
+/* Class = "UILabel"; text = "Vivean"; ObjectID = "FO8-zi-Vap"; */
+"FO8-zi-Vap.text" = "Vivean";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "FTA-hu-Tg1"; */
+"FTA-hu-Tg1.text" = "StockID";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "FXQ-Eb-Nni"; */
+"FXQ-Eb-Nni.text" = "7";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "FXj-Ne-A8H"; */
+"FXj-Ne-A8H.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "FcW-00-U0N"; */
+"FcW-00-U0N.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Filter"; ObjectID = "Feo-zb-sSP"; */
+"Feo-zb-sSP.text" = "Filter";
+
+/* Class = "UIButton"; normalTitle = "SUBMIT"; ObjectID = "FfQ-yv-Yrh"; */
+"FfQ-yv-Yrh.normalTitle" = "SUBMIT";
+
+/* Class = "UITabBarItem"; title = "Catalog"; ObjectID = "Fia-Mu-4XA"; */
+"Fia-Mu-4XA.title" = "Catalog";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "Fpd-BJ-Rfs"; */
+"Fpd-BJ-Rfs.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "Fpe-gK-zpu"; */
+"Fpe-gK-zpu.text" = "Total";
+
+/* Class = "UILabel"; text = "Apple Pay"; ObjectID = "FsZ-3r-Kxp"; */
+"FsZ-3r-Kxp.text" = "Apple Pay";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "FzB-fZ-5gg"; */
+"FzB-fZ-5gg.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Register"; ObjectID = "G3E-b8-K05"; */
+"G3E-b8-K05.text" = "Register";
+
+/* Class = "UILabel"; text = "Bandita Meetim"; ObjectID = "G48-yt-4Xa"; */
+"G48-yt-4Xa.text" = "Bandita Meetim";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "GAS-1q-4pr"; */
+"GAS-1q-4pr.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "GDq-zR-2cX"; */
+"GDq-zR-2cX.text" = "Email";
+
+/* Class = "UILabel"; text = "Last Name"; ObjectID = "GIg-cr-dYq"; */
+"GIg-cr-dYq.text" = "Last Name";
+
+/* Class = "UILabel"; text = "TAX (%)"; ObjectID = "GJB-6e-SJI"; */
+"GJB-6e-SJI.text" = "TAX (%)";
+
+/* Class = "UILabel"; text = "Bangkok, Thailand"; ObjectID = "GQD-tc-v0Y"; */
+"GQD-tc-v0Y.text" = "Bangkok, Thailand";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "GQb-95-a1V"; */
+"GQb-95-a1V.text" = "Collection";
+
+/* Class = "UIButton"; normalTitle = "CHECK OUT"; ObjectID = "GXV-k0-hgL"; */
+"GXV-k0-hgL.normalTitle" = "CHECK OUT";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "Gaj-p0-tcz"; */
+"Gaj-p0-tcz.text" = "Sale person";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "Geu-0X-ivf"; */
+"Geu-0X-ivf.text" = "Share";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "Gg3-Gi-YvI"; */
+"Gg3-Gi-YvI.text" = "Price";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "GgN-TB-uuV"; */
+"GgN-TB-uuV.text" = "Wishlist";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "Ggh-B2-zhr"; */
+"Ggh-B2-zhr.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "Gi3-Ah-80T"; */
+"Gi3-Ah-80T.text" = "+1408280225";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "Gix-0q-Fvx"; */
+"Gix-0q-Fvx.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Custom Order"; ObjectID = "GjA-gf-EWW"; */
+"GjA-gf-EWW.text" = "Custom Order";
+
+/* Class = "UILabel"; text = "Bangrak"; ObjectID = "Gk6-c0-UP1"; */
+"Gk6-c0-UP1.text" = "Bangrak";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "GkC-Qs-yhV"; */
+"GkC-Qs-yhV.text" = "Metal";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "GnD-ms-AWu"; */
+"GnD-ms-AWu.text" = "Qty";
+
+/* Class = "UILabel"; text = "Please check your email!"; ObjectID = "Gql-ZS-r4m"; */
+"Gql-ZS-r4m.text" = "Please check your email!";
+
+/* Class = "UITextField"; text = "5"; ObjectID = "Gsq-cm-pPl"; */
+"Gsq-cm-pPl.text" = "5";
+
+/* Class = "UILabel"; text = "Mobile"; ObjectID = "H2k-vQ-2m4"; */
+"H2k-vQ-2m4.text" = "Mobile";
+
+/* Class = "UILabel"; text = "Credit Card"; ObjectID = "H61-Q1-yNy"; */
+"H61-Q1-yNy.text" = "Credit Card";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "H6A-3B-H5x"; */
+"H6A-3B-H5x.text" = "Share";
+
+/* Class = "UILabel"; text = "Tax(0%)"; ObjectID = "HCf-F4-xrd"; */
+"HCf-F4-xrd.text" = "Tax(0%)";
+
+/* Class = "UILabel"; text = "18 Karat Goldd Charm Oval Diamond Ring"; ObjectID = "HFY-5G-neC"; */
+"HFY-5G-neC.text" = "18 Karat Goldd Charm Oval Diamond Ring";
+
+/* Class = "UIButton"; normalTitle = "2"; ObjectID = "HLs-XO-QOi"; */
+"HLs-XO-QOi.normalTitle" = "2";
+
+/* Class = "UILabel"; text = "Position"; ObjectID = "HN2-ro-G5s"; */
+"HN2-ro-G5s.text" = "Position";
+
+/* Class = "UILabel"; text = "Country"; ObjectID = "HP5-3t-JLD"; */
+"HP5-3t-JLD.text" = "Country";
+
+/* Class = "UILabel"; text = "3"; ObjectID = "HSd-jD-iil"; */
+"HSd-jD-iil.text" = "3";
+
+/* Class = "UILabel"; text = "Last Name"; ObjectID = "HTl-0P-GsI"; */
+"HTl-0P-GsI.text" = "Last Name";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "HW3-7C-i2i"; */
+"HW3-7C-i2i.text" = "--";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "Hb4-8f-YjI"; */
+"Hb4-8f-YjI.normalTitle" = "Submit";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "HbM-d1-uiZ"; */
+"HbM-d1-uiZ.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "UNKNOWN"; ObjectID = "HhE-rI-mn8"; */
+"HhE-rI-mn8.text" = "UNKNOWN";
+
+/* Class = "UILabel"; text = "Country"; ObjectID = "Hi5-IN-cjr"; */
+"Hi5-IN-cjr.text" = "Country";
+
+/* Class = "UILabel"; text = "Remark: diamond in center and 2 ruby "; ObjectID = "Hig-Jg-AvV"; */
+"Hig-Jg-AvV.text" = "Remark: diamond in center and 2 ruby ";
+
+/* Class = "UILabel"; text = "2,000.00"; ObjectID = "Hll-az-fBg"; */
+"Hll-az-fBg.text" = "2,000.00";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "I0G-Bi-d7V"; */
+"I0G-Bi-d7V.text" = "AN_CCBCN_1230000";
+
+/* Class = "UITextView"; text = "18 carat"; ObjectID = "I0s-lO-6xX"; */
+"I0s-lO-6xX.text" = "18 carat";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "I3D-JM-Psg"; */
+"I3D-JM-Psg.text" = "190001";
+
+/* Class = "UIButton"; normalTitle = "9"; ObjectID = "I45-r5-S43"; */
+"I45-r5-S43.normalTitle" = "9";
+
+/* Class = "UILabel"; text = "18/08/2020"; ObjectID = "I7i-Rs-krW"; */
+"I7i-Rs-krW.text" = "18/08/2020";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "IB6-HS-ze9"; */
+"IB6-HS-ze9.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "So"; ObjectID = "IBw-8M-hlt"; */
+"IBw-8M-hlt.text" = "So";
+
+/* Class = "UIButton"; normalTitle = "Customer"; ObjectID = "IEt-mw-IWt"; */
+"IEt-mw-IWt.normalTitle" = "Customer";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "IHq-d6-LuQ"; */
+"IHq-d6-LuQ.text" = "Sale person";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "ILA-sl-Axv"; */
+"ILA-sl-Axv.placeholder" = "Search";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "IPb-wg-D8j"; */
+"IPb-wg-D8j.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "IQz-s1-Y6z"; */
+"IQz-s1-Y6z.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Address"; ObjectID = "ITS-85-vlb"; */
+"ITS-85-vlb.text" = "Address";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "IWh-Og-CQp"; */
+"IWh-Og-CQp.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "$5000"; ObjectID = "Idu-hz-YUO"; */
+"Idu-hz-YUO.text" = "$5000";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "Ifp-GJ-gyt"; */
+"Ifp-GJ-gyt.text" = "StockID";
+
+/* Class = "UILabel"; text = "18KW size 7"; ObjectID = "IoE-n2-MvT"; */
+"IoE-n2-MvT.text" = "18KW size 7";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "Iqm-98-MrB"; */
+"Iqm-98-MrB.text" = "Collection";
+
+/* Class = "UILabel"; text = "SUB"; ObjectID = "IrQ-8u-Zhy"; */
+"IrQ-8u-Zhy.text" = "SUB";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Is8-hm-OB3"; */
+"Is8-hm-OB3.text" = "--";
+
+/* Class = "UILabel"; text = "CONFLICT / UNKNOWN"; ObjectID = "IuC-bf-h7I"; */
+"IuC-bf-h7I.text" = "CONFLICT / UNKNOWN";
+
+/* Class = "UIButton"; normalTitle = "8"; ObjectID = "IyX-NI-Vle"; */
+"IyX-NI-Vle.normalTitle" = "8";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "J13-yt-Eqo"; */
+"J13-yt-Eqo.text" = "POS";
+
+/* Class = "UITextView"; text = "Which position would you like to engraving ?"; ObjectID = "J35-P9-zcO"; */
+"J35-P9-zcO.text" = "Which position would you like to engraving ?";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "JAg-lM-vqj"; */
+"JAg-lM-vqj.text" = "Location";
+
+/* Class = "UILabel"; text = "Zip"; ObjectID = "JER-w0-nfE"; */
+"JER-w0-nfE.text" = "Zip";
+
+/* Class = "UITextField"; text = "born@jeweal.com"; ObjectID = "JEl-fH-Gcd"; */
+"JEl-fH-Gcd.text" = "born@jeweal.com";
+
+/* Class = "UILabel"; text = "1DPS 014CT 1DEC 0.16CT"; ObjectID = "JIg-2T-Q4F"; */
+"JIg-2T-Q4F.text" = "1DPS 014CT 1DEC 0.16CT";
+
+/* Class = "UITextField"; text = "Meetim"; ObjectID = "JJW-Dm-i7f"; */
+"JJW-Dm-i7f.text" = "Meetim";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "JKu-3k-wvS"; */
+"JKu-3k-wvS.text" = "Collection";
+
+/* Class = "UIButton"; normalTitle = "Text"; ObjectID = "JOs-MG-Eaw"; */
+"JOs-MG-Eaw.normalTitle" = "Text";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "JPy-H5-qJI"; */
+"JPy-H5-qJI.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "JQI-sg-8Ji"; */
+"JQI-sg-8Ji.text" = "Size";
+
+/* Class = "UILabel"; text = "Month"; ObjectID = "JWc-9I-DUQ"; */
+"JWc-9I-DUQ.text" = "Month";
+
+/* Class = "UILabel"; text = "Position"; ObjectID = "JZb-mH-gwp"; */
+"JZb-mH-gwp.text" = "Position";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "Jdr-X7-6AQ"; */
+"Jdr-X7-6AQ.text" = "0";
+
+/* Class = "UILabel"; text = "Group"; ObjectID = "Jej-2l-Rhu"; */
+"Jej-2l-Rhu.text" = "Group";
+
+/* Class = "UIButton"; normalTitle = "Apply Filter"; ObjectID = "Jfm-Sv-dJ0"; */
+"Jfm-Sv-dJ0.normalTitle" = "Apply Filter";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "Jgk-or-EVI"; */
+"Jgk-or-EVI.text" = "Amount";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "Ji8-hC-UNQ"; */
+"Ji8-hC-UNQ.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Device"; ObjectID = "JmM-mP-NgU"; */
+"JmM-mP-NgU.text" = "Device";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "Jp8-iu-GCu"; */
+"Jp8-iu-GCu.text" = "190001";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "JxT-WY-2nb"; */
+"JxT-WY-2nb.text" = "4";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "Jy6-kd-pma"; */
+"Jy6-kd-pma.text" = "0.00";
+
+/* Class = "UILabel"; text = "Billing Address"; ObjectID = "Jy9-tS-lqS"; */
+"Jy9-tS-lqS.text" = "Billing Address";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "Jzm-Jt-Yak"; */
+"Jzm-Jt-Yak.text" = "Select";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon"; ObjectID = "K1u-gZ-y8T"; */
+"K1u-gZ-y8T.text" = "ARTINIAN - Siam Paragon";
+
+/* Class = "UILabel"; text = "Gift"; ObjectID = "K6o-yh-ZOG"; */
+"K6o-yh-ZOG.text" = "Gift";
+
+/* Class = "UITextView"; text = "ROCK CRISS-CROSS RING"; ObjectID = "K8g-6k-G2y"; */
+"K8g-6k-G2y.text" = "ROCK CRISS-CROSS RING";
+
+/* Class = "UIButton"; normalTitle = "ORDER"; ObjectID = "K8o-Ok-bPp"; */
+"K8o-Ok-bPp.normalTitle" = "ORDER";
+
+/* Class = "UILabel"; text = "Almas Mozzi"; ObjectID = "K9c-CC-wtA"; */
+"K9c-CC-wtA.text" = "Almas Mozzi";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "KAq-2G-MlV"; */
+"KAq-2G-MlV.text" = "Size";
+
+/* Class = "UILabel"; text = "TOTAL SKU"; ObjectID = "KBF-7j-YxN"; */
+"KBF-7j-YxN.text" = "TOTAL SKU";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "KEP-W6-J6x"; */
+"KEP-W6-J6x.text" = "Total";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "KGZ-7b-sLk"; */
+"KGZ-7b-sLk.text" = "4";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "KNd-FD-gBZ"; */
+"KNd-FD-gBZ.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Company"; ObjectID = "KRT-oU-enD"; */
+"KRT-oU-enD.text" = "Company";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "KRb-XQ-BE0"; */
+"KRb-XQ-BE0.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "KRb-yh-RdO"; */
+"KRb-yh-RdO.text" = "Purchase History";
+
+/* Class = "UILabel"; text = "Address"; ObjectID = "KWj-7Y-8P2"; */
+"KWj-7Y-8P2.text" = "Address";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "Kfh-rL-ZyJ"; */
+"Kfh-rL-ZyJ.text" = "0.00";
+
+/* Class = "UILabel"; text = "Date of Birth"; ObjectID = "KhJ-Pr-1Am"; */
+"KhJ-Pr-1Am.text" = "Date of Birth";
+
+/* Class = "UILabel"; text = "5"; ObjectID = "Kkw-Ox-nPU"; */
+"Kkw-Ox-nPU.text" = "5";
+
+/* Class = "UILabel"; text = "Address"; ObjectID = "KlB-lJ-49g"; */
+"KlB-lJ-49g.text" = "Address";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "Kqh-Au-WIB"; */
+"Kqh-Au-WIB.text" = "Now! Quick login with PIN";
+
+/* Class = "UILabel"; text = "Concept"; ObjectID = "Kwv-KV-UVV"; */
+"Kwv-KV-UVV.text" = "Concept";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "Ky2-CY-WE4"; */
+"Ky2-CY-WE4.text" = "Sale person";
+
+/* Class = "UILabel"; text = "UNSCANNED"; ObjectID = "L9I-0i-yNF"; */
+"L9I-0i-yNF.text" = "UNSCANNED";
+
+/* Class = "UILabel"; text = "2"; ObjectID = "LF5-Uj-YnE"; */
+"LF5-Uj-YnE.text" = "2";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "LFG-gg-zLm"; */
+"LFG-gg-zLm.text" = "--";
+
+/* Class = "UILabel"; text = "Seattle, United States"; ObjectID = "LHQ-OI-mkx"; */
+"LHQ-OI-mkx.text" = "Seattle, United States";
+
+/* Class = "UIButton"; normalTitle = "Select File"; ObjectID = "LHs-Kf-zQB"; */
+"LHs-Kf-zQB.normalTitle" = "Select File";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "LIh-Uw-3jN"; */
+"LIh-Uw-3jN.text" = "Sale person";
+
+/* Class = "UITextField"; placeholder = "--"; ObjectID = "LSc-Aw-kNB"; */
+"LSc-Aw-kNB.placeholder" = "--";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "LXM-fk-tI7"; */
+"LXM-fk-tI7.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "+66"; ObjectID = "LZB-KI-usK"; */
+"LZB-KI-usK.text" = "+66";
+
+/* Class = "UILabel"; text = "Source"; ObjectID = "LcN-0S-iPI"; */
+"LcN-0S-iPI.text" = "Source";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "Lgm-bK-ezs"; */
+"Lgm-bK-ezs.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "Lhd-Ns-dbY"; */
+"Lhd-Ns-dbY.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "City"; ObjectID = "Ln9-BN-1TJ"; */
+"Ln9-BN-1TJ.text" = "City";
+
+/* Class = "UILabel"; text = "Filter"; ObjectID = "Lrt-cK-1mR"; */
+"Lrt-cK-1mR.text" = "Filter";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Ls9-ej-WIj"; */
+"Ls9-ej-WIj.text" = "--";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "LyK-R9-QV7"; */
+"LyK-R9-QV7.text" = "StockID";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "M2B-R8-8yx"; */
+"M2B-R8-8yx.text" = "Amount";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "M9i-cg-hWy"; */
+"M9i-cg-hWy.text" = "--";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "MBF-dy-cVA"; */
+"MBF-dy-cVA.text" = "Select";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "MCS-UU-mQS"; */
+"MCS-UU-mQS.text" = "Print";
+
+/* Class = "UITabBarItem"; title = "Home"; ObjectID = "MDa-Iv-RHj"; */
+"MDa-Iv-RHj.title" = "Home";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "MJY-ud-uSQ"; */
+"MJY-ud-uSQ.text" = "--";
+
+/* Class = "UILabel"; text = "Silver"; ObjectID = "MK4-SY-ouK"; */
+"MK4-SY-ouK.text" = "Silver";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "MLq-H4-YAC"; */
+"MLq-H4-YAC.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "MRd-Cr-wOj"; */
+"MRd-Cr-wOj.text" = "0.00";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon "; ObjectID = "MVB-yJ-MTH"; */
+"MVB-yJ-MTH.text" = "ARTINIAN - Siam Paragon ";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "MVg-bB-9eA"; */
+"MVg-bB-9eA.text" = "Metal";
+
+/* Class = "UILabel"; text = "Loyalty point"; ObjectID = "MVo-d5-bmM"; */
+"MVo-d5-bmM.text" = "Loyalty point";
+
+/* Class = "UILabel"; text = "Balance Due"; ObjectID = "Ma3-AA-kUA"; */
+"Ma3-AA-kUA.text" = "Balance Due";
+
+/* Class = "UILabel"; text = "Credit / Debit card"; ObjectID = "Mqd-hZ-T14"; */
+"Mqd-hZ-T14.text" = "Credit / Debit card";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "Mvn-8a-pfY"; */
+"Mvn-8a-pfY.text" = "Amount";
+
+/* Class = "UILabel"; text = "Deposit"; ObjectID = "My5-ss-cJX"; */
+"My5-ss-cJX.text" = "Deposit";
+
+/* Class = "UILabel"; text = "Item"; ObjectID = "N3q-fv-vDG"; */
+"N3q-fv-vDG.text" = "Item";
+
+/* Class = "UITextField"; placeholder = "Anastasia"; ObjectID = "N6f-IK-4PK"; */
+"N6f-IK-4PK.placeholder" = "Anastasia";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "N7n-Gr-BCH"; */
+"N7n-Gr-BCH.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "N9N-Mc-Nse"; */
+"N9N-Mc-Nse.text" = "0.00";
+
+/* Class = "UILabel"; text = "Catalog"; ObjectID = "NEb-YU-KMl"; */
+"NEb-YU-KMl.text" = "Catalog";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "NKR-va-afo"; */
+"NKR-va-afo.text" = "Total";
+
+/* Class = "UILabel"; text = "3"; ObjectID = "NLK-bk-gdx"; */
+"NLK-bk-gdx.text" = "3";
+
+/* Class = "UILabel"; text = "-"; ObjectID = "NQP-RC-60O"; */
+"NQP-RC-60O.text" = "-";
+
+/* Class = "UILabel"; text = "Exchange"; ObjectID = "NWe-a0-q0W"; */
+"NWe-a0-q0W.text" = "Exchange";
+
+/* Class = "UIButton"; normalTitle = "Clear All"; ObjectID = "NXR-X7-8tp"; */
+"NXR-X7-8tp.normalTitle" = "Clear All";
+
+/* Class = "UILabel"; text = "Reserve"; ObjectID = "NbD-VL-7Mo"; */
+"NbD-VL-7Mo.text" = "Reserve";
+
+/* Class = "UILabel"; text = "Available"; ObjectID = "Ndl-sF-jWI"; */
+"Ndl-sF-jWI.text" = "Available";
+
+/* Class = "UILabel"; text = "Exchange"; ObjectID = "No9-9Z-z6n"; */
+"No9-9Z-z6n.text" = "Exchange";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "NsT-YJ-gL1"; */
+"NsT-YJ-gL1.text" = "Select";
+
+/* Class = "UILabel"; text = "Discount (Amount)"; ObjectID = "NsZ-XR-2fQ"; */
+"NsZ-XR-2fQ.text" = "Discount (Amount)";
+
+/* Class = "UIButton"; normalTitle = "Cleo Collection"; ObjectID = "NtA-Ms-nzi"; */
+"NtA-Ms-nzi.normalTitle" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "Power"; ObjectID = "Nv1-1y-iNc"; */
+"Nv1-1y-iNc.text" = "Power";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "Nvq-kr-mkF"; */
+"Nvq-kr-mkF.text" = "Location";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "Nyb-1Y-uPp"; */
+"Nyb-1Y-uPp.text" = "+1408280225";
+
+/* Class = "UILabel"; text = " - "; ObjectID = "O02-NP-q9G"; */
+"O02-NP-q9G.text" = " - ";
+
+/* Class = "UILabel"; text = "Refresh"; ObjectID = "O0d-qk-41s"; */
+"O0d-qk-41s.text" = "Refresh";
+
+/* Class = "UITextField"; placeholder = "Which position would you like to engraving ?"; ObjectID = "O2A-lR-Nci"; */
+"O2A-lR-Nci.placeholder" = "Which position would you like to engraving ?";
+
+/* Class = "UITextField"; placeholder = "00.00"; ObjectID = "O3m-WZ-uCJ"; */
+"O3m-WZ-uCJ.placeholder" = "00.00";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "O65-ZR-Ncb"; */
+"O65-ZR-Ncb.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "OAn-7s-RKS"; */
+"OAn-7s-RKS.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "anastasiasteel@hotmail.com"; ObjectID = "OBu-gU-7IM"; */
+"OBu-gU-7IM.text" = "anastasiasteel@hotmail.com";
+
+/* Class = "UILabel"; text = "Dubai"; ObjectID = "OF7-Uf-XSk"; */
+"OF7-Uf-XSk.text" = "Dubai";
+
+/* Class = "UIButton"; normalTitle = "Edit"; ObjectID = "OGJ-5B-ags"; */
+"OGJ-5B-ags.normalTitle" = "Edit";
+
+/* Class = "UIButton"; normalTitle = "Apply Filter"; ObjectID = "OGc-Rn-HW1"; */
+"OGc-Rn-HW1.normalTitle" = "Apply Filter";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "OIR-At-QqB"; */
+"OIR-At-QqB.text" = "--";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "OIz-Nt-AHf"; */
+"OIz-Nt-AHf.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Concept"; ObjectID = "OL8-aI-YBG"; */
+"OL8-aI-YBG.text" = "Concept";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "OO0-BF-JbY"; */
+"OO0-BF-JbY.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "5000"; ObjectID = "OO3-uR-qlN"; */
+"OO3-uR-qlN.text" = "5000";
+
+/* Class = "UILabel"; text = "Choose"; ObjectID = "OOk-rv-0wu"; */
+"OOk-rv-0wu.text" = "Choose";
+
+/* Class = "UILabel"; text = "Female"; ObjectID = "OQo-0S-10q"; */
+"OQo-0S-10q.text" = "Female";
+
+/* Class = "UILabel"; text = "City"; ObjectID = "OY0-RB-oyI"; */
+"OY0-RB-oyI.text" = "City";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "OZ1-n4-QFW"; */
+"OZ1-n4-QFW.text" = "Stone";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "OhM-vj-g5a"; */
+"OhM-vj-g5a.text" = "Select";
+
+/* Class = "UILabel"; text = "SNo"; ObjectID = "OjT-6v-jlh"; */
+"OjT-6v-jlh.text" = "SNo";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "Ojz-uB-pNX"; */
+"Ojz-uB-pNX.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon "; ObjectID = "Oof-7d-zqU"; */
+"Oof-7d-zqU.text" = "ARTINIAN - Siam Paragon ";
+
+/* Class = "UILabel"; text = "TAX (%)"; ObjectID = "Osq-UD-owZ"; */
+"Osq-UD-owZ.text" = "TAX (%)";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "Oy2-mm-4Ey"; */
+"Oy2-mm-4Ey.text" = "Price";
+
+/* Class = "UILabel"; text = "Deliver date : 18/08/2020"; ObjectID = "P60-w4-F8g"; */
+"P60-w4-F8g.text" = "Deliver date : 18/08/2020";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "P6I-Hn-NMa"; */
+"P6I-Hn-NMa.text" = "Invoice";
+
+/* Class = "UILabel"; text = "Please check your email!"; ObjectID = "P9t-kB-QbX"; */
+"P9t-kB-QbX.text" = "Please check your email!";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "PEW-60-g5T"; */
+"PEW-60-g5T.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Gender"; ObjectID = "PK4-zs-qvw"; */
+"PK4-zs-qvw.text" = "Gender";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "PRC-ub-SgD"; */
+"PRC-ub-SgD.text" = "0.00";
+
+/* Class = "UILabel"; text = "Gift Card Number"; ObjectID = "PRd-AB-ICF"; */
+"PRd-AB-ICF.text" = "Gift Card Number";
+
+/* Class = "UILabel"; text = "Item"; ObjectID = "PTC-Rs-1lw"; */
+"PTC-Rs-1lw.text" = "Item";
+
+/* Class = "UILabel"; text = "Cash"; ObjectID = "PVy-Vs-067"; */
+"PVy-Vs-067.text" = "Cash";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "PYk-sk-WJP"; */
+"PYk-sk-WJP.text" = "Stone";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "PZm-3M-QA9"; */
+"PZm-3M-QA9.text" = "Size";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "Pos-qf-SZA"; */
+"Pos-qf-SZA.text" = "0.00";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Ppq-TU-Dh7"; */
+"Ppq-TU-Dh7.text" = "--";
+
+/* Class = "UILabel"; text = "Ref No."; ObjectID = "Pq3-Qg-St6"; */
+"Pq3-Qg-St6.text" = "Ref No.";
+
+/* Class = "UILabel"; text = "Custom Order"; ObjectID = "Q09-9a-3fK"; */
+"Q09-9a-3fK.text" = "Custom Order";
+
+/* Class = "UILabel"; text = "QTY  : --"; ObjectID = "Q2n-dd-aKg"; */
+"Q2n-dd-aKg.text" = "QTY  : --";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "QAI-yG-jXk"; */
+"QAI-yG-jXk.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Grand Total (USD)"; ObjectID = "QD7-MX-am0"; */
+"QD7-MX-am0.text" = "Grand Total (USD)";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "QP4-eJ-EQU"; */
+"QP4-eJ-EQU.text" = "Price";
+
+/* Class = "UITextView"; text = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda."; ObjectID = "QUL-en-VMY"; */
+"QUL-en-VMY.text" = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "QZ6-o1-y9n"; */
+"QZ6-o1-y9n.text" = "--";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "QaR-nF-iJf"; */
+"QaR-nF-iJf.text" = "Size";
+
+/* Class = "UIButton"; normalTitle = "18 KW"; ObjectID = "Qdy-EK-QQR"; */
+"Qdy-EK-QQR.normalTitle" = "18 KW";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "QfO-Uf-5Ts"; */
+"QfO-Uf-5Ts.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "Av"; ObjectID = "QlI-aa-U0D"; */
+"QlI-aa-U0D.text" = "Av";
+
+/* Class = "UILabel"; text = "More"; ObjectID = "Qmn-2a-k7n"; */
+"Qmn-2a-k7n.text" = "More";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "Qth-5y-oxN"; */
+"Qth-5y-oxN.text" = "Collection";
+
+/* Class = "UILabel"; text = "Deposit"; ObjectID = "QuY-0g-nKF"; */
+"QuY-0g-nKF.text" = "Deposit";
+
+/* Class = "UILabel"; text = "Gift Card"; ObjectID = "Qwc-8R-WiO"; */
+"Qwc-8R-WiO.text" = "Gift Card";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "QzC-wy-waJ"; */
+"QzC-wy-waJ.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "10500"; ObjectID = "R3W-yf-ccs"; */
+"R3W-yf-ccs.text" = "10500";
+
+/* Class = "UILabel"; text = "Profile"; ObjectID = "R9H-8y-oxY"; */
+"R9H-8y-oxY.text" = "Profile";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "R9u-3S-EUT"; */
+"R9u-3S-EUT.text" = "Select";
+
+/* Class = "UILabel"; text = "FILE JPEG,PNG, PSD,AI"; ObjectID = "R9z-Mu-4x6"; */
+"R9z-Mu-4x6.text" = "FILE JPEG,PNG, PSD,AI";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "RG2-YF-ZVP"; */
+"RG2-YF-ZVP.placeholder" = "Email";
+
+/* Class = "UITextField"; text = "your store address name"; ObjectID = "RG2-YF-ZVP"; */
+"RG2-YF-ZVP.text" = "your store address name";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "RHk-ed-XSO"; */
+"RHk-ed-XSO.text" = "Collection";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "RMi-kK-ex0"; */
+"RMi-kK-ex0.text" = "3000";
+
+/* Class = "UILabel"; text = "Fill the name or Register."; ObjectID = "ROR-dR-TD5"; */
+"ROR-dR-TD5.text" = "Fill the name or Register.";
+
+/* Class = "UILabel"; text = "Select what you'd like to repair"; ObjectID = "RPf-rP-jKS"; */
+"RPf-rP-jKS.text" = "Select what you'd like to repair";
+
+/* Class = "UILabel"; text = "#ROCK BLOSSOM OVAL CHARM RING"; ObjectID = "RQy-cu-U1s"; */
+"RQy-cu-U1s.text" = "#ROCK BLOSSOM OVAL CHARM RING";
+
+/* Class = "UITextField"; placeholder = "storename"; ObjectID = "RUS-vq-Ehk"; */
+"RUS-vq-Ehk.placeholder" = "storename";
+
+/* Class = "UIButton"; normalTitle = "Siam Paragon"; ObjectID = "RYo-of-a5R"; */
+"RYo-of-a5R.normalTitle" = "Siam Paragon";
+
+/* Class = "UILabel"; text = "18/08/2020"; ObjectID = "Ras-B8-fsB"; */
+"Ras-B8-fsB.text" = "18/08/2020";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "RcV-13-Ov9"; */
+"RcV-13-Ov9.text" = "1";
+
+/* Class = "UIButton"; normalTitle = "9"; ObjectID = "Rdm-Wq-NHX"; */
+"Rdm-Wq-NHX.normalTitle" = "9";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "ReS-A5-pxg"; */
+"ReS-A5-pxg.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Rrk-0j-pJR"; */
+"Rrk-0j-pJR.text" = "--";
+
+/* Class = "UILabel"; text = "Cleo Collection"; ObjectID = "Rvu-gx-NR8"; */
+"Rvu-gx-NR8.text" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "Company"; ObjectID = "S0m-Aa-WZ2"; */
+"S0m-Aa-WZ2.text" = "Company";
+
+/* Class = "UILabel"; text = "18 KW"; ObjectID = "S1X-lW-dBo"; */
+"S1X-lW-dBo.text" = "18 KW";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "SE7-az-a2t"; */
+"SE7-az-a2t.text" = "4";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "SJB-gQ-Cqb"; */
+"SJB-gQ-Cqb.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Date"; ObjectID = "SSd-N8-edr"; */
+"SSd-N8-edr.text" = "Date";
+
+/* Class = "UILabel"; text = "Refund"; ObjectID = "SXK-yC-NrJ"; */
+"SXK-yC-NrJ.text" = "Refund";
+
+/* Class = "UILabel"; text = "Username"; ObjectID = "Sbi-T3-Oc1"; */
+"Sbi-T3-Oc1.text" = "Username";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "Sh1-vo-7OD"; */
+"Sh1-vo-7OD.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "Shy-mf-R05"; */
+"Shy-mf-R05.text" = "Now! Quick login with PIN";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "SiO-vp-QKp"; */
+"SiO-vp-QKp.text" = "1";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000"; ObjectID = "SjI-Pi-Kfb"; */
+"SjI-Pi-Kfb.text" = "AN_CCBCN_123000";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "Sjj-Oc-sfK"; */
+"Sjj-Oc-sfK.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "SNo"; ObjectID = "Sjq-7L-bSt"; */
+"Sjq-7L-bSt.text" = "SNo";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "SlT-08-Gfk"; */
+"SlT-08-Gfk.text" = "1";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "SpD-nW-bRn"; */
+"SpD-nW-bRn.text" = "Email";
+
+/* Class = "UILabel"; text = "Shipping"; ObjectID = "SwB-85-6he"; */
+"SwB-85-6he.text" = "Shipping";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "T05-R3-JdZ"; */
+"T05-R3-JdZ.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Tax ID No. (optional)"; ObjectID = "T3L-VM-Yam"; */
+"T3L-VM-Yam.text" = "Tax ID No. (optional)";
+
+/* Class = "UITextField"; placeholder = "Silver"; ObjectID = "T8d-ye-lkH"; */
+"T8d-ye-lkH.placeholder" = "Silver";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "TCG-67-rgR"; */
+"TCG-67-rgR.text" = "100001";
+
+/* Class = "UILabel"; text = "Connected"; ObjectID = "TDI-6y-lHL"; */
+"TDI-6y-lHL.text" = "Connected";
+
+/* Class = "UILabel"; text = "TAX (Amount)"; ObjectID = "TDR-ag-Mh9"; */
+"TDR-ag-Mh9.text" = "TAX (Amount)";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "TG3-Ie-mVg"; */
+"TG3-Ie-mVg.text" = "--";
+
+/* Class = "UITextField"; placeholder = "00.00"; ObjectID = "TLY-nK-C9i"; */
+"TLY-nK-C9i.placeholder" = "00.00";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "TUH-4r-b0A"; */
+"TUH-4r-b0A.text" = "--";
+
+/* Class = "UILabel"; text = "Cash"; ObjectID = "TUZ-WO-I5R"; */
+"TUZ-WO-I5R.text" = "Cash";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "TWM-vj-yRp"; */
+"TWM-vj-yRp.text" = "StockID";
+
+/* Class = "UILabel"; text = "Cash (USD)"; ObjectID = "Tja-4J-gpP"; */
+"Tja-4J-gpP.text" = "Cash (USD)";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "TmN-W5-ESd"; */
+"TmN-W5-ESd.text" = "4";
+
+/* Class = "UILabel"; text = "Province / State"; ObjectID = "U0O-sd-mrz"; */
+"U0O-sd-mrz.text" = "Province / State";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "U0x-p2-69D"; */
+"U0x-p2-69D.text" = "Metal";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "U2Q-69-VhT"; */
+"U2Q-69-VhT.text" = "--";
+
+/* Class = "UITextField"; text = "Meetim"; ObjectID = "UHC-ob-3To"; */
+"UHC-ob-3To.text" = "Meetim";
+
+/* Class = "UILabel"; text = "Date"; ObjectID = "UHm-M9-lFg"; */
+"UHm-M9-lFg.text" = "Date";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "UN2-8F-RjU"; */
+"UN2-8F-RjU.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Instagram"; ObjectID = "UNl-Fz-ogb"; */
+"UNl-Fz-ogb.text" = "Instagram";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "UNs-tw-kg3"; */
+"UNs-tw-kg3.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "UQu-zc-LfQ"; */
+"UQu-zc-LfQ.text" = "StockID";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "USf-t2-AIN"; */
+"USf-t2-AIN.text" = "--";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "UVN-w4-fVc"; */
+"UVN-w4-fVc.normalTitle" = "Cancel";
+
+/* Class = "UIButton"; normalTitle = "3.5"; ObjectID = "UYQ-Ka-Byr"; */
+"UYQ-Ka-Byr.normalTitle" = "3.5";
+
+/* Class = "UILabel"; text = "Month"; ObjectID = "Ua5-LD-FDg"; */
+"Ua5-LD-FDg.text" = "Month";
+
+/* Class = "UILabel"; text = "AED"; ObjectID = "UbJ-is-1Up"; */
+"UbJ-is-1Up.text" = "AED";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "Udv-MU-xOb"; */
+"Udv-MU-xOb.placeholder" = "Email";
+
+/* Class = "UITextField"; text = "your store address name"; ObjectID = "Udv-MU-xOb"; */
+"Udv-MU-xOb.text" = "your store address name";
+
+/* Class = "UIButton"; normalTitle = "Siam Paragon"; ObjectID = "UiL-w8-ojG"; */
+"UiL-w8-ojG.normalTitle" = "Siam Paragon";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "Uj9-Qv-0Ey"; */
+"Uj9-Qv-0Ey.text" = "POS";
+
+/* Class = "UILabel"; text = "Bankok"; ObjectID = "Ulc-Fk-fl7"; */
+"Ulc-Fk-fl7.text" = "Bankok";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "UoV-GA-4b1"; */
+"UoV-GA-4b1.text" = "SKU";
+
+/* Class = "UILabel"; text = "Position"; ObjectID = "Uod-Fn-Kr2"; */
+"Uod-Fn-Kr2.text" = "Position";
+
+/* Class = "UITextField"; text = "Bandidta"; ObjectID = "UrJ-mj-iYQ"; */
+"UrJ-mj-iYQ.text" = "Bandidta";
+
+/* Class = "UILabel"; text = "Inventory List"; ObjectID = "V4I-p4-ckS"; */
+"V4I-p4-ckS.text" = "Inventory List";
+
+/* Class = "UILabel"; text = "00098"; ObjectID = "V5J-sa-Ek5"; */
+"V5J-sa-Ek5.text" = "00098";
+
+/* Class = "UILabel"; text = "Connect"; ObjectID = "VAX-8h-Rk6"; */
+"VAX-8h-Rk6.text" = "Connect";
+
+/* Class = "UILabel"; text = "Concept Design"; ObjectID = "VIm-z6-zYL"; */
+"VIm-z6-zYL.text" = "Concept Design";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "VLU-jy-zh4"; */
+"VLU-jy-zh4.text" = "--";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "VNe-a1-NGC"; */
+"VNe-a1-NGC.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Customer"; ObjectID = "VOx-vX-jWO"; */
+"VOx-vX-jWO.text" = "Customer";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "VQP-WU-akj"; */
+"VQP-WU-akj.text" = "Metal";
+
+/* Class = "UILabel"; text = "00.00"; ObjectID = "VUq-8d-vsx"; */
+"VUq-8d-vsx.text" = "00.00";
+
+/* Class = "UILabel"; text = "Zip"; ObjectID = "VXe-AM-73g"; */
+"VXe-AM-73g.text" = "Zip";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "VY7-I8-xe0"; */
+"VY7-I8-xe0.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "18 KW"; ObjectID = "VZh-76-eYA"; */
+"VZh-76-eYA.normalTitle" = "18 KW";
+
+/* Class = "UILabel"; text = "Sale's person"; ObjectID = "VaQ-2n-fuX"; */
+"VaQ-2n-fuX.text" = "Sale's person";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "VaQ-iK-VbA"; */
+"VaQ-iK-VbA.text" = "1";
+
+/* Class = "UILabel"; text = "Repair Order"; ObjectID = "VeY-Za-Pff"; */
+"VeY-Za-Pff.text" = "Repair Order";
+
+/* Class = "UILabel"; text = "176,898.00"; ObjectID = "Vgq-Qh-0Pl"; */
+"Vgq-Qh-0Pl.text" = "176,898.00";
+
+/* Class = "UILabel"; text = "Bandita Meetim"; ObjectID = "Vje-Zo-ttI"; */
+"Vje-Zo-ttI.text" = "Bandita Meetim";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "Vlc-FI-9z6"; */
+"Vlc-FI-9z6.placeholder" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "SUBMIT"; ObjectID = "VoT-uD-VCO"; */
+"VoT-uD-VCO.normalTitle" = "SUBMIT";
+
+/* Class = "UILabel"; text = "Thailand"; ObjectID = "Vr0-ct-ME4"; */
+"Vr0-ct-ME4.text" = "Thailand";
+
+/* Class = "UILabel"; text = "20-29"; ObjectID = "Vvi-J0-57Z"; */
+"Vvi-J0-57Z.text" = "20-29";
+
+/* Class = "UILabel"; text = "Country"; ObjectID = "Vwa-7w-Bws"; */
+"Vwa-7w-Bws.text" = "Country";
+
+/* Class = "UITextField"; text = "born@jeweal.com"; ObjectID = "W57-Gn-uMg"; */
+"W57-Gn-uMg.text" = "born@jeweal.com";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "W9U-3t-7of"; */
+"W9U-3t-7of.text" = "Select";
+
+/* Class = "UIButton"; normalTitle = "18 KW"; ObjectID = "WA0-m9-0bJ"; */
+"WA0-m9-0bJ.normalTitle" = "18 KW";
+
+/* Class = "UILabel"; text = "89:89:45646:4564:456:456:01"; ObjectID = "WGw-up-sJf"; */
+"WGw-up-sJf.text" = "89:89:45646:4564:456:456:01";
+
+/* Class = "UILabel"; text = "Create your own design"; ObjectID = "WGx-3T-3ud"; */
+"WGx-3T-3ud.text" = "Create your own design";
+
+/* Class = "UILabel"; text = "Metal Size"; ObjectID = "WOa-FU-wd8"; */
+"WOa-FU-wd8.text" = "Metal Size";
+
+/* Class = "UILabel"; text = "Front"; ObjectID = "WUg-CQ-Jq4"; */
+"WUg-CQ-Jq4.text" = "Front";
+
+/* Class = "UILabel"; text = "Ref No. 000051"; ObjectID = "WbX-Du-4sF"; */
+"WbX-Du-4sF.text" = "Ref No. 000051";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "WbY-pM-o9b"; */
+"WbY-pM-o9b.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "Wbb-mf-4Jz"; */
+"Wbb-mf-4Jz.text" = "--";
+
+/* Class = "UILabel"; text = "Credit Card"; ObjectID = "WgQ-mY-lse"; */
+"WgQ-mY-lse.text" = "Credit Card";
+
+/* Class = "UIButton"; normalTitle = "Siam Paragon"; ObjectID = "WmU-A5-Pwe"; */
+"WmU-A5-Pwe.normalTitle" = "Siam Paragon";
+
+/* Class = "UILabel"; text = "$100,000"; ObjectID = "WqA-EQ-A9I"; */
+"WqA-EQ-A9I.text" = "$100,000";
+
+/* Class = "UIButton"; normalTitle = "SKU"; ObjectID = "Wy8-pP-OdP"; */
+"Wy8-pP-OdP.normalTitle" = "SKU";
+
+/* Class = "UILabel"; text = "STOCK TAKE"; ObjectID = "X9v-gX-5SV"; */
+"X9v-gX-5SV.text" = "STOCK TAKE";
+
+/* Class = "UILabel"; text = "GRAPH"; ObjectID = "XCE-Ow-YOy"; */
+"XCE-Ow-YOy.text" = "GRAPH";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "XEx-6O-jvg"; */
+"XEx-6O-jvg.text" = "Collection";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "XPX-Ox-Bue"; */
+"XPX-Ox-Bue.text" = "SKU";
+
+/* Class = "UILabel"; text = "* $6,000"; ObjectID = "XVQ-t6-Wml"; */
+"XVQ-t6-Wml.text" = "* $6,000";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "XXt-1K-GCH"; */
+"XXt-1K-GCH.text" = "Price";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "XYT-8r-ddK"; */
+"XYT-8r-ddK.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Discount"; ObjectID = "XaT-L0-mQg"; */
+"XaT-L0-mQg.text" = "Discount";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "Xal-fJ-7Yb"; */
+"Xal-fJ-7Yb.text" = "Select";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "Xeg-YK-sT5"; */
+"Xeg-YK-sT5.normalTitle" = "Cancel";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "XfH-bl-FXl"; */
+"XfH-bl-FXl.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "Xfj-B7-xKb"; */
+"Xfj-B7-xKb.text" = "Wishlist";
+
+/* Class = "UILabel"; text = ".gis247.cloud"; ObjectID = "Xhb-wk-HCa"; */
+"Xhb-wk-HCa.text" = ".gis247.cloud";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "Xhy-sq-a44"; */
+"Xhy-sq-a44.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Front"; ObjectID = "Xvg-Hs-hiR"; */
+"Xvg-Hs-hiR.text" = "Front";
+
+/* Class = "UILabel"; text = "Reserved"; ObjectID = "XxP-JW-8Ru"; */
+"XxP-JW-8Ru.text" = "Reserved";
+
+/* Class = "UILabel"; text = "0000053"; ObjectID = "Y0s-br-Ybn"; */
+"Y0s-br-Ybn.text" = "0000053";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "YHz-iF-IKs"; */
+"YHz-iF-IKs.text" = "0.00";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "YLE-Hu-XPe"; */
+"YLE-Hu-XPe.text" = "POS";
+
+/* Class = "UILabel"; text = "Gift"; ObjectID = "YOu-eb-gpG"; */
+"YOu-eb-gpG.text" = "Gift";
+
+/* Class = "UIButton"; normalTitle = "6"; ObjectID = "YSH-px-YMv"; */
+"YSH-px-YMv.normalTitle" = "6";
+
+/* Class = "UILabel"; text = "Date"; ObjectID = "YUB-7O-NX6"; */
+"YUB-7O-NX6.text" = "Date";
+
+/* Class = "UITextField"; placeholder = "Gift"; ObjectID = "YW2-8p-BGk"; */
+"YW2-8p-BGk.placeholder" = "Gift";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "YZI-uR-ARY"; */
+"YZI-uR-ARY.text" = "Remark";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "Ybi-Pn-wZa"; */
+"Ybi-Pn-wZa.text" = "Sale person";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "Yey-O5-jrI"; */
+"Yey-O5-jrI.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "09/21"; ObjectID = "Ygi-22-MQh"; */
+"Ygi-22-MQh.text" = "09/21";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "Ygn-pc-kSZ"; */
+"Ygn-pc-kSZ.placeholder" = "Email";
+
+/* Class = "UILabel"; text = ".gis247.cloud"; ObjectID = "Ykm-5g-Ohc"; */
+"Ykm-5g-Ohc.text" = ".gis247.cloud";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "YvJ-o8-DDZ"; */
+"YvJ-o8-DDZ.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "YwH-OM-k5p"; */
+"YwH-OM-k5p.text" = "Print";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "Yxo-cY-pty"; */
+"Yxo-cY-pty.text" = "100001";
+
+/* Class = "UILabel"; text = "$5000"; ObjectID = "Z2W-Ay-94G"; */
+"Z2W-Ay-94G.text" = "$5000";
+
+/* Class = "UIButton"; normalTitle = "Select File"; ObjectID = "Z39-AI-gLh"; */
+"Z39-AI-gLh.normalTitle" = "Select File";
+
+/* Class = "UILabel"; text = "NO ITEMS IN YOUR WISHLIST"; ObjectID = "Z4o-gd-gGr"; */
+"Z4o-gd-gGr.text" = "NO ITEMS IN YOUR WISHLIST";
+
+/* Class = "UILabel"; text = "Zip"; ObjectID = "Z4q-hu-SFV"; */
+"Z4q-hu-SFV.text" = "Zip";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "ZF0-u2-okG"; */
+"ZF0-u2-okG.text" = "Sale person";
+
+/* Class = "UILabel"; text = "Occasion"; ObjectID = "ZH9-6d-UkU"; */
+"ZH9-6d-UkU.text" = "Occasion";
+
+/* Class = "UITextField"; text = "0"; ObjectID = "ZLU-mc-Hup"; */
+"ZLU-mc-Hup.text" = "0";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "ZLo-nd-cdo"; */
+"ZLo-nd-cdo.text" = "Share";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "ZM9-tp-uCM"; */
+"ZM9-tp-uCM.text" = "AN_CCBCN_1230000";
+
+/* Class = "UITextView"; text = "1249/138E Gems Tower Building, 15th Floor , Charoenkrung Road, Suriyawongse"; ObjectID = "ZTE-oo-gcK"; */
+"ZTE-oo-gcK.text" = "1249/138E Gems Tower Building, 15th Floor , Charoenkrung Road, Suriyawongse";
+
+/* Class = "UILabel"; text = "00.00"; ObjectID = "ZTM-n6-5wQ"; */
+"ZTM-n6-5wQ.text" = "00.00";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "ZaQ-R8-Hmj"; */
+"ZaQ-R8-Hmj.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "Zbt-ie-Wum"; */
+"Zbt-ie-Wum.text" = "Amount";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "ZcK-F0-xmU"; */
+"ZcK-F0-xmU.placeholder" = "Search";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "ZfW-4c-Thc"; */
+"ZfW-4c-Thc.normalTitle" = "Select All";
+
+/* Class = "UITextField"; placeholder = "30 characters"; ObjectID = "Zjd-3s-AEk"; */
+"Zjd-3s-AEk.placeholder" = "30 characters";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "Zyb-QW-pCB"; */
+"Zyb-QW-pCB.text" = "7";
+
+/* Class = "UILabel"; text = "Credit / Debit card"; ObjectID = "Zzg-Gj-xJh"; */
+"Zzg-Gj-xJh.text" = "Credit / Debit card";
+
+/* Class = "UILabel"; text = "Customer"; ObjectID = "a0M-wQ-52o"; */
+"a0M-wQ-52o.text" = "Customer";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "a3W-aF-dln"; */
+"a3W-aF-dln.text" = "Location";
+
+/* Class = "UILabel"; text = "CLEO DIAMOND LARGE HOOP EARRINGS"; ObjectID = "a5q-FK-pDP"; */
+"a5q-FK-pDP.text" = "CLEO DIAMOND LARGE HOOP EARRINGS";
+
+/* Class = "UILabel"; text = "Labour"; ObjectID = "a9a-SS-iuH"; */
+"a9a-SS-iuH.text" = "Labour";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "aEu-Tq-pyk"; */
+"aEu-Tq-pyk.text" = "Collection";
+
+/* Class = "UIButton"; normalTitle = "6"; ObjectID = "aHf-4Z-5vj"; */
+"aHf-4Z-5vj.normalTitle" = "6";
+
+/* Class = "UILabel"; text = "Group"; ObjectID = "aJa-z8-Axy"; */
+"aJa-z8-Axy.text" = "Group";
+
+/* Class = "UIButton"; normalTitle = "Switch Store"; ObjectID = "aNd-WF-kNS"; */
+"aNd-WF-kNS.normalTitle" = "Switch Store";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "aOw-9P-sry"; */
+"aOw-9P-sry.text" = "Price";
+
+/* Class = "UILabel"; text = "Available"; ObjectID = "aPJ-d9-UNU"; */
+"aPJ-d9-UNU.text" = "Available";
+
+/* Class = "UILabel"; text = "18/08/2020"; ObjectID = "aS8-ZU-X5r"; */
+"aS8-ZU-X5r.text" = "18/08/2020";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000000"; ObjectID = "aUW-sY-2vz"; */
+"aUW-sY-2vz.text" = "AN_CCBCN_123000000";
+
+/* Class = "UILabel"; text = "Enter Pin"; ObjectID = "aVA-Nn-Hw7"; */
+"aVA-Nn-Hw7.text" = "Enter Pin";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "aVO-pJ-wfC"; */
+"aVO-pJ-wfC.text" = "--";
+
+/* Class = "UILabel"; text = "Gender"; ObjectID = "aZG-ZI-htv"; */
+"aZG-ZI-htv.text" = "Gender";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "aa6-lB-PD8"; */
+"aa6-lB-PD8.text" = "--";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "ae3-e6-Rcu"; */
+"ae3-e6-Rcu.text" = "176,898";
+
+/* Class = "UILabel"; text = "UNSCANNED"; ObjectID = "aim-Ft-4K4"; */
+"aim-Ft-4K4.text" = "UNSCANNED";
+
+/* Class = "UILabel"; text = "611 5th Avenue - NY 10022, the United States"; ObjectID = "amQ-hJ-lNV"; */
+"amQ-hJ-lNV.text" = "611 5th Avenue - NY 10022, the United States";
+
+/* Class = "UILabel"; text = "/"; ObjectID = "ang-Wb-Hne"; */
+"ang-Wb-Hne.text" = "/";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "avO-L5-oVb"; */
+"avO-L5-oVb.text" = "Price";
+
+/* Class = "UILabel"; text = "Source"; ObjectID = "b0P-MK-Wcg"; */
+"b0P-MK-Wcg.text" = "Source";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "b1l-Y5-AH1"; */
+"b1l-Y5-AH1.text" = "Qty";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "b3v-wM-LOP"; */
+"b3v-wM-LOP.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Home"; ObjectID = "b4I-Yb-B1j"; */
+"b4I-Yb-B1j.text" = "Home";
+
+/* Class = "UITextField"; text = "10500"; ObjectID = "b6O-40-7kV"; */
+"b6O-40-7kV.text" = "10500";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "b8t-03-Wno"; */
+"b8t-03-Wno.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "$21,000.00"; ObjectID = "bAm-un-8Gc"; */
+"bAm-un-8Gc.text" = "$21,000.00";
+
+/* Class = "UILabel"; text = "Transaction"; ObjectID = "bEf-Kd-cqc"; */
+"bEf-Kd-cqc.text" = "Transaction";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "bFN-7d-msm"; */
+"bFN-7d-msm.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "12/12/1995"; ObjectID = "bLH-L3-2NA"; */
+"bLH-L3-2NA.text" = "12/12/1995";
+
+/* Class = "UILabel"; text = "Tax ID No. (optional)"; ObjectID = "bMo-Yo-cOO"; */
+"bMo-Yo-cOO.text" = "Tax ID No. (optional)";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "bQ3-Hi-EOK"; */
+"bQ3-Hi-EOK.text" = "Size";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "bQa-No-mMd"; */
+"bQa-No-mMd.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "Logo"; ObjectID = "bQi-wm-rFA"; */
+"bQi-wm-rFA.normalTitle" = "Logo";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "bQp-Fc-DbQ"; */
+"bQp-Fc-DbQ.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "bUw-4s-uRQ"; */
+"bUw-4s-uRQ.text" = "0";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "bhl-xX-mpr"; */
+"bhl-xX-mpr.text" = "100001";
+
+/* Class = "UITextView"; text = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda."; ObjectID = "bkZ-dt-HNR"; */
+"bkZ-dt-HNR.text" = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.";
+
+/* Class = "UILabel"; text = "Card Number"; ObjectID = "bqE-6r-FmO"; */
+"bqE-6r-FmO.text" = "Card Number";
+
+/* Class = "UILabel"; text = "Shipping"; ObjectID = "bxN-n2-4Qe"; */
+"bxN-n2-4Qe.text" = "Shipping";
+
+/* Class = "UILabel"; text = "Valid Date"; ObjectID = "byz-Pk-psk"; */
+"byz-Pk-psk.text" = "Valid Date";
+
+/* Class = "UILabel"; text = "2,000.00"; ObjectID = "bzz-ic-8Ag"; */
+"bzz-ic-8Ag.text" = "2,000.00";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "c8q-nm-daG"; */
+"c8q-nm-daG.text" = "Purchase History";
+
+/* Class = "UITextView"; text = "ROCK CRISS-CROSS RING"; ObjectID = "c8w-w1-hLo"; */
+"c8w-w1-hLo.text" = "ROCK CRISS-CROSS RING";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "cC0-y8-cdb"; */
+"cC0-y8-cdb.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "Clear All"; ObjectID = "cH2-N5-O9E"; */
+"cH2-N5-O9E.normalTitle" = "Clear All";
+
+/* Class = "UIButton"; normalTitle = "Summary"; ObjectID = "cQ9-8z-jxx"; */
+"cQ9-8z-jxx.normalTitle" = "Summary";
+
+/* Class = "UILabel"; text = "2"; ObjectID = "cS6-m3-hzV"; */
+"cS6-m3-hzV.text" = "2";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "cU1-3S-jtW"; */
+"cU1-3S-jtW.text" = "Remark";
+
+/* Class = "UILabel"; text = "12/12/1995"; ObjectID = "cUU-0e-zCD"; */
+"cUU-0e-zCD.text" = "12/12/1995";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "cUs-a6-QC6"; */
+"cUs-a6-QC6.text" = "176,898";
+
+/* Class = "UILabel"; text = "18KW size 7"; ObjectID = "cVT-rZ-hgt"; */
+"cVT-rZ-hgt.text" = "18KW size 7";
+
+/* Class = "UIButton"; normalTitle = "Cleo Collection"; ObjectID = "ccR-hU-pY6"; */
+"ccR-hU-pY6.normalTitle" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "cdV-YB-GW4"; */
+"cdV-YB-GW4.text" = "--";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "ch0-q0-de3"; */
+"ch0-q0-de3.text" = "SKU";
+
+/* Class = "UILabel"; text = "CVC"; ObjectID = "cj3-If-tbv"; */
+"cj3-If-tbv.text" = "CVC";
+
+/* Class = "UILabel"; text = "Mobile"; ObjectID = "ckh-vR-pCg"; */
+"ckh-vR-pCg.text" = "Mobile";
+
+/* Class = "UILabel"; text = "$5000"; ObjectID = "clE-3Z-TfH"; */
+"clE-3Z-TfH.text" = "$5000";
+
+/* Class = "UILabel"; text = "Complete!"; ObjectID = "coz-LN-JNt"; */
+"coz-LN-JNt.text" = "Complete!";
+
+/* Class = "UIButton"; normalTitle = "7"; ObjectID = "cp3-5d-8Z4"; */
+"cp3-5d-8Z4.normalTitle" = "7";
+
+/* Class = "UIButton"; normalTitle = "CHECKOUT"; ObjectID = "cv0-Q6-JOP"; */
+"cv0-Q6-JOP.normalTitle" = "CHECKOUT";
+
+/* Class = "UILabel"; text = "Ref No."; ObjectID = "cwW-FG-Q5R"; */
+"cwW-FG-Q5R.text" = "Ref No.";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "cx3-WO-y9C"; */
+"cx3-WO-y9C.text" = "Seattle, USA";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "cxV-0v-xUf"; */
+"cxV-0v-xUf.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "d8C-Sf-ssD"; */
+"d8C-Sf-ssD.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "(c) GIS , 2020 All Rights Reserved."; ObjectID = "d8y-pg-xSP"; */
+"d8y-pg-xSP.text" = "(c) GIS , 2020 All Rights Reserved.";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "dEp-CT-Enw"; */
+"dEp-CT-Enw.text" = "Price";
+
+/* Class = "UIButton"; normalTitle = "0"; ObjectID = "dMC-Vj-qk0"; */
+"dMC-Vj-qk0.normalTitle" = "0";
+
+/* Class = "UIButton"; normalTitle = "3.5"; ObjectID = "dMq-G0-GNB"; */
+"dMq-G0-GNB.normalTitle" = "3.5";
+
+/* Class = "UILabel"; text = "3"; ObjectID = "dNZ-VC-KWb"; */
+"dNZ-VC-KWb.text" = "3";
+
+/* Class = "UILabel"; text = "Amount"; ObjectID = "dOt-Uq-SNZ"; */
+"dOt-Uq-SNZ.text" = "Amount";
+
+/* Class = "UIButton"; normalTitle = "Cleo Collection"; ObjectID = "dPt-Yt-qqy"; */
+"dPt-Yt-qqy.normalTitle" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "Write your concept design"; ObjectID = "dSV-Cs-0yf"; */
+"dSV-Cs-0yf.text" = "Write your concept design";
+
+/* Class = "UILabel"; text = "WeChat Pay"; ObjectID = "dVA-m7-c3v"; */
+"dVA-m7-c3v.text" = "WeChat Pay";
+
+/* Class = "UIButton"; normalTitle = "Siam Paragon"; ObjectID = "dWF-3q-3n7"; */
+"dWF-3q-3n7.normalTitle" = "Siam Paragon";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "dWd-fA-ATg"; */
+"dWd-fA-ATg.placeholder" = "Customer Search";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "dbj-Jw-rOw"; */
+"dbj-Jw-rOw.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Text"; ObjectID = "ddC-8f-5GP"; */
+"ddC-8f-5GP.text" = "Text";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "ddW-pN-HGq"; */
+"ddW-pN-HGq.text" = "Purchase History";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon"; ObjectID = "dg4-ID-3JZ"; */
+"dg4-ID-3JZ.text" = "ARTINIAN - Siam Paragon";
+
+/* Class = "UILabel"; text = "MARLI NEW YORK Ltd."; ObjectID = "dop-5c-Zu2"; */
+"dop-5c-Zu2.text" = "MARLI NEW YORK Ltd.";
+
+/* Class = "UITextField"; placeholder = "0000"; ObjectID = "doq-1h-VWU"; */
+"doq-1h-VWU.placeholder" = "0000";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "dqX-sA-aec"; */
+"dqX-sA-aec.text" = "Select";
+
+/* Class = "UIButton"; normalTitle = "CHECKOUT"; ObjectID = "dro-yN-w4U"; */
+"dro-yN-w4U.normalTitle" = "CHECKOUT";
+
+/* Class = "UIButton"; normalTitle = "3"; ObjectID = "dw1-8L-7Ny"; */
+"dw1-8L-7Ny.normalTitle" = "3";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "dy3-JR-jX0"; */
+"dy3-JR-jX0.text" = "0.00";
+
+/* Class = "UITextField"; placeholder = "Thailand"; ObjectID = "e1h-1u-5dr"; */
+"e1h-1u-5dr.placeholder" = "Thailand";
+
+/* Class = "UIButton"; normalTitle = "5"; ObjectID = "eAX-lJ-aen"; */
+"eAX-lJ-aen.normalTitle" = "5";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "eFI-bp-IjN"; */
+"eFI-bp-IjN.text" = "POS";
+
+/* Class = "UILabel"; text = "Credit Card"; ObjectID = "eM9-kd-hw8"; */
+"eM9-kd-hw8.text" = "Credit Card";
+
+/* Class = "UIButton"; normalTitle = "2"; ObjectID = "eRs-u9-qxf"; */
+"eRs-u9-qxf.normalTitle" = "2";
+
+/* Class = "UILabel"; text = "$500"; ObjectID = "eT0-oG-U2R"; */
+"eT0-oG-U2R.text" = "$500";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "eZT-xX-yja"; */
+"eZT-xX-yja.text" = "Metal";
+
+/* Class = "UITextField"; placeholder = "Bangrak"; ObjectID = "eb6-GK-PY6"; */
+"eb6-GK-PY6.placeholder" = "Bangrak";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "eep-Em-Gpl"; */
+"eep-Em-Gpl.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "6,000.00"; ObjectID = "egR-MR-a2a"; */
+"egR-MR-a2a.text" = "6,000.00";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "elJ-cd-d37"; */
+"elJ-cd-d37.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "emk-93-col"; */
+"emk-93-col.text" = "Qty";
+
+/* Class = "UITextField"; placeholder = "Enter gift card number"; ObjectID = "eo3-I7-iPJ"; */
+"eo3-I7-iPJ.placeholder" = "Enter gift card number";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "evM-4E-yyM"; */
+"evM-4E-yyM.text" = "Print";
+
+/* Class = "UITextField"; text = "Jeweal Prosoft Co., Ltd"; ObjectID = "ewh-dk-jFi"; */
+"ewh-dk-jFi.text" = "Jeweal Prosoft Co., Ltd";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "ezc-Md-6HX"; */
+"ezc-Md-6HX.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "START"; ObjectID = "f0m-Al-tUp"; */
+"f0m-Al-tUp.text" = "START";
+
+/* Class = "UILabel"; text = "Discount (%)"; ObjectID = "f94-U3-TxZ"; */
+"f94-U3-TxZ.text" = "Discount (%)";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "fFU-96-TCz"; */
+"fFU-96-TCz.text" = "Qty";
+
+/* Class = "UILabel"; text = "15/09/2020"; ObjectID = "fG8-fr-a8F"; */
+"fG8-fr-a8F.text" = "15/09/2020";
+
+/* Class = "UIButton"; normalTitle = "Necklace"; ObjectID = "fGT-SW-RJ8"; */
+"fGT-SW-RJ8.normalTitle" = "Necklace";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "fIG-FM-jUj"; */
+"fIG-FM-jUj.text" = "+1408280225";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "fKa-YT-RoW"; */
+"fKa-YT-RoW.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "+66"; ObjectID = "fLD-mD-Mwm"; */
+"fLD-mD-Mwm.text" = "+66";
+
+/* Class = "UITextField"; placeholder = "Write a remark"; ObjectID = "fO3-hP-Vau"; */
+"fO3-hP-Vau.placeholder" = "Write a remark";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "fRP-hM-NaV"; */
+"fRP-hM-NaV.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "fXf-QM-hQN"; */
+"fXf-QM-hQN.text" = "Purchase History";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "fbf-VV-bHz"; */
+"fbf-VV-bHz.text" = "Remark";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "fdv-hm-Fv0"; */
+"fdv-hm-Fv0.text" = "SKU";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "fhf-5w-8Hw"; */
+"fhf-5w-8Hw.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "  "; ObjectID = "fje-J2-Stb"; */
+"fje-J2-Stb.text" = "  ";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "fn3-FT-AJW"; */
+"fn3-FT-AJW.text" = "0.00";
+
+/* Class = "UILabel"; text = "Wishlist"; ObjectID = "fqa-KY-gOT"; */
+"fqa-KY-gOT.text" = "Wishlist";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "fss-ky-nke"; */
+"fss-ky-nke.text" = "Total";
+
+/* Class = "UILabel"; text = "#ROCK BLOSSOM OVAL CHARM RING"; ObjectID = "fus-97-cc0"; */
+"fus-97-cc0.text" = "#ROCK BLOSSOM OVAL CHARM RING";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "g0G-jJ-7sK"; */
+"g0G-jJ-7sK.text" = "Share";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "g51-wJ-3bG"; */
+"g51-wJ-3bG.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "g7U-iC-6HZ"; */
+"g7U-iC-6HZ.text" = "Remark";
+
+/* Class = "UILabel"; text = "City"; ObjectID = "g8r-9L-ebF"; */
+"g8r-9L-ebF.text" = "City";
+
+/* Class = "UILabel"; text = "18KW Size 7.5 9.02GM"; ObjectID = "g9E-ZU-lBF"; */
+"g9E-ZU-lBF.text" = "18KW Size 7.5 9.02GM";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "gEz-ea-6ED"; */
+"gEz-ea-6ED.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "anastasiasteel@hotmail.com"; ObjectID = "gFh-6y-6ID"; */
+"gFh-6y-6ID.text" = "anastasiasteel@hotmail.com";
+
+/* Class = "UITextField"; placeholder = "Bankok"; ObjectID = "gGs-LI-g7m"; */
+"gGs-LI-g7m.placeholder" = "Bankok";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "gHH-0v-FWf"; */
+"gHH-0v-FWf.text" = "SKU";
+
+/* Class = "UILabel"; text = "Credit note"; ObjectID = "gHK-c8-nkL"; */
+"gHK-c8-nkL.text" = "Credit note";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "gKh-kq-6Vh"; */
+"gKh-kq-6Vh.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "18KW size 7"; ObjectID = "gLG-Hh-VGw"; */
+"gLG-Hh-VGw.text" = "18KW size 7";
+
+/* Class = "UILabel"; text = "FILE JPEG,PNG, PSD,AI"; ObjectID = "gN5-jl-HaH"; */
+"gN5-jl-HaH.text" = "FILE JPEG,PNG, PSD,AI";
+
+/* Class = "UILabel"; text = "Credit note"; ObjectID = "gNV-wC-yM7"; */
+"gNV-wC-yM7.text" = "Credit note";
+
+/* Class = "UILabel"; text = "20-29"; ObjectID = "gPa-SC-p1u"; */
+"gPa-SC-p1u.text" = "20-29";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "gV1-4k-rsI"; */
+"gV1-4k-rsI.text" = "1";
+
+/* Class = "UILabel"; text = "St"; ObjectID = "gVX-b1-77c"; */
+"gVX-b1-77c.text" = "St";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "gYj-MH-EJS"; */
+"gYj-MH-EJS.text" = "Size";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "gZ1-16-Q21"; */
+"gZ1-16-Q21.text" = "SKU";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "gZt-1G-4PW"; */
+"gZt-1G-4PW.text" = "Total";
+
+/* Class = "UILabel"; text = "Last Name"; ObjectID = "gaF-Ac-wwj"; */
+"gaF-Ac-wwj.text" = "Last Name";
+
+/* Class = "UILabel"; text = "Dis%   "; ObjectID = "gaK-za-hUw"; */
+"gaK-za-hUw.text" = "Dis%   ";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "gcx-lH-IaC"; */
+"gcx-lH-IaC.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Company"; ObjectID = "gfd-ju-J0M"; */
+"gfd-ju-J0M.text" = "Company";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "ggP-Z0-FtY"; */
+"ggP-Z0-FtY.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "gh3-7f-oBf"; */
+"gh3-7f-oBf.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "."; ObjectID = "gm1-QX-YTE"; */
+"gm1-QX-YTE.normalTitle" = ".";
+
+/* Class = "UILabel"; text = "Total : $21,000.00"; ObjectID = "goM-ld-dNP"; */
+"goM-ld-dNP.text" = "Total : $21,000.00";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "gp2-RQ-aSA"; */
+"gp2-RQ-aSA.text" = "0";
+
+/* Class = "UILabel"; text = "Refund"; ObjectID = "gsJ-tD-ayE"; */
+"gsJ-tD-ayE.text" = "Refund";
+
+/* Class = "UILabel"; text = "WeChat Pay"; ObjectID = "gva-MX-sEI"; */
+"gva-MX-sEI.text" = "WeChat Pay";
+
+/* Class = "UILabel"; text = "Cleo Collection"; ObjectID = "gx5-Uu-SC1"; */
+"gx5-Uu-SC1.text" = "Cleo Collection";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "gyW-3W-adw"; */
+"gyW-3W-adw.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "Stock"; ObjectID = "gz1-Xg-WdM"; */
+"gz1-Xg-WdM.text" = "Stock";
+
+/* Class = "UILabel"; text = "Concept Design"; ObjectID = "h1f-ZV-EUV"; */
+"h1f-ZV-EUV.text" = "Concept Design";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "h2r-Qa-Urk"; */
+"h2r-Qa-Urk.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000"; ObjectID = "h9p-Rl-169"; */
+"h9p-Rl-169.text" = "AN_CCBCN_123000";
+
+/* Class = "UILabel"; text = "Province / State"; ObjectID = "hCL-ub-MoT"; */
+"hCL-ub-MoT.text" = "Province / State";
+
+/* Class = "UITextField"; placeholder = "20 - 30"; ObjectID = "hCg-cq-SFt"; */
+"hCg-cq-SFt.placeholder" = "20 - 30";
+
+/* Class = "UILabel"; text = "Remark: diamond in center and 2 ruby "; ObjectID = "hHn-ZT-ac1"; */
+"hHn-ZT-ac1.text" = "Remark: diamond in center and 2 ruby ";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "hIM-dc-agM"; */
+"hIM-dc-agM.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "hJB-ZD-FAG"; */
+"hJB-ZD-FAG.text" = "Select";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "hJL-Bm-0nx"; */
+"hJL-Bm-0nx.text" = "--";
+
+/* Class = "UILabel"; text = "Filter"; ObjectID = "hL3-R6-uKS"; */
+"hL3-R6-uKS.text" = "Filter";
+
+/* Class = "UIButton"; normalTitle = "9"; ObjectID = "hO2-ZY-Y3e"; */
+"hO2-ZY-Y3e.normalTitle" = "9";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000"; ObjectID = "hYV-Su-Njl"; */
+"hYV-Su-Njl.text" = "AN_CCBCN_123000";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "hea-rv-BbX"; */
+"hea-rv-BbX.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "hfx-N2-9Dj"; */
+"hfx-N2-9Dj.text" = "Invoice";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "hgo-h7-dck"; */
+"hgo-h7-dck.text" = "Sale person";
+
+/* Class = "UIButton"; normalTitle = "Clear All"; ObjectID = "hhJ-pr-wVs"; */
+"hhJ-pr-wVs.normalTitle" = "Clear All";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "hiF-XF-9JC"; */
+"hiF-XF-9JC.text" = "Remark";
+
+/* Class = "UILabel"; text = "30,000.00"; ObjectID = "hiX-Ox-j1q"; */
+"hiX-Ox-j1q.text" = "30,000.00";
+
+/* Class = "UILabel"; text = "Stock"; ObjectID = "hjh-dN-xnd"; */
+"hjh-dN-xnd.text" = "Stock";
+
+/* Class = "UILabel"; text = "Repair List"; ObjectID = "hwW-lI-9wu"; */
+"hwW-lI-9wu.text" = "Repair List";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "hwa-cr-lQo"; */
+"hwa-cr-lQo.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "hwj-Bz-jhD"; */
+"hwj-Bz-jhD.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "i1F-aT-Aj2"; */
+"i1F-aT-Aj2.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "i2Q-1A-qcZ"; */
+"i2Q-1A-qcZ.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "Select "; ObjectID = "iFr-yd-481"; */
+"iFr-yd-481.normalTitle" = "Select ";
+
+/* Class = "UIButton"; selectedTitle = "Cancel"; ObjectID = "iFr-yd-481"; */
+"iFr-yd-481.selectedTitle" = "Cancel";
+
+/* Class = "UITextView"; text = "1249/138E Gems Tower Building, 15th Floor , Charoenkrung Road, Suriyawongse"; ObjectID = "iFs-UG-JGa"; */
+"iFs-UG-JGa.text" = "1249/138E Gems Tower Building, 15th Floor , Charoenkrung Road, Suriyawongse";
+
+/* Class = "UIButton"; normalTitle = "PAY NOW"; ObjectID = "iJm-rm-GpJ"; */
+"iJm-rm-GpJ.normalTitle" = "PAY NOW";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "iM6-Kz-ccD"; */
+"iM6-Kz-ccD.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "iWb-9U-Dj7"; */
+"iWb-9U-Dj7.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "iX5-jE-2dY"; */
+"iX5-jE-2dY.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "iXq-P7-8J3"; */
+"iXq-P7-8J3.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Credit Card"; ObjectID = "iai-6x-pfS"; */
+"iai-6x-pfS.text" = "Credit Card";
+
+/* Class = "UIButton"; normalTitle = "ADD TO CART"; ObjectID = "icR-AD-uWw"; */
+"icR-AD-uWw.normalTitle" = "ADD TO CART";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "igf-Nl-pgA"; */
+"igf-Nl-pgA.text" = "--";
+
+/* Class = "UILabel"; text = "*$3,000.00"; ObjectID = "im5-N4-7aV"; */
+"im5-N4-7aV.text" = "*$3,000.00";
+
+/* Class = "UILabel"; text = "70DRO.90 / 1DE.18"; ObjectID = "iqf-eR-Q6B"; */
+"iqf-eR-Q6B.text" = "70DRO.90 / 1DE.18";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "ivQ-Yb-DRu"; */
+"ivQ-Yb-DRu.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "INVENTORY"; ObjectID = "j0O-JQ-Mpw"; */
+"j0O-JQ-Mpw.text" = "INVENTORY";
+
+/* Class = "UILabel"; text = "Bank"; ObjectID = "j8T-SQ-w2c"; */
+"j8T-SQ-w2c.text" = "Bank";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "j9t-Iz-y7p"; */
+"j9t-Iz-y7p.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "Aug 28,202009:00 AM"; ObjectID = "jCS-7Q-zL5"; */
+"jCS-7Q-zL5.text" = "Aug 28,202009:00 AM";
+
+/* Class = "UILabel"; text = "*$3,000.00"; ObjectID = "jKU-wU-oSb"; */
+"jKU-wU-oSb.text" = "*$3,000.00";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "jKt-Jp-PDw"; */
+"jKt-Jp-PDw.text" = "Invoice";
+
+/* Class = "UILabel"; text = "0 Item Selected"; ObjectID = "jWw-OW-wEc"; */
+"jWw-OW-wEc.text" = "0 Item Selected";
+
+/* Class = "UILabel"; text = "$5000"; ObjectID = "jZ6-eA-Xyu"; */
+"jZ6-eA-Xyu.text" = "$5000";
+
+/* Class = "UILabel"; text = "18/08/2020"; ObjectID = "jem-Jz-G4V"; */
+"jem-Jz-G4V.text" = "18/08/2020";
+
+/* Class = "UILabel"; text = "Discount"; ObjectID = "jf4-A8-xtY"; */
+"jf4-A8-xtY.text" = "Discount";
+
+/* Class = "UILabel"; text = "Invoice"; ObjectID = "jh1-wZ-bY6"; */
+"jh1-wZ-bY6.text" = "Invoice";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "jlA-xl-Z2a"; */
+"jlA-xl-Z2a.text" = "SKU";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "jpc-s0-IgZ"; */
+"jpc-s0-IgZ.text" = "--";
+
+/* Class = "UITextField"; placeholder = "M/F/T"; ObjectID = "jv6-rd-BD5"; */
+"jv6-rd-BD5.placeholder" = "M/F/T";
+
+/* Class = "UILabel"; text = "Sub Total"; ObjectID = "jxt-sa-BC7"; */
+"jxt-sa-BC7.text" = "Sub Total";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "k8w-FH-LyI"; */
+"k8w-FH-LyI.text" = "Email";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "kGr-KH-9gA"; */
+"kGr-KH-9gA.text" = "100001";
+
+/* Class = "UILabel"; text = "Now! Quick login with PIN"; ObjectID = "kJS-xe-1lM"; */
+"kJS-xe-1lM.text" = "Now! Quick login with PIN";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "kMZ-uM-sSr"; */
+"kMZ-uM-sSr.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "kNJ-6b-DJ3"; */
+"kNJ-6b-DJ3.text" = "Price";
+
+/* Class = "UITextField"; placeholder = "Write a remark"; ObjectID = "kO7-Ta-72D"; */
+"kO7-Ta-72D.placeholder" = "Write a remark";
+
+/* Class = "UILabel"; text = "Payment"; ObjectID = "kR9-rD-PIa"; */
+"kR9-rD-PIa.text" = "Payment";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "kRx-OY-w3p"; */
+"kRx-OY-w3p.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "kXd-7U-Asz"; */
+"kXd-7U-Asz.text" = "Stone";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "kZ9-bw-Gl9"; */
+"kZ9-bw-Gl9.text" = "Anastasia Steel";
+
+/* Class = "UIButton"; normalTitle = "CONFIRM"; ObjectID = "kZC-7z-3mt"; */
+"kZC-7z-3mt.normalTitle" = "CONFIRM";
+
+/* Class = "UIButton"; normalTitle = "4"; ObjectID = "kbr-WN-FQh"; */
+"kbr-WN-FQh.normalTitle" = "4";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "kjF-LN-SEd"; */
+"kjF-LN-SEd.text" = "Metal";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "kjQ-jq-0x9"; */
+"kjQ-jq-0x9.text" = "Email";
+
+/* Class = "UILabel"; text = "# CLEO CHARM BEADED CHAIN NECKLACE"; ObjectID = "klB-cx-gQZ"; */
+"klB-cx-gQZ.text" = "# CLEO CHARM BEADED CHAIN NECKLACE";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "kmc-bC-eOW"; */
+"kmc-bC-eOW.text" = "POS";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "ksm-Yv-aGP"; */
+"ksm-Yv-aGP.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "3.5"; ObjectID = "kuJ-RI-hL6"; */
+"kuJ-RI-hL6.normalTitle" = "3.5";
+
+/* Class = "UITextField"; placeholder = "Search  by name ,mobile,email, country..."; ObjectID = "kxQ-ah-pbx"; */
+"kxQ-ah-pbx.placeholder" = "Search  by name ,mobile,email, country...";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "l4H-bQ-IBB"; */
+"l4H-bQ-IBB.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "lD0-fa-zfn"; */
+"lD0-fa-zfn.text" = "Select";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "lNj-qS-VrY"; */
+"lNj-qS-VrY.text" = "3000";
+
+/* Class = "UILabel"; text = "Exchange"; ObjectID = "lRC-ak-dpZ"; */
+"lRC-ak-dpZ.text" = "Exchange";
+
+/* Class = "UILabel"; text = "Home"; ObjectID = "lSD-tn-wJI"; */
+"lSD-tn-wJI.text" = "Home";
+
+/* Class = "UIButton"; normalTitle = "CHECKOUT"; ObjectID = "lV9-Ut-0fJ"; */
+"lV9-Ut-0fJ.normalTitle" = "CHECKOUT";
+
+/* Class = "UILabel"; text = "Location"; ObjectID = "lW3-h5-c46"; */
+"lW3-h5-c46.text" = "Location";
+
+/* Class = "UIButton"; normalTitle = "8"; ObjectID = "lXL-gQ-OOw"; */
+"lXL-gQ-OOw.normalTitle" = "8";
+
+/* Class = "UILabel"; text = "Occasion"; ObjectID = "lZM-Mo-Vd8"; */
+"lZM-Mo-Vd8.text" = "Occasion";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "lf3-Tz-nGW"; */
+"lf3-Tz-nGW.normalTitle" = "Button";
+
+/* Class = "UILabel"; text = "Customer"; ObjectID = "lgC-xY-0kS"; */
+"lgC-xY-0kS.text" = "Customer";
+
+/* Class = "UILabel"; text = "Almas.mozzi@hotmail.com"; ObjectID = "lhg-PA-Uap"; */
+"lhg-PA-Uap.text" = "Almas.mozzi@hotmail.com";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "lid-yn-Z8k"; */
+"lid-yn-Z8k.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Add more size"; ObjectID = "llg-ag-egy"; */
+"llg-ag-egy.text" = "Add more size";
+
+/* Class = "UILabel"; text = "POS"; ObjectID = "lm6-kv-7Ok"; */
+"lm6-kv-7Ok.text" = "POS";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "ln9-7l-jDe"; */
+"ln9-7l-jDe.text" = "Qty";
+
+/* Class = "UILabel"; text = "Create your jewelry by your own design"; ObjectID = "lpC-IF-azj"; */
+"lpC-IF-azj.text" = "Create your jewelry by your own design";
+
+/* Class = "UILabel"; text = "Image"; ObjectID = "lu1-W5-Jru"; */
+"lu1-W5-Jru.text" = "Image";
+
+/* Class = "UILabel"; text = "Transaction"; ObjectID = "lxB-lJ-dr5"; */
+"lxB-lJ-dr5.text" = "Transaction";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "m5q-y8-rom"; */
+"m5q-y8-rom.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "m6Y-JB-klb"; */
+"m6Y-JB-klb.text" = "190001";
+
+/* Class = "UILabel"; text = "Valid until 31 Dec 2020"; ObjectID = "mAN-hD-3hW"; */
+"mAN-hD-3hW.text" = "Valid until 31 Dec 2020";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "mAs-68-cwS"; */
+"mAs-68-cwS.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Sold"; ObjectID = "mHv-CM-bwv"; */
+"mHv-CM-bwv.text" = "Sold";
+
+/* Class = "UILabel"; text = "Customer"; ObjectID = "mWf-x5-N9u"; */
+"mWf-x5-N9u.text" = "Customer";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "mZY-C5-96g"; */
+"mZY-C5-96g.text" = "0.00";
+
+/* Class = "UILabel"; text = "Pcs"; ObjectID = "mbq-gW-EH8"; */
+"mbq-gW-EH8.text" = "Pcs";
+
+/* Class = "UILabel"; text = "Reserve"; ObjectID = "md6-rb-FnM"; */
+"md6-rb-FnM.text" = "Reserve";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "mf3-eV-WbP"; */
+"mf3-eV-WbP.normalTitle" = "Submit";
+
+/* Class = "UITextField"; placeholder = "Facebook"; ObjectID = "mf5-o2-pR2"; */
+"mf5-o2-pR2.placeholder" = "Facebook";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "mjQ-iz-WfR"; */
+"mjQ-iz-WfR.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "mkX-jx-qh9"; */
+"mkX-jx-qh9.text" = "Price";
+
+/* Class = "UITextField"; text = "5"; ObjectID = "mss-LY-Dxr"; */
+"mss-LY-Dxr.text" = "5";
+
+/* Class = "UITextField"; placeholder = "07/07/2007"; ObjectID = "mxp-43-1pI"; */
+"mxp-43-1pI.placeholder" = "07/07/2007";
+
+/* Class = "UILabel"; text = "Check Out"; ObjectID = "n2N-aT-xqE"; */
+"n2N-aT-xqE.text" = "Check Out";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "n5a-rA-LXe"; */
+"n5a-rA-LXe.text" = "Seattle, USA";
+
+/* Class = "UIButton"; normalTitle = "18 KW"; ObjectID = "nAy-3E-tId"; */
+"nAy-3E-tId.normalTitle" = "18 KW";
+
+/* Class = "UILabel"; text = "EXP (MM/YY)"; ObjectID = "nFt-GZ-mQ7"; */
+"nFt-GZ-mQ7.text" = "EXP (MM/YY)";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "nKS-yf-leU"; */
+"nKS-yf-leU.text" = "Anastasia Steel";
+
+/* Class = "UIButton"; normalTitle = "Stock Id"; ObjectID = "nQX-wT-occ"; */
+"nQX-wT-occ.normalTitle" = "Stock Id";
+
+/* Class = "UITextField"; text = "85-902-1100"; ObjectID = "nTX-ML-eyd"; */
+"nTX-ML-eyd.text" = "85-902-1100";
+
+/* Class = "UILabel"; text = "Print"; ObjectID = "nWu-e2-6CV"; */
+"nWu-e2-6CV.text" = "Print";
+
+/* Class = "UIButton"; normalTitle = "Necklace"; ObjectID = "nai-U5-y1v"; */
+"nai-U5-y1v.normalTitle" = "Necklace";
+
+/* Class = "UILabel"; text = "050505050"; ObjectID = "nbH-wT-MfX"; */
+"nbH-wT-MfX.text" = "050505050";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000000"; ObjectID = "nby-Gz-7gb"; */
+"nby-Gz-7gb.text" = "AN_CCBCN_123000000";
+
+/* Class = "UIButton"; normalTitle = "1"; ObjectID = "ncv-BF-smA"; */
+"ncv-BF-smA.normalTitle" = "1";
+
+/* Class = "UILabel"; text = "Mobile"; ObjectID = "nl9-A8-paL"; */
+"nl9-A8-paL.text" = "Mobile";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "noe-pe-kRi"; */
+"noe-pe-kRi.text" = "Qty";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "nuH-F7-PH6"; */
+"nuH-F7-PH6.text" = "+1408280225";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "nwF-uF-sZY"; */
+"nwF-uF-sZY.normalTitle" = "Select All";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "o4d-4A-UVg"; */
+"o4d-4A-UVg.placeholder" = "Email";
+
+/* Class = "UILabel"; text = "Date of Birth"; ObjectID = "o5Y-JR-ClU"; */
+"o5Y-JR-ClU.text" = "Date of Birth";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "oDn-Em-MVB"; */
+"oDn-Em-MVB.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Marli New York"; ObjectID = "oJx-0N-rUb"; */
+"oJx-0N-rUb.text" = "Marli New York";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "oMm-GY-BhR"; */
+"oMm-GY-BhR.text" = "StockID";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "oRN-GU-4LJ"; */
+"oRN-GU-4LJ.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "Necklace"; ObjectID = "oY2-EU-ugS"; */
+"oY2-EU-ugS.text" = "Necklace";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "oc4-PW-K6m"; */
+"oc4-PW-K6m.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Shipping address same as billing address"; ObjectID = "odJ-bn-8Ar"; */
+"odJ-bn-8Ar.text" = "Shipping address same as billing address";
+
+/* Class = "UIButton"; normalTitle = "ADD TO CART"; ObjectID = "ol8-Q4-rmx"; */
+"ol8-Q4-rmx.normalTitle" = "ADD TO CART";
+
+/* Class = "UIButton"; normalTitle = "Text"; ObjectID = "osQ-d6-WdP"; */
+"osQ-d6-WdP.normalTitle" = "Text";
+
+/* Class = "UILabel"; text = "0000052"; ObjectID = "oyO-U7-BPq"; */
+"oyO-U7-BPq.text" = "0000052";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "oyp-xz-DhD"; */
+"oyp-xz-DhD.text" = "Remark";
+
+/* Class = "UITextField"; placeholder = "Name, Mobile, City, Country"; ObjectID = "p0k-Xc-GTl"; */
+"p0k-Xc-GTl.placeholder" = "Name, Mobile, City, Country";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "p2Y-Jv-lXu"; */
+"p2Y-Jv-lXu.text" = "176,898";
+
+/* Class = "UILabel"; text = "Power"; ObjectID = "p2h-cq-OB7"; */
+"p2h-cq-OB7.text" = "Power";
+
+/* Class = "UIButton"; normalTitle = "Diamond"; ObjectID = "p44-m3-R9r"; */
+"p44-m3-R9r.normalTitle" = "Diamond";
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "p6f-xy-9Ka"; */
+"p6f-xy-9Ka.text" = "Name";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "p7C-sP-03J"; */
+"p7C-sP-03J.text" = "Stone";
+
+/* Class = "UILabel"; text = "2100000"; ObjectID = "p7p-xY-a4a"; */
+"p7p-xY-a4a.text" = "2100000";
+
+/* Class = "UIButton"; normalTitle = "Login with Password"; ObjectID = "pA5-en-OWc"; */
+"pA5-en-OWc.normalTitle" = "Login with Password";
+
+/* Class = "UIButton"; normalTitle = "My Inventory"; ObjectID = "pFC-Oz-xaN"; */
+"pFC-Oz-xaN.normalTitle" = "My Inventory";
+
+/* Class = "UILabel"; text = "00098"; ObjectID = "pGk-7W-mdw"; */
+"pGk-7W-mdw.text" = "00098";
+
+/* Class = "UIButton"; normalTitle = "5"; ObjectID = "pHO-wX-cMu"; */
+"pHO-wX-cMu.normalTitle" = "5";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "pHP-Ko-hIF"; */
+"pHP-Ko-hIF.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "0"; ObjectID = "pOL-62-E0y"; */
+"pOL-62-E0y.normalTitle" = "0";
+
+/* Class = "UITextField"; placeholder = "0000-0000-0000"; ObjectID = "pQm-WJ-Jih"; */
+"pQm-WJ-Jih.placeholder" = "0000-0000-0000";
+
+/* Class = "UILabel"; text = "18/08/2020"; ObjectID = "pRw-4G-4It"; */
+"pRw-4G-4It.text" = "18/08/2020";
+
+/* Class = "UIButton"; normalTitle = "5"; ObjectID = "pa5-hN-lr7"; */
+"pa5-hN-lr7.normalTitle" = "5";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "paO-2d-fbO"; */
+"paO-2d-fbO.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Unit"; ObjectID = "pe6-hw-ZUb"; */
+"pe6-hw-ZUb.text" = "Unit";
+
+/* Class = "UILabel"; text = "Re"; ObjectID = "pqU-py-mKu"; */
+"pqU-py-mKu.text" = "Re";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "py2-6I-HMY"; */
+"py2-6I-HMY.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "pyO-2y-Bhd"; */
+"pyO-2y-Bhd.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Payment"; ObjectID = "q0n-55-deA"; */
+"q0n-55-deA.text" = "Payment";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "q3y-do-MXk"; */
+"q3y-do-MXk.placeholder" = "Customer Search";
+
+/* Class = "UIButton"; normalTitle = "Enter"; ObjectID = "q50-c9-tXA"; */
+"q50-c9-tXA.normalTitle" = "Enter";
+
+/* Class = "UILabel"; text = "Ref No."; ObjectID = "q5H-k3-Pn0"; */
+"q5H-k3-Pn0.text" = "Ref No.";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "q5u-x5-Az0"; */
+"q5u-x5-Az0.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "11"; ObjectID = "qBN-Cw-kmT"; */
+"qBN-Cw-kmT.text" = "11";
+
+/* Class = "UILabel"; text = "SCANNED"; ObjectID = "qG2-ii-ii8"; */
+"qG2-ii-ii8.text" = "SCANNED";
+
+/* Class = "UILabel"; text = "SKU"; ObjectID = "qJ7-jp-Alm"; */
+"qJ7-jp-Alm.text" = "SKU";
+
+/* Class = "UILabel"; text = "Alipay"; ObjectID = "qMk-v3-WCl"; */
+"qMk-v3-WCl.text" = "Alipay";
+
+/* Class = "UILabel"; text = "AN_CCBCN_123000"; ObjectID = "qUc-ZS-Qwg"; */
+"qUc-ZS-Qwg.text" = "AN_CCBCN_123000";
+
+/* Class = "UILabel"; text = "-"; ObjectID = "qci-ev-iat"; */
+"qci-ev-iat.text" = "-";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "qcr-hJ-qMZ"; */
+"qcr-hJ-qMZ.normalTitle" = "Submit";
+
+/* Class = "UITextField"; text = "1"; ObjectID = "qeD-17-uMB"; */
+"qeD-17-uMB.text" = "1";
+
+/* Class = "UILabel"; text = "USD"; ObjectID = "qgp-Hf-cQ9"; */
+"qgp-Hf-cQ9.text" = "USD";
+
+/* Class = "UILabel"; text = "Gift Card"; ObjectID = "qhT-xg-GUW"; */
+"qhT-xg-GUW.text" = "Gift Card";
+
+/* Class = "UITextField"; placeholder = "900000000"; ObjectID = "qiy-lC-8Ty"; */
+"qiy-lC-8Ty.placeholder" = "900000000";
+
+/* Class = "UILabel"; text = "Item Search"; ObjectID = "qjk-ZE-5ms"; */
+"qjk-ZE-5ms.text" = "Item Search";
+
+/* Class = "UILabel"; text = "Age"; ObjectID = "qmR-Uo-i9G"; */
+"qmR-Uo-i9G.text" = "Age";
+
+/* Class = "UILabel"; text = "Full Name"; ObjectID = "qn0-aE-B1E"; */
+"qn0-aE-B1E.text" = "Full Name";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "qnh-ER-1A1"; */
+"qnh-ER-1A1.text" = "Collection";
+
+/* Class = "UILabel"; text = "AN_CCBCN_1230000"; ObjectID = "qoM-AU-mIF"; */
+"qoM-AU-mIF.text" = "AN_CCBCN_1230000";
+
+/* Class = "UILabel"; text = "Loyalty point"; ObjectID = "qpp-OK-xQA"; */
+"qpp-OK-xQA.text" = "Loyalty point";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "qxy-4F-9WI"; */
+"qxy-4F-9WI.text" = "4";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "r0m-bs-kMt"; */
+"r0m-bs-kMt.text" = "Anastasia Steel";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "r3D-Hx-dmn"; */
+"r3D-Hx-dmn.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "rEv-TL-RiP"; */
+"rEv-TL-RiP.text" = "Qty";
+
+/* Class = "UITextField"; placeholder = "123ABC"; ObjectID = "rHr-bC-kBj"; */
+"rHr-bC-kBj.placeholder" = "123ABC";
+
+/* Class = "UILabel"; text = "Gender"; ObjectID = "rIj-pw-fPX"; */
+"rIj-pw-fPX.text" = "Gender";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "rJx-g0-r60"; */
+"rJx-g0-r60.text" = "Total";
+
+/* Class = "UITextField"; placeholder = "Customer Search"; ObjectID = "rQI-qm-tBn"; */
+"rQI-qm-tBn.placeholder" = "Customer Search";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "rQx-ll-dWb"; */
+"rQx-ll-dWb.text" = "Qty";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "rWQ-ED-HfC"; */
+"rWQ-ED-HfC.text" = "Select";
+
+/* Class = "UIButton"; normalTitle = "ADD NOW"; ObjectID = "raj-4q-dFV"; */
+"raj-4q-dFV.normalTitle" = "ADD NOW";
+
+/* Class = "UILabel"; text = "Remark : diamond with ruby"; ObjectID = "reA-NY-Lnv"; */
+"reA-NY-Lnv.text" = "Remark : diamond with ruby";
+
+/* Class = "UILabel"; text = "Balance Due"; ObjectID = "rjH-X4-6XE"; */
+"rjH-X4-6XE.text" = "Balance Due";
+
+/* Class = "UILabel"; text = "Upload Logo"; ObjectID = "rjJ-Fz-Xdl"; */
+"rjJ-Fz-Xdl.text" = "Upload Logo";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "rm8-eX-B96"; */
+"rm8-eX-B96.text" = "4";
+
+/* Class = "UILabel"; text = "00098"; ObjectID = "rmB-ym-yPi"; */
+"rmB-ym-yPi.text" = "00098";
+
+/* Class = "UILabel"; text = "StockID"; ObjectID = "rmX-9o-Fby"; */
+"rmX-9o-Fby.text" = "StockID";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "rp8-Z8-6Fd"; */
+"rp8-Z8-6Fd.text" = "Remark";
+
+/* Class = "UILabel"; text = "Age"; ObjectID = "rsO-nP-JWc"; */
+"rsO-nP-JWc.text" = "Age";
+
+/* Class = "UITextField"; placeholder = "Thailand"; ObjectID = "rw0-F3-4m3"; */
+"rw0-F3-4m3.placeholder" = "Thailand";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "s5S-5x-q0k"; */
+"s5S-5x-q0k.text" = "--";
+
+/* Class = "UILabel"; text = "5000"; ObjectID = "s5i-u9-C6E"; */
+"s5i-u9-C6E.text" = "5000";
+
+/* Class = "UILabel"; text = "Exchange Rate"; ObjectID = "s7i-ux-1ac"; */
+"s7i-ux-1ac.text" = "Exchange Rate";
+
+/* Class = "UILabel"; text = "Payment"; ObjectID = "sCF-bZ-XRg"; */
+"sCF-bZ-XRg.text" = "Payment";
+
+/* Class = "UITextField"; placeholder = "0.00"; ObjectID = "sEG-IO-B4P"; */
+"sEG-IO-B4P.placeholder" = "0.00";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "sHB-gG-OdM"; */
+"sHB-gG-OdM.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "sKa-yW-txH"; */
+"sKa-yW-txH.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "sNe-sz-5l9"; */
+"sNe-sz-5l9.text" = "Metal";
+
+/* Class = "UILabel"; text = "Refresh"; ObjectID = "sSY-Ze-FWJ"; */
+"sSY-Ze-FWJ.text" = "Refresh";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "sXN-Sy-094"; */
+"sXN-Sy-094.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Remark : "; ObjectID = "sXd-lQ-cnl"; */
+"sXd-lQ-cnl.text" = "Remark : ";
+
+/* Class = "UILabel"; text = "$6,000"; ObjectID = "sZZ-Hm-AcO"; */
+"sZZ-Hm-AcO.text" = "$6,000";
+
+/* Class = "UILabel"; text = "Hello!"; ObjectID = "saU-LB-1Mm"; */
+"saU-LB-1Mm.text" = "Hello!";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "sbQ-PR-Nft"; */
+"sbQ-PR-Nft.text" = "3000";
+
+/* Class = "UILabel"; text = "Occasion"; ObjectID = "soi-yy-634"; */
+"soi-yy-634.text" = "Occasion";
+
+/* Class = "UILabel"; text = "15/09/2020"; ObjectID = "stZ-Dg-UTI"; */
+"stZ-Dg-UTI.text" = "15/09/2020";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "svE-Ny-hPg"; */
+"svE-Ny-hPg.text" = "190001";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "swm-CA-xZW"; */
+"swm-CA-xZW.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "Stock"; ObjectID = "syP-a9-Wf5"; */
+"syP-a9-Wf5.text" = "Stock";
+
+/* Class = "UITextField"; text = "born@jeweal.com"; ObjectID = "t2G-ak-fGG"; */
+"t2G-ak-fGG.text" = "born@jeweal.com";
+
+/* Class = "UILabel"; text = "176,898"; ObjectID = "tAb-0N-XHT"; */
+"tAb-0N-XHT.text" = "176,898";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "tES-KK-OiQ"; */
+"tES-KK-OiQ.text" = "7";
+
+/* Class = "UILabel"; text = "Seattle, United States"; ObjectID = "tMz-Vo-j5f"; */
+"tMz-Vo-j5f.text" = "Seattle, United States";
+
+/* Class = "UITextView"; text = "Which position would you like to engraving ?"; ObjectID = "tOO-0D-xIT"; */
+"tOO-0D-xIT.text" = "Which position would you like to engraving ?";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "tQk-Oa-4zC"; */
+"tQk-Oa-4zC.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "tUH-b0-J7l"; */
+"tUH-b0-J7l.text" = "Stone";
+
+/* Class = "UILabel"; text = "Exchange"; ObjectID = "tVj-Al-5zw"; */
+"tVj-Al-5zw.text" = "Exchange";
+
+/* Class = "UILabel"; text = "Month"; ObjectID = "tWG-oD-kI1"; */
+"tWG-oD-kI1.text" = "Month";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "tWL-X3-N1A"; */
+"tWL-X3-N1A.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "tbV-pT-E94"; */
+"tbV-pT-E94.text" = "190001";
+
+/* Class = "UILabel"; text = "Total"; ObjectID = "teH-uz-hic"; */
+"teH-uz-hic.text" = "Total";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "tef-7q-XWa"; */
+"tef-7q-XWa.text" = "1";
+
+/* Class = "UILabel"; text = "Collection"; ObjectID = "tiw-KY-cs8"; */
+"tiw-KY-cs8.text" = "Collection";
+
+/* Class = "UILabel"; text = "Filter"; ObjectID = "tnJ-74-2g2"; */
+"tnJ-74-2g2.text" = "Filter";
+
+/* Class = "UILabel"; text = "Exchange"; ObjectID = "tpo-Ph-MVk"; */
+"tpo-Ph-MVk.text" = "Exchange";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "trm-cH-37H"; */
+"trm-cH-37H.placeholder" = "Email";
+
+/* Class = "UITextField"; text = ".gis247.cloud"; ObjectID = "trm-cH-37H"; */
+"trm-cH-37H.text" = ".gis247.cloud";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "txm-eG-U0R"; */
+"txm-eG-U0R.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "u2J-uK-bA8"; */
+"u2J-uK-bA8.text" = "Email";
+
+/* Class = "UILabel"; text = "Thailand"; ObjectID = "u2i-JG-rpX"; */
+"u2i-JG-rpX.text" = "Thailand";
+
+/* Class = "UILabel"; text = "Full Name"; ObjectID = "u7F-ZB-vBW"; */
+"u7F-ZB-vBW.text" = "Full Name";
+
+/* Class = "UILabel"; text = "Sale person"; ObjectID = "u7h-Ja-kII"; */
+"u7h-Ja-kII.text" = "Sale person";
+
+/* Class = "UITextField"; placeholder = "0000-0000-0000"; ObjectID = "uB0-2i-wXr"; */
+"uB0-2i-wXr.placeholder" = "0000-0000-0000";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "uFf-VF-AX1"; */
+"uFf-VF-AX1.text" = "Select";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "uLd-LH-BZw"; */
+"uLd-LH-BZw.text" = "3000";
+
+/* Class = "UILabel"; text = "Month"; ObjectID = "uOJ-DH-w7S"; */
+"uOJ-DH-w7S.text" = "Month";
+
+/* Class = "UILabel"; text = "0000051"; ObjectID = "uOY-cK-Tig"; */
+"uOY-cK-Tig.text" = "0000051";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "uPA-B0-qse"; */
+"uPA-B0-qse.text" = "1";
+
+/* Class = "UILabel"; text = "2"; ObjectID = "uUx-OW-N4G"; */
+"uUx-OW-N4G.text" = "2";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "uVp-yg-Iu9"; */
+"uVp-yg-Iu9.placeholder" = "Email";
+
+/* Class = "UITextField"; text = ".gis247.cloud"; ObjectID = "uVp-yg-Iu9"; */
+"uVp-yg-Iu9.text" = ".gis247.cloud";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "uVr-Uu-4qO"; */
+"uVr-Uu-4qO.text" = "Seattle, USA";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "uXm-hk-ZcN"; */
+"uXm-hk-ZcN.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "$0.00"; ObjectID = "ufa-HN-LOb"; */
+"ufa-HN-LOb.text" = "$0.00";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "ugr-lY-iRC"; */
+"ugr-lY-iRC.normalTitle" = "Submit";
+
+/* Class = "UILabel"; text = "Price"; ObjectID = "um7-2e-wLC"; */
+"um7-2e-wLC.text" = "Price";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "umo-rF-aHp"; */
+"umo-rF-aHp.text" = "Remark";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "umz-HJ-xuX"; */
+"umz-HJ-xuX.text" = "Size";
+
+/* Class = "UILabel"; text = "Remark"; ObjectID = "upg-9H-WPz"; */
+"upg-9H-WPz.text" = "Remark";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "uvQ-lW-vXc"; */
+"uvQ-lW-vXc.normalTitle" = "Submit";
+
+/* Class = "UITextField"; placeholder = "born@jeweal.com"; ObjectID = "v1s-WC-Uhu"; */
+"v1s-WC-Uhu.placeholder" = "born@jeweal.com";
+
+/* Class = "UILabel"; text = "Deposit"; ObjectID = "v2b-ra-aWq"; */
+"v2b-ra-aWq.text" = "Deposit";
+
+/* Class = "UIButton"; normalTitle = "FORGOT PIN?"; ObjectID = "v8Y-f2-xfq"; */
+"v8Y-f2-xfq.normalTitle" = "FORGOT PIN?";
+
+/* Class = "UILabel"; text = "Credit Note"; ObjectID = "vb4-ep-KWg"; */
+"vb4-ep-KWg.text" = "Credit Note";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "vbW-tL-efa"; */
+"vbW-tL-efa.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "$500"; ObjectID = "vbl-GT-gSC"; */
+"vbl-GT-gSC.text" = "$500";
+
+/* Class = "UITextField"; placeholder = "Select"; ObjectID = "vd2-Yi-8rQ"; */
+"vd2-Yi-8rQ.placeholder" = "Select";
+
+/* Class = "UILabel"; text = "Select"; ObjectID = "vju-Ub-kyn"; */
+"vju-Ub-kyn.text" = "Select";
+
+/* Class = "UILabel"; text = "100001"; ObjectID = "vkj-rJ-xjz"; */
+"vkj-rJ-xjz.text" = "100001";
+
+/* Class = "UILabel"; text = "153765"; ObjectID = "vlz-zs-8MY"; */
+"vlz-zs-8MY.text" = "153765";
+
+/* Class = "UIButton"; normalTitle = "3"; ObjectID = "voo-ay-Acj"; */
+"voo-ay-Acj.normalTitle" = "3";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "vs5-Ur-kCQ"; */
+"vs5-Ur-kCQ.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "Cleo Collection"; ObjectID = "vsG-1i-ifx"; */
+"vsG-1i-ifx.text" = "Cleo Collection";
+
+/* Class = "UILabel"; text = "$ 150000"; ObjectID = "vsa-oU-7mV"; */
+"vsa-oU-7mV.text" = "$ 150000";
+
+/* Class = "UILabel"; text = "Picture"; ObjectID = "vtL-Al-FsM"; */
+"vtL-Al-FsM.text" = "Picture";
+
+/* Class = "UILabel"; text = "153765"; ObjectID = "vwT-9C-Wbf"; */
+"vwT-9C-Wbf.text" = "153765";
+
+/* Class = "UILabel"; text = "Profile"; ObjectID = "vwZ-Q1-aMa"; */
+"vwZ-Q1-aMa.text" = "Profile";
+
+/* Class = "UILabel"; text = "Exchange Rate"; ObjectID = "w14-zL-e8Z"; */
+"w14-zL-e8Z.text" = "Exchange Rate";
+
+/* Class = "UILabel"; text = "3,000.00"; ObjectID = "w7j-Ta-3wo"; */
+"w7j-Ta-3wo.text" = "3,000.00";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon "; ObjectID = "w83-vt-mTB"; */
+"w83-vt-mTB.text" = "ARTINIAN - Siam Paragon ";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "wBJ-J8-UY1"; */
+"wBJ-J8-UY1.text" = "0.00";
+
+/* Class = "UILabel"; text = "4"; ObjectID = "wIY-Aq-xre"; */
+"wIY-Aq-xre.text" = "4";
+
+/* Class = "UIButton"; normalTitle = "7"; ObjectID = "wNX-lQ-ViQ"; */
+"wNX-lQ-ViQ.normalTitle" = "7";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "wOi-MR-1m1"; */
+"wOi-MR-1m1.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "wTD-uv-Qt9"; */
+"wTD-uv-Qt9.text" = "Purchase History";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "wf5-jI-pAS"; */
+"wf5-jI-pAS.text" = "Size";
+
+/* Class = "UITextView"; text = "Write something here..."; ObjectID = "wgs-7y-cWR"; */
+"wgs-7y-cWR.text" = "Write something here...";
+
+/* Class = "UILabel"; text = "Customer Search"; ObjectID = "whV-au-zB0"; */
+"whV-au-zB0.text" = "Customer Search";
+
+/* Class = "UILabel"; text = "Cash"; ObjectID = "wpL-ko-Z0l"; */
+"wpL-ko-Z0l.text" = "Cash";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "wpR-wR-t5b"; */
+"wpR-wR-t5b.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "Qty"; ObjectID = "wvt-f4-oHC"; */
+"wvt-f4-oHC.text" = "Qty";
+
+/* Class = "UILabel"; text = "5"; ObjectID = "ww5-9G-UCD"; */
+"ww5-9G-UCD.text" = "5";
+
+/* Class = "UILabel"; text = "ITEM SEARCH"; ObjectID = "wxT-Mz-Bad"; */
+"wxT-Mz-Bad.text" = "ITEM SEARCH";
+
+/* Class = "UILabel"; text = "Tax(0%)"; ObjectID = "x0d-yt-jvx"; */
+"x0d-yt-jvx.text" = "Tax(0%)";
+
+/* Class = "UILabel"; text = "Discount"; ObjectID = "x1R-cA-ihT"; */
+"x1R-cA-ihT.text" = "Discount";
+
+/* Class = "UILabel"; text = "Apple Pay"; ObjectID = "x5b-8Z-3Xh"; */
+"x5b-8Z-3Xh.text" = "Apple Pay";
+
+/* Class = "UILabel"; text = "Price Range"; ObjectID = "x90-7U-QdU"; */
+"x90-7U-QdU.text" = "Price Range";
+
+/* Class = "UITextField"; placeholder = "Jeweal Prosoft Co., Ltd"; ObjectID = "xD6-iU-2zc"; */
+"xD6-iU-2zc.placeholder" = "Jeweal Prosoft Co., Ltd";
+
+/* Class = "UILabel"; text = "Address"; ObjectID = "xJF-bd-1uY"; */
+"xJF-bd-1uY.text" = "Address";
+
+/* Class = "UILabel"; text = "001"; ObjectID = "xOs-Qx-CIY"; */
+"xOs-Qx-CIY.text" = "001";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "xR5-To-CSJ"; */
+"xR5-To-CSJ.text" = "3000";
+
+/* Class = "UILabel"; text = "3 items selected"; ObjectID = "xUn-wi-lf8"; */
+"xUn-wi-lf8.text" = "3 items selected";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "xYO-BI-X5G"; */
+"xYO-BI-X5G.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "xaO-m6-na9"; */
+"xaO-m6-na9.text" = "Size";
+
+/* Class = "UIButton"; normalTitle = "ADD TO CART"; ObjectID = "xbw-lF-Pk9"; */
+"xbw-lF-Pk9.normalTitle" = "ADD TO CART";
+
+/* Class = "UILabel"; text = "Item"; ObjectID = "xe2-ld-Xak"; */
+"xe2-ld-Xak.text" = "Item";
+
+/* Class = "UILabel"; text = "7"; ObjectID = "xfO-U4-dfX"; */
+"xfO-U4-dfX.text" = "7";
+
+/* Class = "UILabel"; text = "Zip"; ObjectID = "xgj-a8-ysj"; */
+"xgj-a8-ysj.text" = "Zip";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "xiq-rz-Prv"; */
+"xiq-rz-Prv.text" = "+1408280225";
+
+/* Class = "UIButton"; normalTitle = "Select all"; ObjectID = "xsu-PB-gKk"; */
+"xsu-PB-gKk.normalTitle" = "Select all";
+
+/* Class = "UITextField"; placeholder = "Write a remark"; ObjectID = "xt1-Wn-py7"; */
+"xt1-Wn-py7.placeholder" = "Write a remark";
+
+/* Class = "UILabel"; text = "Metal"; ObjectID = "xuw-3z-Rbf"; */
+"xuw-3z-Rbf.text" = "Metal";
+
+/* Class = "UIButton"; normalTitle = "7"; ObjectID = "xza-TK-vRj"; */
+"xza-TK-vRj.normalTitle" = "7";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "xzc-5D-cbU"; */
+"xzc-5D-cbU.text" = "--";
+
+/* Class = "UILabel"; text = "$6,000"; ObjectID = "y7F-df-jQ0"; */
+"y7F-df-jQ0.text" = "$6,000";
+
+/* Class = "UITextField"; placeholder = "Bangrak"; ObjectID = "y8e-xr-X5b"; */
+"y8e-xr-X5b.placeholder" = "Bangrak";
+
+/* Class = "UILabel"; text = "18KW size 7"; ObjectID = "yDS-D4-2QI"; */
+"yDS-D4-2QI.text" = "18KW size 7";
+
+/* Class = "UILabel"; text = "--"; ObjectID = "yIQ-q1-XaO"; */
+"yIQ-q1-XaO.text" = "--";
+
+/* Class = "UITextField"; placeholder = "Search"; ObjectID = "yK2-zl-E3M"; */
+"yK2-zl-E3M.placeholder" = "Search";
+
+/* Class = "UILabel"; text = "ARTINIAN - Siam Paragon "; ObjectID = "yKs-UG-pcq"; */
+"yKs-UG-pcq.text" = "ARTINIAN - Siam Paragon ";
+
+/* Class = "UITextView"; text = "Write something here..."; ObjectID = "yLm-eM-j2B"; */
+"yLm-eM-j2B.text" = "Write something here...";
+
+/* Class = "UILabel"; text = "Size"; ObjectID = "yPR-Xi-N37"; */
+"yPR-Xi-N37.text" = "Size";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "yPq-kF-lr4"; */
+"yPq-kF-lr4.text" = "1";
+
+/* Class = "UILabel"; text = "Stone"; ObjectID = "yU2-zv-waL"; */
+"yU2-zv-waL.text" = "Stone";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "yUC-7f-zU3"; */
+"yUC-7f-zU3.normalTitle" = "Select All";
+
+/* Class = "UIButton"; normalTitle = "Logout"; ObjectID = "yWt-91-KaF"; */
+"yWt-91-KaF.normalTitle" = "Logout";
+
+/* Class = "UILabel"; text = " - "; ObjectID = "yZn-au-eif"; */
+"yZn-au-eif.text" = " - ";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "yZu-fW-j7c"; */
+"yZu-fW-j7c.text" = "190001";
+
+/* Class = "UILabel"; text = "3000"; ObjectID = "yc6-b0-VU3"; */
+"yc6-b0-VU3.text" = "3000";
+
+/* Class = "UILabel"; text = "190001"; ObjectID = "yjg-o3-Ngz"; */
+"yjg-o3-Ngz.text" = "190001";
+
+/* Class = "UILabel"; text = "Anastasia Steel"; ObjectID = "ysy-0v-VtZ"; */
+"ysy-0v-VtZ.text" = "Anastasia Steel";
+
+/* Class = "UILabel"; text = "+1408280225"; ObjectID = "yuA-eK-jKH"; */
+"yuA-eK-jKH.text" = "+1408280225";
+
+/* Class = "UILabel"; text = "Purchase History"; ObjectID = "yur-IY-RVT"; */
+"yur-IY-RVT.text" = "Purchase History";
+
+/* Class = "UILabel"; text = "+1 212=753-4000"; ObjectID = "z4m-Qx-yMW"; */
+"z4m-Qx-yMW.text" = "+1 212=753-4000";
+
+/* Class = "UIButton"; normalTitle = "1"; ObjectID = "z5O-KI-yaO"; */
+"z5O-KI-yaO.normalTitle" = "1";
+
+/* Class = "UILabel"; text = "Seattle, USA"; ObjectID = "z71-O9-RgC"; */
+"z71-O9-RgC.text" = "Seattle, USA";
+
+/* Class = "UIButton"; normalTitle = "."; ObjectID = "zAV-7O-Bzm"; */
+"zAV-7O-Bzm.normalTitle" = ".";
+
+/* Class = "UIButton"; normalTitle = "Select All"; ObjectID = "zCO-Zy-pf9"; */
+"zCO-Zy-pf9.normalTitle" = "Select All";
+
+/* Class = "UILabel"; text = "More"; ObjectID = "zDe-aK-aqa"; */
+"zDe-aK-aqa.text" = "More";
+
+/* Class = "UILabel"; text = "Date"; ObjectID = "zDm-Fb-QYi"; */
+"zDm-Fb-QYi.text" = "Date";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "zG4-TU-hlS"; */
+"zG4-TU-hlS.normalTitle" = "Submit";
+
+/* Class = "UIButton"; normalTitle = "Necklace"; ObjectID = "zZs-CB-ebf"; */
+"zZs-CB-ebf.normalTitle" = "Necklace";
+
+/* Class = "UILabel"; text = "SUB"; ObjectID = "zZs-dX-is0"; */
+"zZs-dX-is0.text" = "SUB";
+
+/* Class = "UIButton"; normalTitle = "8"; ObjectID = "zh4-zF-xaA"; */
+"zh4-zF-xaA.normalTitle" = "8";
+
+/* Class = "UILabel"; text = "0.00"; ObjectID = "zhx-AK-5Hc"; */
+"zhx-AK-5Hc.text" = "0.00";
+
+/* Class = "UIButton"; normalTitle = "Necklace"; ObjectID = "zlA-11-hEo"; */
+"zlA-11-hEo.normalTitle" = "Necklace";
+
+/* Class = "UILabel"; text = "Password"; ObjectID = "zrU-vV-sMZ"; */
+"zrU-vV-sMZ.text" = "Password";
+
+/* Class = "UILabel"; text = "-"; ObjectID = "zwI-c0-plx"; */
+"zwI-c0-plx.text" = "-";
+
+/* Class = "UILabel"; text = "City"; ObjectID = "zwX-yJ-0vQ"; */
+"zwX-yJ-0vQ.text" = "City";
+
+/* Class = "UILabel"; text = "Mobile"; ObjectID = "zxe-uy-omh"; */
+"zxe-uy-omh.text" = "Mobile";

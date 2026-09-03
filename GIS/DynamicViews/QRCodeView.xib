@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="segoe_regular.ttf">
+            <string>SegoeUI</string>
+        </array>
+        <array key="segoe_semibold.ttf">
+            <string>SegoeUI-Semibold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="De6-4u-gsl" customClass="QRCodeView" customModule="GIS" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mfg-Ma-CWB">
+                    <rect key="frame" x="16" y="219.66666666666663" width="361" height="413"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Scan the QR Code" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YBA-Db-F5g">
+                            <rect key="frame" x="0.0" y="0.0" width="361" height="50"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="UGh-TR-Qmv"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="SegoeUI-Semibold" family="Segoe UI" pointSize="18"/>
+                            <color key="textColor" name="themeLightText"/>
+                            <nil key="highlightedColor"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                    <real key="value" value="5"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </label>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Hzc-LY-cmY">
+                            <rect key="frame" x="16" y="50.000000000000028" width="329" height="338"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CCs-TE-pcC">
+                                    <rect key="frame" x="0.0" y="0.0" width="329" height="220"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="envelope.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="oTv-y1-KWC">
+                                            <rect key="frame" x="0.0" y="2.3333333333333286" width="329" height="216.00000000000006"/>
+                                            <color key="tintColor" name="themeColor"/>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="oTv-y1-KWC" firstAttribute="leading" secondItem="CCs-TE-pcC" secondAttribute="leading" id="EiX-0O-1m3"/>
+                                        <constraint firstAttribute="height" constant="220" id="NOr-uc-Lu7"/>
+                                        <constraint firstAttribute="bottom" secondItem="oTv-y1-KWC" secondAttribute="bottom" id="OET-LE-sWe"/>
+                                        <constraint firstAttribute="trailing" secondItem="oTv-y1-KWC" secondAttribute="trailing" id="XHf-Gs-cgi"/>
+                                        <constraint firstItem="oTv-y1-KWC" firstAttribute="top" secondItem="CCs-TE-pcC" secondAttribute="top" id="rhk-ks-ff5"/>
+                                    </constraints>
+                                </view>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Time remaining: 1.29" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UyC-kL-bXA">
+                                    <rect key="frame" x="0.0" y="224" width="329" height="50"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="50" id="BzU-vC-WrG"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" name="SegoeUI" family="Segoe UI" pointSize="18"/>
+                                    <color key="textColor" name="themeLightText"/>
+                                    <nil key="highlightedColor"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="5"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </label>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8AE-Eb-gz9">
+                                    <rect key="frame" x="0.0" y="277.99999999999994" width="329" height="60"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qjG-tu-4iC">
+                                            <rect key="frame" x="89.666666666666686" y="20" width="150" height="40"/>
+                                            <color key="backgroundColor" name="themeRed"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="150" id="AZA-pn-RKB"/>
+                                                <constraint firstAttribute="height" constant="40" id="YYq-fK-EWp"/>
+                                            </constraints>
+                                            <state key="normal" title="Cancel">
+                                                <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            </state>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                    <real key="value" value="10"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="mCancelQRCodeButton:" destination="De6-4u-gsl" eventType="touchUpInside" id="01q-N3-vYs"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="60" id="BQm-6d-8ad"/>
+                                        <constraint firstItem="qjG-tu-4iC" firstAttribute="centerX" secondItem="8AE-Eb-gz9" secondAttribute="centerX" id="Ngo-vm-3Oc"/>
+                                        <constraint firstAttribute="bottom" secondItem="qjG-tu-4iC" secondAttribute="bottom" id="Rhw-we-PB3"/>
+                                    </constraints>
+                                </view>
+                            </subviews>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" name="themeBackground"/>
+                    <constraints>
+                        <constraint firstItem="Hzc-LY-cmY" firstAttribute="leading" secondItem="mfg-Ma-CWB" secondAttribute="leading" constant="16" id="7tn-yI-YNL"/>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="220" id="KiG-WH-cKG"/>
+                        <constraint firstAttribute="trailing" secondItem="YBA-Db-F5g" secondAttribute="trailing" id="Ss5-23-d87"/>
+                        <constraint firstAttribute="trailing" secondItem="Hzc-LY-cmY" secondAttribute="trailing" constant="16" id="YSU-lt-4Nd"/>
+                        <constraint firstItem="Hzc-LY-cmY" firstAttribute="top" secondItem="YBA-Db-F5g" secondAttribute="bottom" id="fmx-5h-vrb"/>
+                        <constraint firstItem="YBA-Db-F5g" firstAttribute="leading" secondItem="mfg-Ma-CWB" secondAttribute="leading" id="nBE-k4-e2D"/>
+                        <constraint firstAttribute="bottom" secondItem="Hzc-LY-cmY" secondAttribute="bottom" constant="25" id="r6V-HC-diT"/>
+                        <constraint firstItem="YBA-Db-F5g" firstAttribute="top" secondItem="mfg-Ma-CWB" secondAttribute="top" id="sU9-VT-SGn"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="15"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="5VE-eq-17f"/>
+            <color key="backgroundColor" systemColor="secondarySystemFillColor"/>
+            <constraints>
+                <constraint firstItem="mfg-Ma-CWB" firstAttribute="leading" secondItem="5VE-eq-17f" secondAttribute="leading" constant="16" id="Zgg-bG-yWW"/>
+                <constraint firstItem="mfg-Ma-CWB" firstAttribute="centerY" secondItem="De6-4u-gsl" secondAttribute="centerY" id="n38-g2-O7k"/>
+                <constraint firstItem="5VE-eq-17f" firstAttribute="trailing" secondItem="mfg-Ma-CWB" secondAttribute="trailing" constant="16" id="yRs-0d-uXu"/>
+            </constraints>
+            <connections>
+                <outlet property="mCancelQRCode" destination="qjG-tu-4iC" id="O07-75-X6d"/>
+                <outlet property="mQRImage" destination="oTv-y1-KWC" id="06m-65-Usm"/>
+                <outlet property="mQRTime" destination="UyC-kL-bXA" id="whQ-XN-cg3"/>
+            </connections>
+            <point key="canvasLocation" x="28.985507246376812" y="34.821428571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="envelope.fill" catalog="system" width="128" height="85"/>
+        <namedColor name="themeBackground">
+            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeColor">
+            <color red="0.36078431372549019" green="0.7803921568627451" blue="0.75686274509803919" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeLightText">
+            <color red="0.16470588235294117" green="0.16470588235294117" blue="0.16470588235294117" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="themeRed">
+            <color red="1" green="0.34099999070167542" blue="0.34099999070167542" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="secondarySystemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.16" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

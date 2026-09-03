@@ -1,0 +1,21 @@
+"7IU5TE" = "เพื่อยืนยัน คุณต้องการ ‘${id}’ ใช่ไหม?"; // "Just to confirm, you wanted ‘${id}’?"
+
+"ER90LN" = "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"; // "Something went wrong, please try again."
+
+"GhkxqV" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"NvXjwL" = "มี ${count} ตัวเลือกที่ตรงกับ ‘${id}’."; // "There are ${count} options matching ‘${id}’."
+
+"SRlJ4a" = "ID"; // "Id"
+
+"Tp7B0M" = "ค้นหาผลิตภัณฑ์"; // "Search Product"
+
+"cbkFvC" = "ผลิตภัณฑ์คือ ${searchProduct}"; // "Product is ${searchProduct}"
+
+"f0ntIv" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"p7G2Rk" = "ค้นหาตาม ${id}"; // "Search by ${id}"
+
+"riRRhi" = "การตรวจสอบสต็อก"; // "Stock Take"
+
+"WAM9TY" = "Open Stock Take";
