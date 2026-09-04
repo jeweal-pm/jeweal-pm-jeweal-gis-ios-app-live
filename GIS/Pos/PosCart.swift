@@ -2126,6 +2126,8 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
 //                UserDefaults.standard.set("0", forKey: "reserve_show_popup")
                 UserDefaults.standard.removeObject(forKey: "reserve_show_popup")
                 UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
+                UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
+                UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
                 LinkedCartContextStore.shared.clear(
                     orderType: "reserve",
                     customerId: self.mCustomerId
@@ -2555,9 +2557,17 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
         let storedLinkedCartId =
             UserDefaults.standard.string(forKey: "reserve_linked_cart_id") ?? ""
 
+        let storedLinkedOrderType =
+            UserDefaults.standard.string(forKey: "reserve_linked_order_type") ?? ""
+        let storedCanCreateNewCart = UserDefaults.standard.object(
+            forKey: "reserve_can_create_new_cart"
+        ) as? Bool
+
         let resolvedLinkedCartId: String = {
+            // Restore the original Reserve cart supplied by Inventory. The
+            // addItemToCart response may contain a newly-created POS cart.
             if let context = linkedCartContext, !context.linkedCartId.isEmpty {
-                return context.linkedCartId
+                return context.linkedCartId.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             return storedLinkedCartId.trimmingCharacters(in: .whitespacesAndNewlines)
         }()
@@ -2566,7 +2576,18 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
         print("mBack storedLinkedCartId = \(storedLinkedCartId)")
         print("mBack resolvedLinkedCartId = \(resolvedLinkedCartId)")
 
-        if showPopup == "1" && !resolvedLinkedCartId.isEmpty {
+        let linkedOrderType = (
+            linkedCartContext?.linkedOrderType.isEmpty == false
+                ? linkedCartContext?.linkedOrderType
+                : storedLinkedOrderType
+        ) ?? ""
+        let isExistingReserveCart =
+            (linkedCartContext?.canCreateNewCart == false || storedCanCreateNewCart == false) &&
+            linkedOrderType.lowercased() == "reserve"
+        let shouldShowLeaveConfirmation =
+            !resolvedLinkedCartId.isEmpty && (showPopup == "1" || isExistingReserveCart)
+
+        if shouldShowLeaveConfirmation {
             // IMPORTANT: Do not pop or clear the cart here.
             // The popup must be shown first.
             sshowReserveConfirmation(

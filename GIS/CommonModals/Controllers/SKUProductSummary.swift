@@ -105,6 +105,7 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     private var productShareButton: UIButton?
     private var productShareOptionsOverlay: UIView?
     private var productPDFURL: URL?
+    private var productIDForPDF = ""
 
     private func showProductLoading() {
         DispatchQueue.main.async { [weak self] in
@@ -382,7 +383,9 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     }
 
     @objc private func shareProductDetail() {
-        let productId = mKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let productId = productIDForPDF.isEmpty
+            ? mKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            : productIDForPDF
         guard !productId.isEmpty else {
             CommonClass.showSnackBar(message: "Product info not available!")
             return
@@ -759,6 +762,16 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     }
 
     func mSetData(mData: NSDictionary) {
+
+        let isCatalogProduct = mType.lowercased() == "catalog"
+        if isCatalogProduct {
+            // Catalog products are not stock records, so no Stock ID exists.
+            mStockIdLABEL.superview?.isHidden = true
+            productIDForPDF = "\(mData["product_id"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            mStockIdLABEL.superview?.isHidden = false
+        }
 
         // Catalog uses `images`; Inventory uses `main_image`.
         let imageURL = "\(mData["main_image"] ?? mData["images"] ?? "")"

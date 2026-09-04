@@ -30,7 +30,7 @@ class ReserveNewItems : UITableViewCell {
  
 }
 
-class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewControllerTransitioningDelegate , UITextViewDelegate , UITableViewDelegate, UITableViewDataSource {
+class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewControllerTransitioningDelegate , UITextViewDelegate , UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate {
     
     var mCurrentIndex = -1
     @IBOutlet weak var mCustomerName: UILabel!
@@ -51,6 +51,14 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
     
     var mIsCrossLocationReserve = false
     var mCrossLocationId = ""
+
+    // MARK: - Reserve Note Suggestions
+    private var reserveSuggestionsView: UIView?
+    private var reserveSuggestionsButtons: [UIButton] = []
+    private var reserveVisibleSuggestions: [String] = []
+    private weak var activeReserveNoteField: UITextField?
+    private var reserveSuggestionSessionActive = false
+    private var reserveDismissTapGesture: UITapGestureRecognizer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,9 +118,7 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
         mCustomerName.text = ""
         mCustomerImage.contentMode = .scaleAspectFill
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
+        setupReserveKeyboardDismissGesture()
         
     }
     
@@ -397,6 +403,189 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
             mReserveData.insert(mData, at: sender.tag)
         }
     }
+
+    // MARK: - Reserve Note Suggestions
+
+    private func reserveSuggestionItems() -> [String] {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "d MMM yyyy"
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        let pickup = "Pickup on \(formatter.string(from: tomorrow)), 2:00 PM"
+
+        return [
+            pickup,
+            "On hold until closing time",
+            "Customer response",
+            "Payment verification"
+        ]
+    }
+
+    private func setupReserveNoteSuggestions() {
+        guard reserveSuggestionsView == nil else { return }
+
+        let popup = UIView()
+        popup.backgroundColor = .white
+        popup.layer.cornerRadius = 6
+        popup.layer.shadowColor = UIColor.black.cgColor
+        popup.layer.shadowOpacity = 0.14
+        popup.layer.shadowRadius = 8
+        popup.layer.shadowOffset = CGSize(width: 0, height: 3)
+        popup.isHidden = true
+        view.addSubview(popup)
+        reserveSuggestionsView = popup
+
+        let title = UILabel()
+        title.text = "Suggestions"
+        title.font = UIFont(name: "segoe_bold", size: 10) ?? .boldSystemFont(ofSize: 10)
+        title.textColor = .label
+        title.translatesAutoresizingMaskIntoConstraints = false
+        popup.addSubview(title)
+
+        NSLayoutConstraint.activate([
+            title.topAnchor.constraint(equalTo: popup.topAnchor, constant: 12),
+            title.leadingAnchor.constraint(equalTo: popup.leadingAnchor, constant: 18),
+            title.trailingAnchor.constraint(equalTo: popup.trailingAnchor, constant: -12),
+            title.heightAnchor.constraint(equalToConstant: 20)
+        ])
+    }
+
+    private func showReserveSuggestions() {
+        guard reserveSuggestionSessionActive,
+              let noteField = activeReserveNoteField else { return }
+
+        setupReserveNoteSuggestions()
+        guard let popup = reserveSuggestionsView else { return }
+
+        let query = (noteField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let allItems = reserveSuggestionItems()
+        let items = query.isEmpty ? allItems : allItems.filter {
+            $0.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+
+        reserveSuggestionsButtons.forEach { $0.removeFromSuperview() }
+        reserveSuggestionsButtons.removeAll()
+
+        guard !items.isEmpty else {
+            reserveVisibleSuggestions = []
+            popup.isHidden = true
+            return
+        }
+        reserveVisibleSuggestions = items
+
+        let titleHeight: CGFloat = 32
+        let rowHeight: CGFloat = 42
+        let popupWidth = min(CGFloat(306), view.bounds.width - 20)
+        let popupHeight = titleHeight + CGFloat(items.count) * rowHeight + 8
+
+        let noteFrame = noteField.convert(noteField.bounds, to: view)
+        var x = noteFrame.minX
+        var y = noteFrame.minY - popupHeight - 8
+        if x + popupWidth > view.bounds.width - 10 { x = view.bounds.width - popupWidth - 10 }
+        if x < 10 { x = 10 }
+        if y < view.safeAreaInsets.top + 8 { y = view.safeAreaInsets.top + 8 }
+
+        popup.frame = CGRect(x: x, y: y, width: popupWidth, height: popupHeight)
+        popup.isHidden = false
+
+        for (index, item) in items.enumerated() {
+            let button = UIButton(type: .system)
+            button.tag = index
+            button.setTitle(item, for: .normal)
+            button.setTitleColor(.label, for: .normal)
+            button.titleLabel?.font = UIFont(name: "segoe_regular", size: 14) ?? .systemFont(ofSize: 14)
+            button.contentHorizontalAlignment = .left
+            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 18, bottom: 0, right: 10)
+            button.addTarget(self, action: #selector(reserveSuggestionTapped(_:)), for: .touchUpInside)
+            button.frame = CGRect(x: 0, y: titleHeight + CGFloat(index) * rowHeight, width: popupWidth, height: rowHeight)
+            popup.addSubview(button)
+            reserveSuggestionsButtons.append(button)
+        }
+    }
+
+    private func hideReserveSuggestions() {
+        reserveSuggestionsView?.isHidden = true
+    }
+
+    @objc private func reserveSuggestionTapped(_ sender: UIButton) {
+        guard let noteField = activeReserveNoteField else { return }
+        guard sender.tag >= 0, sender.tag < reserveVisibleSuggestions.count else { return }
+
+        noteField.text = reserveVisibleSuggestions[sender.tag]
+        mEditremarks(noteField)
+        reserveSuggestionSessionActive = false
+        hideReserveSuggestions()
+        noteField.resignFirstResponder()
+    }
+
+    @objc private func reserveNoteEditingChanged(_ textField: UITextField) {
+        guard reserveSuggestionSessionActive, textField === activeReserveNoteField else { return }
+        showReserveSuggestions()
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        guard (0..<mReserveData.count).contains(textField.tag) else { return }
+        activeReserveNoteField = textField
+        reserveSuggestionSessionActive = true
+        DispatchQueue.main.async { [weak self] in
+            self?.showReserveSuggestions()
+        }
+    }
+
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        guard textField === activeReserveNoteField else { return true }
+
+        textField.text = ""
+        mEditremarks(textField)
+        reserveSuggestionSessionActive = true
+        DispatchQueue.main.async { [weak self] in
+            self?.showReserveSuggestions()
+        }
+        return false
+    }
+
+    private func setupReserveKeyboardDismissGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(reserveDismissKeyboardAndSuggestions(_:)))
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
+        view.addGestureRecognizer(tap)
+        reserveDismissTapGesture = tap
+    }
+
+    @objc private func reserveDismissKeyboardAndSuggestions(_ gesture: UITapGestureRecognizer) {
+        let point = gesture.location(in: view)
+        if let noteField = activeReserveNoteField,
+           noteField.convert(noteField.bounds, to: view).contains(point) {
+            return
+        }
+
+        reserveSuggestionSessionActive = false
+        hideReserveSuggestions()
+        view.endEditing(true)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer === reserveDismissTapGesture else { return true }
+
+        if let touchedView = touch.view {
+            if let noteField = activeReserveNoteField,
+               touchedView === noteField || touchedView.isDescendant(of: noteField) {
+                return false
+            }
+            if let popup = reserveSuggestionsView,
+               touchedView === popup || touchedView.isDescendant(of: popup) {
+                return false
+            }
+        }
+        return true
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        reserveSuggestionSessionActive = false
+        hideReserveSuggestions()
+        view.endEditing(true)
+    }
     
     
     @IBAction func mDeleteReserve(_ sender: UIButton) {
@@ -439,12 +628,17 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
         
         if let mData = mReserveData[indexPath.row] as? NSDictionary {
             cells.mRemarks.tag = indexPath.row
+            cells.mRemarks.delegate = self
+            cells.mRemarks.removeTarget(self, action: #selector(reserveNoteEditingChanged(_:)), for: .editingChanged)
+            cells.mRemarks.addTarget(self, action: #selector(reserveNoteEditingChanged(_:)), for: .editingChanged)
             cells.mChooseDate.tag = indexPath.row
             cells.mPlusButton.tag = indexPath.row
             cells.mMinusButton.tag = indexPath.row
             cells.mDeleteItem.tag = indexPath.row
             cells.mAmount.tag = indexPath.row
             cells.mRemarks.placeholder = "EX. Urgent Order".localizedString
+            cells.mRemarks.clearButtonMode = .whileEditing
+            cells.mRemarks.text = "\(mData.value(forKey: "remark") ?? mData.value(forKey: "note") ?? "")"
             cells.mDueDate.text = "\(mData.value(forKey: "dueDate") ?? "--")"
             cells.mProductInfo.text = "\(mData.value(forKey: "Matatag") ?? "--")"
             cells.mSKU.text = "\(mData.value(forKey: "sku") ?? "--")"
@@ -795,4 +989,3 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
     //
     //    }
 }
-

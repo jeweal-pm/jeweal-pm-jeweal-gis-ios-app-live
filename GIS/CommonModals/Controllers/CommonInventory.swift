@@ -464,8 +464,31 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
 
-        // ---------------- RESERVE FLOW ----------------
-        if mOrderType == "reserve" {
+        // A linked cart can be opened from the normal POS inventory screen as
+        // well as the Reserve screen.  Always honour the linked-cart flags
+        // before falling through to the normal add-to-cart flow.
+        let hasSelectedExistingLinkedCart: Bool = {
+            guard mIndexInv >= 0,
+                  let item = mInventoryData[mIndexInv] as? NSDictionary else {
+                return false
+            }
+
+            let cartId = "\(item["linked_cart_id"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cartId.isEmpty else { return false }
+
+            if let value = item["can_create_new_cart"] as? Bool {
+                return !value
+            }
+            if let value = item["can_create_new_cart"] as? NSNumber {
+                return !value.boolValue
+            }
+            let value = "\(item["can_create_new_cart"] ?? "")".lowercased()
+            return value == "0" || value == "false" || value == "no"
+        }()
+
+        // ---------------- RESERVE / LINKED-CART FLOW ----------------
+        if mOrderType == "reserve" || hasSelectedExistingLinkedCart {
 
             guard mIndexInv >= 0,
                   let inventoryItem = mInventoryData[mIndexInv] as? NSDictionary else {
@@ -529,7 +552,7 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                     "sales_person_id": "",
                     "customer_id": mCustomerId,
                     "order_type": "pos_order",
-                    "product_id": [mProductId],
+                    "product_id": mProductId,
                     "type": "inventory"
                 ]
 
@@ -571,17 +594,43 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                         UserDefaults.standard.setValue("", forKey: "mClearCart")
 
                         let linkedCartContext = LinkedCartContext(inventoryItem: inventoryItem)
+                        let cartIdFromAddResponse: String = {
+                            guard let ids = response["data"] as? [Any],
+                                  let firstId = ids.first,
+                                  !(firstId is NSNull) else {
+                                return ""
+                            }
+                            return "\(firstId)".trimmingCharacters(in: .whitespacesAndNewlines)
+                        }()
+                        // The restore endpoint must receive the original
+                        // Reserve cart from Inventory. `data[0]` can be a new
+                        // POS cart created by addItemToCart, so it is only a
+                        // fallback when Inventory did not provide a linked id.
+                        let cartIdForRestore = linkedCartContext.linkedCartId.isEmpty
+                            ? cartIdFromAddResponse
+                            : linkedCartContext.linkedCartId
 
                         // Keep the linked cart id as a direct fallback for the
                         // Cart Details back flow. The inventory response is the
                         // source of truth and is available even if the context
                         // store cannot be read later.
-                        if !linkedCartContext.linkedCartId.isEmpty {
+                        if !cartIdForRestore.isEmpty {
                             UserDefaults.standard.set(
-                                linkedCartContext.linkedCartId,
+                                cartIdForRestore,
                                 forKey: "reserve_linked_cart_id"
                             )
-                            print("SAVE reserve_linked_cart_id =", linkedCartContext.linkedCartId)
+                            // Keep the reserve state with the cart id. The cart
+                            // screen can still show its leave confirmation if it
+                            // is recreated before Back is tapped.
+                            UserDefaults.standard.set(
+                                linkedCartContext.linkedOrderType,
+                                forKey: "reserve_linked_order_type"
+                            )
+                            UserDefaults.standard.set(
+                                linkedCartContext.canCreateNewCart,
+                                forKey: "reserve_can_create_new_cart"
+                            )
+                            print("SAVE reserve_linked_cart_id =", cartIdForRestore)
                         }
 
                         // Keep the same existing Reserve cart context available to
@@ -670,8 +719,18 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                             linkedCartContext.linkedCartId,
                             forKey: "reserve_linked_cart_id"
                         )
+                        UserDefaults.standard.set(
+                            linkedCartContext.linkedOrderType,
+                            forKey: "reserve_linked_order_type"
+                        )
+                        UserDefaults.standard.set(
+                            linkedCartContext.canCreateNewCart,
+                            forKey: "reserve_can_create_new_cart"
+                        )
                     } else {
                         UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
+                        UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
+                        UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
                     }
                     UserDefaults.standard.setValue("", forKey: "mClearCart")
 

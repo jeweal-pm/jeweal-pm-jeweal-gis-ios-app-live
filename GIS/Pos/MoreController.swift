@@ -58,13 +58,31 @@ class MoreController: UIViewController, OpenCustomerMixMatchDelegate, UIViewCont
     
     
     override func viewWillAppear(_ animated: Bool) {
-        print("🔥 MoreController.swift mClearCart called")
-        mGetData(url: mClearDataApi,headers: sGisHeaders,  params: ["":""]) { response , status in
-            if status {
-                if let mCode =  response.value(forKey: "code") as? Int {
-                    if mCode == 403 {
-                        CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
-                        return
+        let linkedCartId = UserDefaults.standard.string(forKey: "reserve_linked_cart_id") ?? ""
+        let linkedOrderType = UserDefaults.standard.string(forKey: "reserve_linked_order_type") ?? ""
+        let canCreateNewCart = UserDefaults.standard.object(
+            forKey: "reserve_can_create_new_cart"
+        ) as? Bool
+        let linkedOrderTypesThatMustBePreserved = ["reserve", "repair", "repair_order"]
+        let hasActiveLinkedCart =
+            !linkedCartId.isEmpty &&
+            linkedOrderTypesThatMustBePreserved.contains(linkedOrderType.lowercased()) &&
+            canCreateNewCart == false
+
+        // Do not clear an existing linked Reserve or Repair cart merely
+        // because the More tab becomes visible. That would remove the cart
+        // before PosCart can ask the user whether to quit the linked flow.
+        if hasActiveLinkedCart {
+            print("MoreController: preserve active linked cart")
+        } else {
+            print("🔥 MoreController.swift mClearCart called")
+            mGetData(url: mClearDataApi,headers: sGisHeaders,  params: ["":""]) { response , status in
+                if status {
+                    if let mCode =  response.value(forKey: "code") as? Int {
+                        if mCode == 403 {
+                            CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
+                            return
+                        }
                     }
                 }
             }

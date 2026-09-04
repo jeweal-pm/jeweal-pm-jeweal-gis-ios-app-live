@@ -42,6 +42,7 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
     // MARK: - Reserve Note Suggestions
     private var reserveSuggestionsView: UIView?
     private var reserveSuggestionsButtons: [UIButton] = []
+    private var reserveVisibleSuggestions: [String] = []
     private var reserveSuggestionSessionActive = false
     private var reserveDismissTapGesture: UITapGestureRecognizer?
 
@@ -1123,9 +1124,11 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
 
         // If there is no matching suggestion, hide the entire popup including the title.
         guard !items.isEmpty else {
+            reserveVisibleSuggestions = []
             popup.isHidden = true
             return
         }
+        reserveVisibleSuggestions = items
 
         let titleHeight: CGFloat = 32
         let rowHeight: CGFloat = 42
@@ -1170,14 +1173,12 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
     }
 
     @objc private func reserveSuggestionTapped(_ sender: UIButton) {
-        let items = reserveSuggestionItems()
-        guard sender.tag >= 0, sender.tag < items.count else { return }
+        guard sender.tag >= 0, sender.tag < reserveVisibleSuggestions.count else { return }
 
-        mNotes.text = items[sender.tag]
+        mNotes.text = reserveVisibleSuggestions[sender.tag]
         reserveSuggestionSessionActive = false
         hideReserveSuggestions()
-        mNotes.resignFirstResponder()
-        view.endEditing(true)
+        // Keep Note focused so the iOS clear button remains available after a suggestion is selected.
     }
 
     @objc private func reserveNoteEditingChanged(_ textField: UITextField) {
@@ -1197,10 +1198,11 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         guard textField === mNotes else { return true }
 
-        reserveSuggestionSessionActive = false
-        hideReserveSuggestions()
-        textField.resignFirstResponder()
-        view.endEditing(true)
+        // Keep editing active after clearing so the keyboard and suggestions behave like the Note field design.
+        reserveSuggestionSessionActive = true
+        DispatchQueue.main.async { [weak self] in
+            self?.showReserveSuggestions()
+        }
         return true
     }
 
