@@ -36,22 +36,6 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tFl-dg-Kfg">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="856"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uCc-zz-sGk">
-                                                <rect key="frame" x="157" y="8" width="100" height="4"/>
-                                                <color key="backgroundColor" name="themeExtraLightText1"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="4" id="8SU-xk-RqH"/>
-                                                    <constraint firstAttribute="width" constant="100" id="ni1-oF-Fj0"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="SegoeUI-Semibold" family="Segoe UI" pointSize="15"/>
-                                                <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <nil key="highlightedColor"/>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                        <real key="value" value="2"/>
-                                                    </userDefinedRuntimeAttribute>
-                                                </userDefinedRuntimeAttributes>
-                                            </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="l05-2j-Y5z">
                                                 <rect key="frame" x="12" y="32" width="390" height="816"/>
                                                 <subviews>
@@ -784,12 +768,10 @@
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="bottom" secondItem="l05-2j-Y5z" secondAttribute="bottom" constant="8" id="9bQ-Fm-8l9"/>
-                                            <constraint firstItem="uCc-zz-sGk" firstAttribute="centerX" secondItem="tFl-dg-Kfg" secondAttribute="centerX" id="OBs-ut-Yqz"/>
-                                            <constraint firstItem="uCc-zz-sGk" firstAttribute="top" secondItem="tFl-dg-Kfg" secondAttribute="top" constant="8" id="bu8-HT-hC9"/>
                                             <constraint firstItem="l05-2j-Y5z" firstAttribute="leading" secondItem="tFl-dg-Kfg" secondAttribute="leading" constant="12" id="i0g-Q9-7CR"/>
                                             <constraint firstItem="l05-2j-Y5z" firstAttribute="centerX" secondItem="tFl-dg-Kfg" secondAttribute="centerX" id="ky3-Vv-Cad"/>
                                             <constraint firstAttribute="trailing" secondItem="l05-2j-Y5z" secondAttribute="trailing" constant="12" id="qUS-HR-cPf"/>
-                                            <constraint firstItem="l05-2j-Y5z" firstAttribute="top" secondItem="uCc-zz-sGk" secondAttribute="bottom" constant="20" id="t27-l5-nHj"/>
+                                            <constraint firstItem="l05-2j-Y5z" firstAttribute="top" secondItem="tFl-dg-Kfg" secondAttribute="top" constant="32" id="t27-l5-nHj"/>
                                         </constraints>
                                     </view>
                                 </subviews>

@@ -96,12 +96,66 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     @IBOutlet weak var mSizeLABEL: UILabel!
     @IBOutlet weak var mGrossWeightLABEL: UILabel!
     @IBOutlet weak var mNetWeightLABEL: UILabel!
+
+    // Local loader for Product Summary API loading.
+    // This is intentionally kept separate from CommonClass loader so the
+    // loading indicator is always visible on this screen.
+    private var mLoadingOverlay: UIView?
+    private var mLoadingIndicator: UIActivityIndicatorView?
+    private var productShareButton: UIButton?
+    private var productShareOptionsOverlay: UIView?
+    private var productPDFURL: URL?
+
+    private func showProductLoading() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard self.mLoadingOverlay == nil else { return }
+
+            let overlay = UIView(frame: self.view.bounds)
+            overlay.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+            overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            overlay.isUserInteractionEnabled = true
+
+            let indicator = UIActivityIndicatorView(style: .large)
+            indicator.translatesAutoresizingMaskIntoConstraints = false
+            indicator.hidesWhenStopped = true
+
+            overlay.addSubview(indicator)
+            self.view.addSubview(overlay)
+
+            NSLayoutConstraint.activate([
+                indicator.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+                indicator.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)
+            ])
+
+            self.mLoadingOverlay = overlay
+            self.mLoadingIndicator = indicator
+            indicator.startAnimating()
+        }
+    }
+
+    private func stopProductLoading() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.mLoadingIndicator?.stopAnimating()
+            self.mLoadingOverlay?.removeFromSuperview()
+            self.mLoadingIndicator = nil
+            self.mLoadingOverlay = nil
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         print("🔥 SKUProductSummary OPEN")
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
+        installProductHeader()
+        installProductShareButton()
+        // Keep the product content visually separated from the modal header.
+        view.subviews.compactMap { $0 as? UIScrollView }.forEach {
+            $0.contentInset.top = 12
+            $0.verticalScrollIndicatorInsets.top = 12
+        }
         
         mProductIdLABEL.text = "Product ID".localizedString
         mSKULABEL.text = "SKU".localizedString
@@ -116,7 +170,9 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         
         
         if !mKey.isEmpty {
-            CommonClass.showFullLoader(view: self.view)
+            // Start the local loader before starting the API request.
+            // Dispatching to the next main-loop turn allows the spinner to render.
+            showProductLoading()
 
             print("🔥 SKUProductSummary mType =", mType)
 
@@ -158,7 +214,7 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
 
                     guard let self = self else { return }
 
-                    CommonClass.stopLoader()
+                    self.stopProductLoading()
 
                     print("========== CATALOG PRODUCT DETAIL RESPONSE ==========")
                     print("Catalog Product Summary response =", response)
@@ -229,7 +285,7 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
 
                     guard let self = self else { return }
 
-                    CommonClass.stopLoader()
+                    self.stopProductLoading()
 
                     print("========== INVENTORY PRODUCT DETAIL RESPONSE ==========")
                     print("Inventory Product Summary response =", response)
@@ -263,6 +319,395 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         
         
     }
+
+    private func installProductHeader() {
+        let closeButton = UIButton(type: .system)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.tintColor = UIColor(named: "themeText") ?? .darkGray
+        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton.accessibilityLabel = "Close Product Detail"
+        closeButton.addTarget(self, action: #selector(closeProductDetail), for: .touchUpInside)
+        view.addSubview(closeButton)
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = "Product Detail"
+        titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.textColor = UIColor(named: "themeText") ?? .darkGray
+        view.addSubview(titleLabel)
+
+        NSLayoutConstraint.activate([
+            closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            closeButton.widthAnchor.constraint(equalToConstant: 32),
+            closeButton.heightAnchor.constraint(equalToConstant: 32),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor)
+        ])
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // This detail page has its own close button, so the system sheet
+        // grabber is redundant and would overlap the custom header.
+        sheetPresentationController?.prefersGrabberVisible = false
+    }
+
+    @objc private func closeProductDetail() {
+        if let navigationController, navigationController.viewControllers.first !== self {
+            navigationController.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
+        }
+    }
+
+    private func installProductShareButton() {
+        guard productShareButton == nil else { return }
+
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = UIColor(named: "themeText") ?? .darkGray
+        button.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        button.accessibilityLabel = "Share Product"
+        button.addTarget(self, action: #selector(shareProductDetail), for: .touchUpInside)
+        view.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            button.widthAnchor.constraint(equalToConstant: 32),
+            button.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        productShareButton = button
+    }
+
+    @objc private func shareProductDetail() {
+        let productId = mKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !productId.isEmpty else {
+            CommonClass.showSnackBar(message: "Product info not available!")
+            return
+        }
+
+        let websiteURL = (UserDefaults.standard.string(forKey: "website_url") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let params: [String: Any] = [
+            "product_id": productId,
+            "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+        ]
+
+        showProductLoading()
+        mGetData(
+            url: BaseUrl + "Mobile/catalog/getProductDetailPdf",
+            headers: sGisHeaders,
+            params: params
+        ) { [weak self] response, status in
+            guard let self else { return }
+            self.stopProductLoading()
+
+            guard status,
+                  "\(response.value(forKey: "code") ?? "")" == "200",
+                  let pdfURLString = response.value(forKey: "url") as? String,
+                  let pdfURL = URL(string: pdfURLString) else {
+                CommonClass.showSnackBar(
+                    message: "\(response.value(forKey: "message") ?? "Unable to create product PDF")"
+                )
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.productPDFURL = pdfURL
+                // Use the system share sheet so every installed sharing app
+                // is available and the actions remain fully interactive.
+                self.presentSystemShareSheet()
+            }
+        }
+    }
+
+    private func showProductShareOptions() {
+        productShareOptionsOverlay?.removeFromSuperview()
+
+        let overlay = UIView()
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.25)
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissProductShareOptions))
+        dismissTap.cancelsTouchesInView = false
+        overlay.addGestureRecognizer(dismissTap)
+        view.addSubview(overlay)
+
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 22
+        card.clipsToBounds = true
+        overlay.addSubview(card)
+
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = "Share"
+        title.textAlignment = .center
+        title.font = .systemFont(ofSize: 17, weight: .semibold)
+        card.addSubview(title)
+
+        let openButton = shareOptionButton(
+            icon: "globe",
+            title: "Open in Browser",
+            subtitle: "Open this page in your web browser",
+            action: #selector(openProductPDFInBrowser)
+        )
+        let copyButton = shareOptionButton(
+            icon: "link",
+            title: "Copy Link",
+            subtitle: "Copy the link to clipboard",
+            action: #selector(copyProductPDFLink)
+        )
+        card.addSubview(openButton)
+        card.addSubview(copyButton)
+
+        let appStack = UIStackView()
+        appStack.translatesAutoresizingMaskIntoConstraints = false
+        appStack.axis = .horizontal
+        appStack.distribution = .fillEqually
+        appStack.spacing = 9
+        [
+            shareAppButton(title: "LINE", symbol: "LINE", color: UIColor(red: 0.02, green: 0.76, blue: 0.31, alpha: 1), action: #selector(shareToLine)),
+            shareAppButton(title: "WhatsApp", symbol: "WA", color: UIColor(red: 0.15, green: 0.78, blue: 0.31, alpha: 1), action: #selector(shareToWhatsApp)),
+            shareAppButton(title: "Messages", symbol: "message.fill", color: UIColor(red: 0.20, green: 0.84, blue: 0.34, alpha: 1), action: #selector(shareToMessages)),
+            shareAppButton(title: "Mail", symbol: "envelope.fill", color: UIColor(red: 0.12, green: 0.47, blue: 0.94, alpha: 1), action: #selector(shareToMail)),
+            shareAppButton(title: "More", symbol: "ellipsis", color: UIColor(white: 0.9, alpha: 1), action: #selector(shareToMoreApps))
+        ].forEach { appStack.addArrangedSubview($0) }
+        card.addSubview(appStack)
+
+        NSLayoutConstraint.activate([
+            overlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            overlay.topAnchor.constraint(equalTo: view.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            card.leadingAnchor.constraint(equalTo: overlay.leadingAnchor, constant: 24),
+            card.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -24),
+            card.bottomAnchor.constraint(equalTo: overlay.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            card.heightAnchor.constraint(equalToConstant: 282),
+            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 18),
+            title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
+            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+            openButton.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
+            openButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
+            openButton.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 14),
+            openButton.heightAnchor.constraint(equalToConstant: 52),
+            copyButton.leadingAnchor.constraint(equalTo: openButton.leadingAnchor),
+            copyButton.trailingAnchor.constraint(equalTo: openButton.trailingAnchor),
+            copyButton.topAnchor.constraint(equalTo: openButton.bottomAnchor),
+            copyButton.heightAnchor.constraint(equalToConstant: 52),
+            appStack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            appStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            appStack.topAnchor.constraint(equalTo: copyButton.bottomAnchor, constant: 20),
+            appStack.heightAnchor.constraint(equalToConstant: 74)
+        ])
+        productShareOptionsOverlay = overlay
+        card.transform = CGAffineTransform(translationX: 0, y: 220)
+        UIView.animate(withDuration: 0.25) { card.transform = .identity }
+    }
+
+    private func shareOptionButton(icon: String, title: String, subtitle: String, action: Selector) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.contentHorizontalAlignment = .left
+        button.backgroundColor = UIColor(white: 0.98, alpha: 1)
+        button.setImage(UIImage(systemName: icon), for: .normal)
+        button.tintColor = UIColor(named: "themeText") ?? .darkGray
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        button.addTarget(self, action: action, for: .touchUpInside)
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        titleLabel.textColor = UIColor(named: "themeText") ?? .darkGray
+        titleLabel.isUserInteractionEnabled = false
+        button.addSubview(titleLabel)
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subtitleLabel.text = subtitle
+        subtitleLabel.font = .systemFont(ofSize: 12)
+        subtitleLabel.textColor = .systemGray
+        subtitleLabel.isUserInteractionEnabled = false
+        button.addSubview(subtitleLabel)
+
+        let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+        chevron.translatesAutoresizingMaskIntoConstraints = false
+        chevron.tintColor = .systemGray3
+        chevron.isUserInteractionEnabled = false
+        button.addSubview(chevron)
+
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 54),
+            titleLabel.topAnchor.constraint(equalTo: button.topAnchor, constant: 7),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 1),
+            chevron.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16),
+            chevron.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+        ])
+        return button
+    }
+
+    private func shareAppButton(title: String, symbol: String, color: UIColor, action: Selector) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: action, for: .touchUpInside)
+
+        let icon = UILabel()
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.textAlignment = .center
+        icon.textColor = symbol == "ellipsis" ? .black : .white
+        icon.font = symbol == "LINE" || symbol == "WA"
+            ? .systemFont(ofSize: 13, weight: .bold)
+            : .systemFont(ofSize: 24, weight: .medium)
+        if symbol == "LINE" || symbol == "WA" {
+            icon.text = symbol
+        } else {
+            switch symbol {
+            case "message.fill": icon.text = "●●●"
+            case "envelope.fill": icon.text = "✉︎"
+            default: icon.text = "•••"
+            }
+        }
+        icon.backgroundColor = color
+        icon.layer.cornerRadius = 12
+        icon.clipsToBounds = true
+        button.addSubview(icon)
+
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = title
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 10)
+        label.textColor = UIColor(named: "themeText") ?? .darkGray
+        button.addSubview(label)
+
+        NSLayoutConstraint.activate([
+            icon.topAnchor.constraint(equalTo: button.topAnchor),
+            icon.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 54),
+            icon.heightAnchor.constraint(equalToConstant: 54),
+            label.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: 3),
+            label.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: -8),
+            label.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: 8)
+        ])
+        return button
+    }
+
+    @objc private func dismissProductShareOptions() {
+        productShareOptionsOverlay?.removeFromSuperview()
+        productShareOptionsOverlay = nil
+    }
+
+    @objc private func openProductPDFInBrowser() {
+        guard let productPDFURL else { return }
+        dismissProductShareOptions()
+        UIApplication.shared.open(productPDFURL)
+    }
+
+    @objc private func copyProductPDFLink() {
+        guard let productPDFURL else { return }
+        UIPasteboard.general.url = productPDFURL
+        dismissProductShareOptions()
+        showProductLinkCopiedToast()
+    }
+
+    @objc private func shareToLine() { openShareURL("line://msg/text/") }
+    @objc private func shareToWhatsApp() { openShareURL("whatsapp://send?text=") }
+
+    private func openShareURL(_ prefix: String) {
+        guard let productPDFURL else { return }
+        let link = productPDFURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        guard let url = URL(string: prefix + link) else { return }
+        dismissProductShareOptions()
+        UIApplication.shared.open(url) { [weak self] opened in
+            if !opened { self?.presentSystemShareSheet() }
+        }
+    }
+
+    @objc private func shareToMessages() {
+        guard let productPDFURL else { return }
+        let link = productPDFURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        dismissProductShareOptions()
+        UIApplication.shared.open(URL(string: "sms:&body=\(link)")!)
+    }
+
+    @objc private func shareToMail() {
+        guard let productPDFURL else { return }
+        let link = productPDFURL.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        dismissProductShareOptions()
+        UIApplication.shared.open(URL(string: "mailto:?body=\(link)")!)
+    }
+
+    @objc private func shareToMoreApps() {
+        dismissProductShareOptions()
+        presentSystemShareSheet()
+    }
+
+    private func presentSystemShareSheet() {
+        guard let productPDFURL else { return }
+        let shareSheet = UIActivityViewController(activityItems: [productPDFURL], applicationActivities: nil)
+        if let popover = shareSheet.popoverPresentationController {
+            popover.sourceView = productShareButton ?? view
+            popover.sourceRect = productShareButton?.bounds ?? view.bounds
+        }
+        present(shareSheet, animated: true)
+    }
+
+    private func showProductLinkCopiedToast() {
+        // The share picker is an overlay inside this modal.  Add the toast to
+        // its window instead, so it remains visible after that overlay closes.
+        let toastHost: UIView = view.window ?? view
+        let toast = UIView()
+        toast.translatesAutoresizingMaskIntoConstraints = false
+        toast.backgroundColor = UIColor(red: 0.05, green: 0.76, blue: 0.73, alpha: 1)
+        toast.layer.cornerRadius = 8
+        toast.alpha = 0
+
+        let closeIcon = UIImageView(image: UIImage(systemName: "xmark.circle"))
+        closeIcon.translatesAutoresizingMaskIntoConstraints = false
+        closeIcon.tintColor = .white
+        toast.addSubview(closeIcon)
+
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = "Public link copied to your clipboard"
+        title.font = .systemFont(ofSize: 13, weight: .semibold)
+        title.textColor = .white
+        toast.addSubview(title)
+
+        let subtitle = UILabel()
+        subtitle.translatesAutoresizingMaskIntoConstraints = false
+        subtitle.text = "Anyone with this link can see this product"
+        subtitle.font = .systemFont(ofSize: 11)
+        subtitle.textColor = .white
+        toast.addSubview(subtitle)
+        toastHost.addSubview(toast)
+        toastHost.bringSubviewToFront(toast)
+
+        NSLayoutConstraint.activate([
+            toast.leadingAnchor.constraint(equalTo: toastHost.leadingAnchor, constant: 16),
+            toast.trailingAnchor.constraint(equalTo: toastHost.trailingAnchor, constant: -16),
+            toast.bottomAnchor.constraint(equalTo: toastHost.safeAreaLayoutGuide.bottomAnchor, constant: -18),
+            toast.heightAnchor.constraint(equalToConstant: 58),
+            closeIcon.leadingAnchor.constraint(equalTo: toast.leadingAnchor, constant: 14),
+            closeIcon.centerYAnchor.constraint(equalTo: toast.centerYAnchor),
+            closeIcon.widthAnchor.constraint(equalToConstant: 20),
+            closeIcon.heightAnchor.constraint(equalToConstant: 20),
+            title.leadingAnchor.constraint(equalTo: closeIcon.trailingAnchor, constant: 10),
+            title.topAnchor.constraint(equalTo: toast.topAnchor, constant: 12),
+            subtitle.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            subtitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 2)
+        ])
+        UIView.animate(withDuration: 0.2) { toast.alpha = 1 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            UIView.animate(withDuration: 0.2, animations: { toast.alpha = 0 }) { _ in
+                toast.removeFromSuperview()
+            }
+        }
+    }
     
     private func getStoneData(from data: NSDictionary) -> NSArray {
 
@@ -292,6 +737,27 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         return NSArray()
     }
 
+    private func stockID(from data: NSDictionary) -> String {
+        let keys = ["stock_id", "stockId", "StockId", "Stock_ID", "stock_no", "stock_number", "stock"]
+
+        for key in keys {
+            let value = "\(data[key] ?? "")".trimmingCharacters(in: .whitespacesAndNewlines)
+            if !value.isEmpty && value != "<null>" { return value }
+        }
+
+        // The detail API may omit Stock ID. Preserve it from the item that
+        // opened this summary so the header does not incorrectly show "--".
+        for source in [mOriginalData, mProductData] {
+            for case let row as NSDictionary in source {
+                for key in keys {
+                    let value = "\(row[key] ?? "")".trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !value.isEmpty && value != "<null>" { return value }
+                }
+            }
+        }
+        return ""
+    }
+
     func mSetData(mData: NSDictionary) {
 
         // Catalog uses `images`; Inventory uses `main_image`.
@@ -302,13 +768,16 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         mProductInfo.text =
             "\(mData["name"] ?? mData["item_name"] ?? "")"
 
-        mProductId.text =
-            "\(mData["ID"] ?? mData["product_id"] ?? "")"
+        // Catalog detail currently returns `product_id` as an internal UUID.
+        // Do not show it as the user-facing Product ID; wait for the API's
+        // display ID field instead.
+        let displayProductID = "\(mData["ID"] ?? mData["display_id"] ?? mData["product_code"] ?? "")"
+        mProductId.text = displayProductID.isEmpty ? "--" : displayProductID
 
         mSKUName.text =
             "\(mData["SKU"] ?? "")"
 
-        let stockId = "\(mData["stock_id"] ?? "")"
+        let stockId = stockID(from: mData)
         mStockId.text = stockId.isEmpty ? "--" : stockId
 
         if let priceString = mData["price"] as? String,

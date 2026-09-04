@@ -168,6 +168,17 @@ class TotalStock: UIViewController,UITableViewDelegate,UITableViewDataSource, UI
             self.mSKUForImage = sku
         }
         
+        // Make only the green SKU text at the top tappable.
+        mSKUName.isUserInteractionEnabled = true
+        mSKUName.gestureRecognizers?.forEach {
+            mSKUName.removeGestureRecognizer($0)
+        }
+        let tapTopSKU = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTopSKUTap(_:))
+        )
+        mSKUName.addGestureRecognizer(tapTopSKU)
+
         let tap =  UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
         view.addGestureRecognizer(tap)
         tap.cancelsTouchesInView = false
@@ -318,6 +329,23 @@ class TotalStock: UIViewController,UITableViewDelegate,UITableViewDataSource, UI
         }
     }
     
+    @objc private func handleTopSKUTap(_ gesture: UITapGestureRecognizer) {
+        guard !mProductIdForImage.isEmpty else { return }
+
+        let storyBoard: UIStoryboard = UIStoryboard(name: "common", bundle: nil)
+
+        if let home = storyBoard.instantiateViewController(withIdentifier: "SKUProductSummary") as? SKUProductSummary {
+            print(mProductIdForImage)
+
+            home.mKey = mProductIdForImage
+            home.mType = mType
+            home.modalPresentationStyle = .automatic
+            home.transitioningDelegate = self
+
+            self.present(home, animated: true)
+        }
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         

@@ -10,7 +10,7 @@ import UIKit
 
 
 
-class UnscannedStock: UIViewController , UITableViewDelegate, UITableViewDataSource {
+class UnscannedStock: UIViewController , UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
     
     
     //Product Summary
@@ -96,6 +96,17 @@ class UnscannedStock: UIViewController , UITableViewDelegate, UITableViewDataSou
             mStockId.text = "\(mData.value(forKey: "stock_id") ?? "")"
             mSKUName.text = "\(mData.value(forKey: "SKU") ?? "")"
         }
+        // Make only the green SKU text at the top tappable.
+        mSKUName.isUserInteractionEnabled = true
+        mSKUName.gestureRecognizers?.forEach {
+            mSKUName.removeGestureRecognizer($0)
+        }
+        let tapTopSKU = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTopSKUTap(_:))
+        )
+        mSKUName.addGestureRecognizer(tapTopSKU)
+
         // Add tap gesture to dismiss keyboard
         let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
         view.addGestureRecognizer(tap)
@@ -233,6 +244,31 @@ class UnscannedStock: UIViewController , UITableViewDelegate, UITableViewDataSou
         }
     }
     
+    @objc private func handleTopSKUTap(_ gesture: UITapGestureRecognizer) {
+        let index = (mIndex >= 0 && mIndex < mDATA.count) ? mIndex : 0
+
+        guard index >= 0,
+              index < mDATA.count,
+              let mData = mDATA[index] as? NSDictionary,
+              let mProductId = mData.value(forKey: "_id") as? String,
+              !mProductId.isEmpty else {
+            return
+        }
+
+        let storyBoard: UIStoryboard = UIStoryboard(name: "common", bundle: nil)
+
+        if let home = storyBoard.instantiateViewController(withIdentifier: "SKUProductSummary") as? SKUProductSummary {
+            print(mProductId)
+
+            home.mKey = mProductId
+            home.mType = "Unscanned"
+            home.modalPresentationStyle = .automatic
+            home.transitioningDelegate = self
+
+            self.present(home, animated: true)
+        }
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
        

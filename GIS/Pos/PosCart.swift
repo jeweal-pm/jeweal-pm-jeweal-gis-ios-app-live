@@ -59,7 +59,7 @@ class AddParkPopUp: UIView {
 }
 
 
-private struct POSSalesPersonRow {
+struct POSSalesPersonRow {
     let id: String
     let name: String
     let image: String
@@ -67,7 +67,7 @@ private struct POSSalesPersonRow {
     let phone: String
 }
 
-private final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
+final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
 
     private let rows: [POSSalesPersonRow]
     private var filteredRows: [POSSalesPersonRow]
@@ -347,7 +347,7 @@ private final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UIT
     }
 }
 
-private final class POSSalesPersonCell: UITableViewCell {
+final class POSSalesPersonCell: UITableViewCell {
 
     static let reuseIdentifier = "POSSalesPersonCell"
 
@@ -884,8 +884,10 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
         // New POS sale: no Salesperson has been selected yet.
         mSalesPersonId = ""
         UserDefaults.standard.removeObject(forKey: mSalesPersonIDKey)
+        UserDefaults.standard.removeObject(forKey: "sales_person_id")
         UserDefaults.standard.removeObject(forKey: "SALESPERSON_IMAGE")
         UserDefaults.standard.removeObject(forKey: "SALESPERSONNAME")
+        UserDefaults.standard.removeObject(forKey: "sales_person_name")
         updateSalesPersonImage()
         self.mNotes.keyboardType = .default
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")

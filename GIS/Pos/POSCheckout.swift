@@ -111,6 +111,12 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
         return UserDefaults.standard.string(forKey: "SALESPERSONID") ?? ""
     }
 
+    private var checkoutSalesPersons: [POSSalesPersonRow] = []
+    private var checkoutSalesPersonPicker: POSSalesPersonPickerView?
+    private var resumePayNowAfterSalesPersonSelection = false
+    private var checkoutSalesPersonButton: UIButton?
+    private var checkoutHeaderActions: UIView?
+
 
     
     // MARK: - Outlets
@@ -426,6 +432,7 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        updateCheckoutSalesPersonImage()
         self.mCreditCardPaymentView.isHidden = true
         mVisaView.backgroundColor = .white
         mApplePayView.backgroundColor = .clear
@@ -494,6 +501,7 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        installCheckoutSalesPersonButton()
         setupCashPageControl()
         let tap = UITapGestureRecognizer(
             target: self,
@@ -2016,6 +2024,12 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
     
     
     @IBAction func mPayNow(_ sender: UIButton) {
+        guard !selectedSalesPersonId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            resumePayNowAfterSalesPersonSelection = true
+            showSalesPersonRequiredAlert()
+            return
+        }
+
         sender.showAnimation{}
         if mOrderType == "refund_order" {
             mPayNowAlert()
@@ -2035,6 +2049,218 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
         mConfirmationPopUp.mCancelButton.setTitle("CANCEL".localizedString, for: .normal)
         mConfirmationPopUp.mConfirmButton.setTitle("CONFIRM".localizedString, for: .normal)
         self.view.addSubview(mConfirmationPopUp)
+    }
+
+    private func showSalesPersonRequiredAlert() {
+        let alert = UIAlertController(
+            title: "Salesperson Required",
+            message: "Please select a Salesperson before payment.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in
+            self?.resumePayNowAfterSalesPersonSelection = false
+        })
+        alert.addAction(UIAlertAction(title: "Select Salesperson", style: .default) { [weak self] _ in
+            self?.fetchSalesPersonsForCheckout()
+        })
+        present(alert, animated: true)
+    }
+
+    private func installCheckoutSalesPersonButton() {
+        guard checkoutSalesPersonButton == nil else { return }
+
+        // The storyboard already has a menu icon at the far right.  Cover that
+        // position with an explicit two-icon group so the menu and salesperson
+        // controls retain the same separation as the Checkout design.
+        let actions = UIView()
+        actions.translatesAutoresizingMaskIntoConstraints = false
+        actions.backgroundColor = .white
+        view.addSubview(actions)
+
+        let menuIcon = UIImageView(image: UIImage(systemName: "square.grid.2x2"))
+        menuIcon.translatesAutoresizingMaskIntoConstraints = false
+        menuIcon.tintColor = UIColor(named: "theme6A") ?? .systemGray
+        menuIcon.contentMode = .scaleAspectFit
+        actions.addSubview(menuIcon)
+
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(
+            UIImage(named: "pos_contact")?.withRenderingMode(.alwaysOriginal)
+                ?? UIImage(systemName: "person.crop.circle"),
+            for: .normal
+        )
+        button.imageView?.contentMode = .scaleAspectFit
+        button.accessibilityLabel = "Choose Salesperson"
+        button.addTarget(self, action: #selector(checkoutSalesPersonTapped), for: .touchUpInside)
+        actions.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            actions.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            actions.centerYAnchor.constraint(equalTo: mHCheckoutLABEL.centerYAnchor),
+            actions.widthAnchor.constraint(equalToConstant: 72),
+            actions.heightAnchor.constraint(equalToConstant: 35),
+
+            menuIcon.leadingAnchor.constraint(equalTo: actions.leadingAnchor),
+            menuIcon.centerYAnchor.constraint(equalTo: actions.centerYAnchor),
+            menuIcon.widthAnchor.constraint(equalToConstant: 26),
+            menuIcon.heightAnchor.constraint(equalToConstant: 26),
+
+            button.trailingAnchor.constraint(equalTo: actions.trailingAnchor),
+            button.centerYAnchor.constraint(equalTo: actions.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 28),
+            button.heightAnchor.constraint(equalToConstant: 28)
+        ])
+        checkoutHeaderActions = actions
+        checkoutSalesPersonButton = button
+        updateCheckoutSalesPersonImage()
+    }
+
+    /// Reflect the current sale's selected salesperson in the Checkout header.
+    /// This intentionally reads the same values saved by PosCart and the picker
+    /// below, so returning to Checkout also refreshes the avatar.
+    private func updateCheckoutSalesPersonImage() {
+        guard let button = checkoutSalesPersonButton else { return }
+
+        let salesPersonId = selectedSalesPersonId.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !salesPersonId.isEmpty else {
+            button.setImage(
+                UIImage(named: "pos_contact")?.withRenderingMode(.alwaysOriginal)
+                    ?? UIImage(systemName: "person.crop.circle"),
+                for: .normal
+            )
+            return
+        }
+
+        let fallback = UIImage(named: "usericon")?.withRenderingMode(.alwaysOriginal)
+            ?? UIImage(systemName: "person.crop.circle.fill")
+        button.setImage(fallback, for: .normal)
+
+        let imageURL = (UserDefaults.standard.string(forKey: "SALESPERSON_IMAGE") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: imageURL), !imageURL.isEmpty else { return }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let self,
+                  let data,
+                  let image = UIImage(data: data) else { return }
+            DispatchQueue.main.async {
+                // Do not let a previous selection's slow request overwrite the
+                // avatar of a salesperson selected afterwards.
+                guard self.selectedSalesPersonId == salesPersonId else { return }
+                self.checkoutSalesPersonButton?.setImage(
+                    image.withRenderingMode(.alwaysOriginal),
+                    for: .normal
+                )
+            }
+        }.resume()
+    }
+
+    @objc private func checkoutSalesPersonTapped() {
+        resumePayNowAfterSalesPersonSelection = false
+        fetchSalesPersonsForCheckout()
+    }
+
+    private func fetchSalesPersonsForCheckout() {
+        let query = "{salespersons{id name image country phone}}"
+        let params: [String: Any] = ["query": query]
+
+        CommonClass.showFullLoader(view: view)
+        AF.request(
+            mInventoryGrapQlUrl,
+            method: .post,
+            parameters: params,
+            encoding: JSONEncoding.default,
+            headers: sGisHeaders
+        ).responseJSON { [weak self] response in
+            guard let self else { return }
+            CommonClass.stopLoader()
+
+            guard response.error == nil,
+                  let data = response.data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let root = json["data"] as? [String: Any],
+                  let rows = root["salespersons"] as? [[String: Any]] else {
+                CommonClass.showSnackBar(message: "Unable to load Sales Person list")
+                return
+            }
+
+            self.checkoutSalesPersons = rows.compactMap { row in
+                guard let id = row["id"] as? String,
+                      !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    return nil
+                }
+
+                return POSSalesPersonRow(
+                    id: id,
+                    name: self.checkoutSalesPersonString(row["name"]).isEmpty ? id : self.checkoutSalesPersonString(row["name"]),
+                    image: self.checkoutSalesPersonString(row["image"]),
+                    country: self.checkoutSalesPersonString(row["country"]),
+                    phone: self.checkoutSalesPersonString(row["phone"])
+                )
+            }
+
+            guard !self.checkoutSalesPersons.isEmpty else {
+                CommonClass.showSnackBar(message: "No Sales Person found")
+                return
+            }
+            self.showCheckoutSalesPersonPicker()
+        }
+    }
+
+    private func checkoutSalesPersonString(_ value: Any?) -> String {
+        if let value = value as? String {
+            return value.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        if let value = value as? NSNumber {
+            return value.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return ""
+    }
+
+    private func showCheckoutSalesPersonPicker() {
+        checkoutSalesPersonPicker?.removeFromSuperview()
+
+        let picker = POSSalesPersonPickerView(
+            rows: checkoutSalesPersons,
+            onSelect: { [weak self] person in
+                guard let self else { return }
+
+                UserDefaults.standard.set(person.id, forKey: "sales_person_id")
+                UserDefaults.standard.set(person.id, forKey: "SALESPERSONID")
+                UserDefaults.standard.set(person.name, forKey: "sales_person_name")
+                UserDefaults.standard.set(person.name, forKey: "SALESPERSONNAME")
+                if person.image.isEmpty {
+                    UserDefaults.standard.removeObject(forKey: "SALESPERSON_IMAGE")
+                } else {
+                    UserDefaults.standard.set(person.image, forKey: "SALESPERSON_IMAGE")
+                }
+
+                self.updateCheckoutSalesPersonImage()
+
+                self.checkoutSalesPersonPicker?.dismissPicker()
+                self.checkoutSalesPersonPicker = nil
+
+                if self.resumePayNowAfterSalesPersonSelection {
+                    self.resumePayNowAfterSalesPersonSelection = false
+                    DispatchQueue.main.async {
+                        self.mPayNow(self.mPayNowButton)
+                    }
+                }
+            },
+            onProfileTap: { _ in }
+        )
+
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(picker)
+        NSLayoutConstraint.activate([
+            picker.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            picker.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            picker.topAnchor.constraint(equalTo: view.topAnchor),
+            picker.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        checkoutSalesPersonPicker = picker
+        picker.showAnimated()
     }
 
     // MARK: - PAY NOW
@@ -4030,6 +4256,10 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
                     
                     UserDefaults.standard.set("", forKey: "CUSTOMERID")
                     UserDefaults.standard.set("", forKey: "SALESPERSONID")
+                    UserDefaults.standard.removeObject(forKey: "sales_person_id")
+                    UserDefaults.standard.removeObject(forKey: "SALESPERSONNAME")
+                    UserDefaults.standard.removeObject(forKey: "sales_person_name")
+                    UserDefaults.standard.removeObject(forKey: "SALESPERSON_IMAGE")
                     CommonClass.showSnackBar(message: "Payment Successful")
                     if let email = jsonVal.value(forKey: "email") {
                         UserDefaults.standard.setValue("\(email)", forKey: "mailInvoice")
@@ -4410,4 +4640,3 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
         }
     }
 }
-

@@ -147,6 +147,7 @@
 		843A3A28272D9ED6002E4F0F /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1F272D9ED6002E4F0F /* APIManager.swift */; };
 		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
 		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
+		C52C9AFD30494E9000F1D6F3 /* SoldStock.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */; };
 		C553B6153013259F0000A8E4 /* ZebraScannerFramework.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */; };
 		C553B6163013259F0000A8E4 /* ZebraScannerFramework.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C553B619301325A60000A8E4 /* ZebraRfidSdkFramework.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = C553B618301325A60000A8E4 /* ZebraRfidSdkFramework.xcframework */; };
@@ -518,6 +519,7 @@
 		84BAA4532742C3AC00FD8F37 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localization.strings; sourceTree = "<group>"; };
 		AF62B8FDB361F8D83C8F0BD8 /* Pods-GISTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GISTests.debug.xcconfig"; path = "Target Support Files/Pods-GISTests/Pods-GISTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C2E53022E7118EDEFABB47E2 /* Pods-GIS-GISUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GIS-GISUITests.debug.xcconfig"; path = "Target Support Files/Pods-GIS-GISUITests/Pods-GIS-GISUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoldStock.swift; sourceTree = "<group>"; };
 		C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZebraScannerFramework.xcframework; path = ../123RFID_iOS_ReleasePackage_1.2.0/FrameworkScannerAndRfidSDK/BarcodeFramework/ZebraScannerFramework.xcframework; sourceTree = "<group>"; };
 		C553B618301325A60000A8E4 /* ZebraRfidSdkFramework.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZebraRfidSdkFramework.xcframework; path = ../123RFID_iOS_ReleasePackage_1.2.0/FrameworkScannerAndRfidSDK/RFIDFramework/ZebraRfidSdkFramework.xcframework; sourceTree = "<group>"; };
 		C553B61B3013278B0000A8E4 /* ZebraRFIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZebraRFIDService.swift; sourceTree = "<group>"; };
@@ -1045,6 +1047,7 @@
 		D945915B253D9E54003FA4C5 /* Stock Take */ = {
 			isa = PBXGroup;
 			children = (
+				C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */,
 				D94EA50A2583B315007A29E8 /* StockTakePage.swift */,
 				D9DC6DDC258BAAA3005C6264 /* TotalStock.swift */,
 				D9DC6DE1258BAAC6005C6264 /* UnscannedStock.swift */,
@@ -1733,6 +1736,7 @@
 				D9BE79C7272D99810019DE9F /* RangeSeekSlider.swift in Sources */,
 				D9064A61260C84E300D856D1 /* POSMain.swift in Sources */,
 				D9DDC75726FC5342007108CC /* DepositPayment.swift in Sources */,
+				C52C9AFD30494E9000F1D6F3 /* SoldStock.swift in Sources */,
 				D9064A66260C850C00D856D1 /* POSPayment.swift in Sources */,
 				D94D25E6278416F500F3093B /* QuickView.swift in Sources */,
 				065CE74B2D196D0F000589D8 /* QRCodeView.swift in Sources */,
@@ -2195,7 +2199,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2231,7 +2235,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 57;
+				CURRENT_PROJECT_VERSION = 58;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";

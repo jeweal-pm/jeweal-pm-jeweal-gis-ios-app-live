@@ -4163,7 +4163,7 @@
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Ig4-kJ-MPR"/>
-                        <color key="backgroundColor" name="themeBackground"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="2Ph-9G-bei" secondAttribute="trailing" id="0Qt-4r-ciD"/>
                             <constraint firstItem="Ig4-kJ-MPR" firstAttribute="trailing" secondItem="yKA-GW-RGn" secondAttribute="trailing" constant="8" id="3bZ-YN-cmD"/>

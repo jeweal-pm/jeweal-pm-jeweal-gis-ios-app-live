@@ -372,14 +372,38 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var stockTakeTotalWeightG: Double = 0
     private var stockTakeTotalSold: Double = 0
     private var hasStockTakeAPISummary: Bool = false
+    private var stockTakeSoldData: [NSDictionary] = []
     
     // MARK: - Reference UI (programmatic overlay)
     // This intentionally covers the legacy storyboard summary/bottom layout so
     // the screen matches the supplied Stock Take reference without requiring
     // storyboard constraint changes.
     private func buildReferenceStockTakeOverlay() {
-        // Figma reference: page background is #FAFAFA.
-        view.backgroundColor = UIColor(hex: "#FAFAFA")
+        // Keep the exposed safe-area background at the very top and bottom white.
+        // The summary section below remains responsible for its own #FAFAFA fill.
+        view.backgroundColor = .white
+        // Explicit safe-area covers ensure the system-exposed top and bottom
+        // areas stay pure white even when a parent container uses #FAFAFA.
+        let topSafeAreaBackground = UIView()
+        topSafeAreaBackground.translatesAutoresizingMaskIntoConstraints = false
+        topSafeAreaBackground.backgroundColor = .white
+        view.addSubview(topSafeAreaBackground)
+
+        let bottomSafeAreaBackground = UIView()
+        bottomSafeAreaBackground.translatesAutoresizingMaskIntoConstraints = false
+        bottomSafeAreaBackground.backgroundColor = .white
+        view.addSubview(bottomSafeAreaBackground)
+
+        NSLayoutConstraint.activate([
+            topSafeAreaBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topSafeAreaBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topSafeAreaBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            topSafeAreaBackground.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            bottomSafeAreaBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomSafeAreaBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomSafeAreaBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomSafeAreaBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         // Hide the legacy storyboard bottom bar.
         // The reference UI below provides the complete bottom bar, so keeping
         // the old bar visible would result in TWO rows of controls.
@@ -584,8 +608,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         [connect, power, play, stop, clear].forEach { bottomStack.addArrangedSubview($0) }
 
         NSLayoutConstraint.activate([
-            bottomStack.leadingAnchor.constraint(equalTo: bottom.leadingAnchor),
-            bottomStack.trailingAnchor.constraint(equalTo: bottom.trailingAnchor),
+            // Pull the four outer controls toward the centered Play button.
+            bottomStack.leadingAnchor.constraint(equalTo: bottom.leadingAnchor, constant: 48),
+            bottomStack.trailingAnchor.constraint(equalTo: bottom.trailingAnchor, constant: -48),
             bottomStack.topAnchor.constraint(equalTo: bottom.topAnchor),
             bottomStack.bottomAnchor.constraint(equalTo: bottom.bottomAnchor)
         ])
@@ -1124,6 +1149,15 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         soldLabel.translatesAutoresizingMaskIntoConstraints = false
         soldLabel.isHidden = title != "Total"
 
+        // Only the "xxx sold" text in the Total card is tappable.
+        // Keep the rest of the Total card behavior unchanged.
+        if title == "Total" {
+            soldLabel.isUserInteractionEnabled = true
+            soldLabel.addGestureRecognizer(
+                UITapGestureRecognizer(target: self, action: #selector(referenceSoldTapped))
+            )
+        }
+
         referenceSummaryValueLabels.append(valueLabel)
         referenceSummaryDetailLabels.append(detailLabel)
         referenceSummarySoldLabels.append(soldLabel)
@@ -1173,6 +1207,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
 
         card.bringSubviewToFront(cardButton)
+        if title == "Total" {
+            card.bringSubviewToFront(soldLabel)
+        }
         return card
     }
 
@@ -1218,7 +1255,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         button.imageView?.contentMode = .scaleAspectFit
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .top
-        button.imageEdgeInsets = UIEdgeInsets(top: 5, left: 0, bottom: 0, right: 0)
+        // Lower the icon group slightly within the footer.
+        button.imageEdgeInsets = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
 
         let active = UIColor(hex: "#1C1B1F")
         let disabled = UIColor(hex: "#D2D2D2")
@@ -1246,7 +1284,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             button.topAnchor.constraint(equalTo: container.topAnchor),
             button.bottomAnchor.constraint(equalTo: container.bottomAnchor),
 
-            label.topAnchor.constraint(equalTo: container.topAnchor, constant: 37),
+            // Keep each label closer to its icon while shifting the full item down.
+            label.topAnchor.constraint(equalTo: container.topAnchor, constant: 40),
             label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             label.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             label.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -2)
@@ -1536,13 +1575,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             ? stockTakeTotalWeightG
             : total.grams
 
-        let displayTotalSold = hasStockTakeAPISummary
-            ? stockTakeTotalSold
-            : soldQuantity(
-                from: allItems,
-                totalItemCount: total.items,
-                totalPcs: total.pcs
-            )
+        // Sold is available only from the API's sold_data array.
+        let displayTotalSold = soldDataQuantity(stockTakeSoldData)
 
         referenceSummaryDetailLabels[0].attributedText =
             makeReferenceDetailText(
@@ -1713,7 +1747,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return .noData(code: code)
         }
 
-        // GIS React behavior: no separate SOLD => Conflict rule.
+        // The API data contains both available inventory and sold stock.
+        // po_QTY == 0 means the stock is already sold => Conflict.
         for rawItem in mInventoryData {
             guard let item = rawItem as? NSDictionary else { continue }
 
@@ -1727,12 +1762,18 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let poQty = numericValue(item["po_QTY"] ?? item["qty"] ?? item["quantity"])
 
+            if poQty <= 0 {
+                return .conflictWithStockID(
+                    sku: sku.isEmpty ? code : sku,
+                    stockID: stockID
+                )
+            }
+
             if mScannedData.contains(stockID) {
-                // Already scanned: do not create a Conflict.
-                // CommonScanner has no "ignore" result, so noData is used
-                // only to prevent a Conflict from being created.
-                print("↩️ Ignore already scanned camera stock =", stockID)
-                return .noData(code: code)
+                return .conflictWithStockID(
+                    sku: sku.isEmpty ? code : sku,
+                    stockID: stockID
+                )
             }
 
             let imageURL = ["main_image", "images", "image"]
@@ -1768,6 +1809,25 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     @objc private func referenceTotalTapped() {
         mTotalScanned(self)
+    }
+
+    @objc private func referenceSoldTapped() {
+        // When sold_data is absent, the card reads Sold (0) and has no action.
+        guard !stockTakeSoldData.isEmpty else { return }
+
+        let soldPage = SoldStock()
+        soldPage.mSoldData = stockTakeSoldData
+        soldPage.mCount = "\(Int(soldDataQuantity(stockTakeSoldData)))"
+        navigationController?.pushViewController(soldPage, animated: true)
+    }
+
+    private func soldDataQuantity(_ items: [NSDictionary]) -> Double {
+        guard !items.isEmpty else { return 0 }
+
+        let quantity = items.reduce(0.0) { total, item in
+            total + numericValue(item["sold_qty"] ?? item["sold"] ?? item["sold_quantity"] ?? item["soldQty"])
+        }
+        return quantity > 0 ? quantity : Double(items.count)
     }
 
     @objc private func referenceScannedTapped() {
@@ -4281,11 +4341,63 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let poQty = numericValue(item["po_QTY"] ?? item["qty"] ?? item["quantity"])
 
-            // GIS React behavior:
-            // A valid stock_id that was already scanned is ignored.
-            // There is no separate SOLD => Conflict rule in the GIS flow.
+            // po_QTY == 0 means the matching stock has already been sold.
+            if poQty <= 0 {
+                let conflictKey = stockID + "|SOLD"
+
+                if !mCONFLICT.contains(conflictKey) {
+                    mCONFLICT.append(conflictKey)
+
+                    let conflictItem = NSMutableDictionary()
+                    conflictItem.setValue(sku.isEmpty ? searchKey : sku, forKey: "SKU")
+                    conflictItem.setValue(stockID, forKey: "stock_id")
+                    conflictItem.setValue("\(Int(poQty))", forKey: "po_QTY")
+                    conflictItem.setValue("\(item["_id"] ?? "")", forKey: "_id")
+                    conflictItem.setValue("\(item["location_id"] ?? "")", forKey: "location_id")
+                    if let weight = item["weight"] {
+                        conflictItem.setValue(weight, forKey: "weight")
+                    }
+                    conflictItem.setValue("manual", forKey: "scan_source")
+                    mCONFLICTARRAY.add(conflictItem)
+                }
+
+                mStatus()
+
+                if showPopup {
+                    showManualStockTakeResult(
+                        .conflict(code: sku.isEmpty ? searchKey : sku)
+                    )
+                }
+                return
+            }
+
+            // Same valid stock scanned again => Conflict.
             if mScannedData.contains(stockID) {
-                print("↩️ Ignore already scanned manual stock =", stockID)
+                let conflictKey = stockID + "|DUPLICATE"
+
+                if !mCONFLICT.contains(conflictKey) {
+                    mCONFLICT.append(conflictKey)
+
+                    let conflictItem = NSMutableDictionary()
+                    conflictItem.setValue(sku.isEmpty ? searchKey : sku, forKey: "SKU")
+                    conflictItem.setValue(stockID, forKey: "stock_id")
+                    conflictItem.setValue("\(Int(poQty))", forKey: "po_QTY")
+                    conflictItem.setValue("\(item["_id"] ?? "")", forKey: "_id")
+                    conflictItem.setValue("\(item["location_id"] ?? "")", forKey: "location_id")
+                    if let weight = item["weight"] {
+                        conflictItem.setValue(weight, forKey: "weight")
+                    }
+                    conflictItem.setValue("manual", forKey: "scan_source")
+                    mCONFLICTARRAY.add(conflictItem)
+                }
+
+                mStatus()
+
+                if showPopup {
+                    showManualStockTakeResult(
+                        .conflict(code: sku.isEmpty ? searchKey : sku)
+                    )
+                }
                 return
             }
 
@@ -4331,34 +4443,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        // GIS React behavior:
-        // A valid numeric stock_id not found in the current stock list
-        // becomes Unknown. It is not added to Conflict.
-        guard searchKey.range(of: #"^[0-9]{1,12}$"#, options: .regularExpression) != nil else {
-            if showPopup {
-                showManualStockTakeResult(.noData(code: searchKey))
-            }
-            return
-        }
-
-        let unknownItem = NSMutableDictionary()
-        unknownItem.setValue("-", forKey: "SKU")
-        unknownItem.setValue(searchKey, forKey: "stock_id")
-        unknownItem.setValue(0, forKey: "po_QTY")
-        unknownItem.setValue("", forKey: "_id")
-        unknownItem.setValue("", forKey: "location_id")
-
-        let unknownKey = searchKey + "UKN"
-        if !mCONFLICT.contains(where: {
-            $0.replacingOccurrences(of: "|MANUAL", with: "") == unknownKey
-        }) {
-            mUNKNOWNARRAY.add(unknownItem)
-            mCONFLICT.append(unknownKey)
-            mCONFLICT = uniqueElementsFrom(array: mCONFLICT)
-        }
-
-        mStatus()
-
+        // No data: show popup only. Do not collect this number as a record.
         if showPopup {
             showManualStockTakeResult(.noData(code: searchKey))
         }
@@ -4621,9 +4706,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             mUnknown = true
 
             let mUnknowdNewData = NSMutableDictionary()
-            mUnknowdNewData["SKU"] = "-"
+            mUnknowdNewData["SKU"] = lookupKey
             mUnknowdNewData["stock_id"] = lookupKey
-            mUnknowdNewData["po_QTY"] = 0
+            mUnknowdNewData["po_QTY"] = ""
             mUnknowdNewData["_id"] = ""
             mUnknowdNewData["location_id"] = ""
 
@@ -4649,12 +4734,36 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         print("SKU =", sku)
         print("stockID =", stockID)
         print("===============================")
-        // GIS React behavior:
-        // A stock_id that has already been scanned is ignored.
-        // It must NOT be added to Conflict just because the RFID reader
-        // sees the same tag again.
+        // Scan ซ้ำ = Conflict
         if mScannedData.contains(stockID) {
-            print("↩️ Ignore already scanned RFID stock =", stockID)
+
+            print("⚠️ CONFLICT =", stockID)
+
+            if !mCONFLICT.contains(where: {
+                $0.replacingOccurrences(of: "|MANUAL", with: "") == stockID
+            }) {
+                mCONFLICT.append(stockID)
+
+                let conflictItem = NSMutableDictionary()
+
+                conflictItem["SKU"] = sku
+                conflictItem["stock_id"] = stockID
+                conflictItem["po_QTY"] = "\(poQty)"
+                conflictItem["_id"] = "\(item["_id"] ?? "")"
+                conflictItem["location_id"] = "\(item["location_id"] ?? "")"
+
+                mCONFLICTARRAY.add(conflictItem)
+            }
+
+            mStatus()
+            // RFID Conflict -> Popup เดียวกับ Manual Search
+            showManualStockTakeResult(
+                .conflictWithStockID(
+                    sku: sku,
+                    stockID: stockID
+                )
+            )
+
             return
         }
         if !mScannedData.contains(stockID) {
@@ -6850,6 +6959,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
                 self.stockTakeTotalWeightG = self.numericValue(apiTotalWeight)
                 self.stockTakeTotalSold = self.numericValue(apiTotalSold)
+
+                if let soldData = response.value(forKey: "sold_data") as? [NSDictionary] {
+                    self.stockTakeSoldData = soldData
+                } else {
+                    self.stockTakeSoldData = []
+                }
+
                 self.hasStockTakeAPISummary = true
 
                 print("========== STOCK TAKE API SUMMARY ==========")
@@ -7023,11 +7139,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             "unscanned":mSAVEUNSCANNED,
             "scanned":mSAVESCANNED,
             "unknown":mUNKNOWNARRAY,
-            "conflict":[],
+            "conflict":mCONFLICTARRAY,
             "total_scanned_qty":Int(mScannedStocks.text ?? "") ?? 0,
             "total_unscanned_qty":Int(mUnscannedStocks.text ?? "") ?? 0,
-            "conflict_qty":0,
-            "unknown_qty": mUNKNOWNARRAY.count,
+            "conflict_qty":Int(mConflictStocks.text ?? "") ?? 0,
+            "unknown_qty": Int(mUnknownStocks.text ?? "") ?? 0,
             "voucher_id":voucherId,
             "filter":mFilterData]
         
@@ -8635,4 +8751,3 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
     }
 }
 #endif
-
