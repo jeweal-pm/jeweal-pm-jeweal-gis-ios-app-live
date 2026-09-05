@@ -31,6 +31,20 @@ class ReserveNewItems : UITableViewCell {
 }
 
 class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewControllerTransitioningDelegate , UITextViewDelegate , UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate {
+
+    enum ReserveSource {
+        case itemSearch
+        case quickView
+        case myInventory
+
+        var payloadFlag: String {
+            switch self {
+            case .itemSearch: return "byItemSearchMobile"
+            case .quickView: return "byQuickViewMobile"
+            case .myInventory: return "byMyInventoryMobile"
+            }
+        }
+    }
     
     var mCurrentIndex = -1
     @IBOutlet weak var mCustomerName: UILabel!
@@ -51,6 +65,7 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
     
     var mIsCrossLocationReserve = false
     var mCrossLocationId = ""
+    var reserveSource: ReserveSource = .myInventory
 
     // MARK: - Reserve Note Suggestions
     private var reserveSuggestionsView: UIView?
@@ -782,9 +797,12 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
             "delivery_date": deliveryDate,
             "transaction_date": transactionDate,
             "sales_person_id": salesPersonId,
+            "byMobile": true,
             "voucher_id": voucherId,
             "reservedItems": mReserveProductsData
         ]
+        // Only one source flag is included for each reserve request.
+        params[reserveSource.payloadFlag] = true
         
         // Cross-location Reserve
         // mCrossLocationId is passed directly from QuickView and must not

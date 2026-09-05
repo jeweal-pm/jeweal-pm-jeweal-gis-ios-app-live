@@ -407,9 +407,14 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
             guard let self else { return }
             self.stopProductLoading()
 
+            let pdfURLString = self.pdfURLString(from: response)
+            print("========== PRODUCT PDF RESPONSE ==========")
+            print("Share product_id =", productId)
+            print("Share PDF URL =", pdfURLString)
+            print("==========================================")
+
             guard status,
                   "\(response.value(forKey: "code") ?? "")" == "200",
-                  let pdfURLString = response.value(forKey: "url") as? String,
                   let pdfURL = URL(string: pdfURLString) else {
                 CommonClass.showSnackBar(
                     message: "\(response.value(forKey: "message") ?? "Unable to create product PDF")"
@@ -424,6 +429,29 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
                 self.presentSystemShareSheet()
             }
         }
+    }
+
+    private func pdfURLString(from response: NSDictionary) -> String {
+        let rootURL = "\(response["url"] ?? response["pdf_url"] ?? response["link"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if !rootURL.isEmpty { return rootURL }
+
+        if let data = response["data"] as? NSDictionary {
+            return "\(data["url"] ?? data["pdf_url"] ?? data["link"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        if let data = response["data"] as? String {
+            return data.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        if let data = response["data"] as? NSArray,
+           let first = data.firstObject as? NSDictionary {
+            return "\(first["url"] ?? first["pdf_url"] ?? first["link"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        return ""
     }
 
     private func showProductShareOptions() {
@@ -764,11 +792,28 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     func mSetData(mData: NSDictionary) {
 
         let isCatalogProduct = mType.lowercased() == "catalog"
+        let shareProductIDKeys = [
+            "product_id",
+            "parentproduct_id",
+            "main_po_product_id",
+            "baseVariant_id",
+            "id",
+            "_id"
+        ]
+        let shareProductID = shareProductIDKeys
+            .lazy
+            .map { "\(mData[$0] ?? "")".trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty && $0 != "<null>" } ?? ""
+
+        // The screen may be opened with a po_product_id, but the PDF API requires
+        // the actual product_id returned by the detail endpoint.
+        productIDForPDF = shareProductID.isEmpty
+            ? mKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            : shareProductID
+
         if isCatalogProduct {
             // Catalog products are not stock records, so no Stock ID exists.
             mStockIdLABEL.superview?.isHidden = true
-            productIDForPDF = "\(mData["product_id"] ?? "")"
-                .trimmingCharacters(in: .whitespacesAndNewlines)
         } else {
             mStockIdLABEL.superview?.isHidden = false
         }

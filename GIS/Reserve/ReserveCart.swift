@@ -11,6 +11,17 @@ import Alamofire
 import DropDown
 
 class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,GetCustomerDataDelegate , UITableViewDataSource, SearchDelegate ,UITableViewDelegate, GetInventoryDataItemsDelegate , DeleteCustomCartItems, UITextFieldDelegate, UIGestureRecognizerDelegate {
+
+    /// The ID chosen in the Sales Person picker.  Do not substitute the
+    /// logged-in user here: Reserve orders must belong to the selected person.
+    private var selectedSalesPersonId: String {
+        let primary = UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
+        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return primary.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     @IBOutlet weak var mPickerView: UIView!
     @IBOutlet weak var mSearchField: UITextField!
@@ -397,7 +408,7 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
 //    func mGetSearchItems(id: String, locationId: String){
     func mGetSearchItems(id: String, locationId: String, type: String) {
         var mParams = [String : Any]()
-            mParams = ["product_id":[id], "customer_id":mCustomerId, "sales_person_id":"", "type":"inventory", "order_type":"reserve"]
+            mParams = ["product_id":[id], "customer_id":mCustomerId, "sales_person_id": selectedSalesPersonId, "type":"inventory", "order_type":"reserve"]
         print("DEBUG_GET_SEARCH_ITEM_ID =", id)
         if !locationId.isEmpty {
 

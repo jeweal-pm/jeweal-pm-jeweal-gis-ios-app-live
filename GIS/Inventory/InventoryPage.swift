@@ -615,6 +615,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
         if let mInventoryPage = storyBoard.instantiateViewController(withIdentifier: "InventoryReserveCart") as? InventoryReserveCart {
             mInventoryPage.mOriginalData =  NSArray(array: mReserveData)
+            mInventoryPage.reserveSource = .myInventory
             
             print("mInventoryPage.mOriginalData = \(NSArray(array: mReserveData))")
             self.navigationController?.pushViewController(mInventoryPage, animated:true)
@@ -2148,6 +2149,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
             "Po_products_id": self.mReservProductsData,
             "customer_id": mCustomerId,
             "sales_person_id": mSalesPersonId,
+            "byMobile": true,
+            "byMyInventoryMobile": true,
             "remark": mRemark.text ?? ""
         ]
         

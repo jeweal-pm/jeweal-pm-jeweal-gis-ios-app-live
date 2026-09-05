@@ -847,6 +847,7 @@ class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewD
 
                     mInventoryPage.mOriginalData =
                         NSArray(array: reserveDataForInventory)
+                    mInventoryPage.reserveSource = .quickView
 
                     mInventoryPage.mIsCrossLocationReserve =
                         isCrossLocation

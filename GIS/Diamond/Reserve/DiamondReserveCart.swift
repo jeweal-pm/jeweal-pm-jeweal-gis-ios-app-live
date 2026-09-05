@@ -452,7 +452,7 @@ class DiamondReserveCart: UIViewController , GetCustomerDataDelegate , UIViewCon
         let formattedDate =  currentDateTime.getFormattedDate(format: "MM/dd/yyyy")
         
         
-        let params:[String: Any] = ["id" : mData.value(forKey: "id") as? String ?? "" , "customer_id": self.mCustomerId, "date":formattedDate,"dueDate":self.mDueDate.text ?? "", "remark":self.mNotes.text ?? ""]
+        let params:[String: Any] = ["id" : mData.value(forKey: "id") as? String ?? "" , "customer_id": self.mCustomerId, "date":formattedDate,"dueDate":self.mDueDate.text ?? "", "remark":self.mNotes.text ?? "", "byMobile": true]
         
         CommonClass.showFullLoader(view: self.view)
         

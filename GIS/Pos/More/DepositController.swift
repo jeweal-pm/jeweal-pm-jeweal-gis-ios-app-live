@@ -440,7 +440,7 @@ class DepositController : UIViewController, UIViewControllerTransitioningDelegat
             formatter.timeStyle = .medium
             formatter.dateStyle = .medium
             
-            self.mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": formatter.string(from: currentDateTime),"customer_id":self.mCustomerId,"sales_person_id":"","order_type":"deposit"]
+            self.mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": formatter.string(from: currentDateTime),"customer_id":self.mCustomerId,"sales_person_id":"","byMobile":true,"order_type":"deposit"]
             
             let mQuotationId = UserDefaults.standard.string(forKey: "quotationId") ?? ""
             if !mQuotationId.isEmpty {

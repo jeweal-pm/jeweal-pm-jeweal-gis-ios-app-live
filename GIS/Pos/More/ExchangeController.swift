@@ -399,6 +399,7 @@ class ExchangeController:  UIViewController, UIViewControllerTransitioningDelega
                                                "sell_info": mSellInfo,
                                                "payment_info": paymentInfo,
                                                "order_type": "exchange_order",
+                                               "byMobile": true,
                                                "customer_id": mCustomerId]
                 
                 if !self.mSelectedBillingAddress.isEmpty || !self.mSelectedShippingAddress.isEmpty {

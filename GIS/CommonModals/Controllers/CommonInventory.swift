@@ -455,7 +455,9 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
             "cartItems":[cartItem],
             "order_type":"reserve",
             "customer_id":mCustomerId,
-            "sales_person_id":mSalesPersonId
+            "sales_person_id":mSalesPersonId,
+            "byMobile": true,
+            "byPosReserveMobile": true
         ]
     }
     

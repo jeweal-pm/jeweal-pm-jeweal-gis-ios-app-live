@@ -533,6 +533,18 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     private var mSalesPersonId = ""
     private let mSalesPersonIDKey = "SALESPERSONID"
 
+    /// Always resolve the current choice from the shared Sales Person state
+    /// before sending a POS payload.  This deliberately has no login-user
+    /// fallback, because the API requires the selected salesperson's ID.
+    private var selectedSalesPersonId: String {
+        let primary = UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
+        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return primary.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return (UserDefaults.standard.string(forKey: mSalesPersonIDKey) ?? mSalesPersonId)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     // Sales Person picker data/UI
     private var mSalesPersons: [POSSalesPersonRow] = []
     private var mSalesPersonPicker: POSSalesPersonPickerView?
@@ -2023,7 +2035,7 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
         var mParams = [String : Any]()
         
 
-            mParams = ["product_id":[id], "customer_id":mCustomerId, "sales_person_id":self.mSalesPersonId, "type":"inventory", "order_type":"pos_order"]
+            mParams = ["product_id":[id], "customer_id":mCustomerId, "sales_person_id": selectedSalesPersonId, "type":"inventory", "order_type":"pos_order"]
         
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")

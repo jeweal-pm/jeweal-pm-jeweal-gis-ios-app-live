@@ -612,6 +612,7 @@ class ItemSearchPage: UIViewController ,  UITableViewDelegate , UITableViewDataS
         }
 
         mInventoryPage.mOriginalData = NSArray(array: mReserveData)
+        mInventoryPage.reserveSource = .itemSearch
 
         DispatchQueue.main.async {
             CommonClass.stopLoader()

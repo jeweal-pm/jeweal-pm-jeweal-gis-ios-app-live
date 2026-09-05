@@ -4340,7 +4340,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
 
                     print("--------------------------------")
                 }
-                mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":"","order_type":self.mOrderType , "order_id":self.mOrderId]
+                mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":"","byMobile":true,"order_type":self.mOrderType , "order_id":self.mOrderId]
 
                 // Send linked-cart state on the actual final checkout request.
                 self.appendLinkedCartMetadata(to: &mFinalPaymentMethod)
