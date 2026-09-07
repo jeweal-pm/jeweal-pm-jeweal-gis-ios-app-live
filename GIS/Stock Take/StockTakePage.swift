@@ -2256,6 +2256,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     icon.image = UIImage(systemName: "pause.fill")
                     icon.tintColor = .white
                 }
+            } else if connected {
+                // The storyboard icon sits above the programmatic green Play
+                // button on some layouts. It must be white while the reader
+                // is ready; the green asset would otherwise make the triangle
+                // look disabled even though the button is active.
+                icon.image = UIImage(systemName: "play.fill")
+                icon.tintColor = .white
             } else {
                 icon.image = UIImage(named: "play_icgreen")
                 icon.tintColor = nil
@@ -2545,6 +2552,19 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             self.updatePowerSheetState()
             self.updateDeviceEmptyState()
             self.mDeviceTableView.reloadData()
+
+            // The Zebra SDK may report its connected event while legacy
+            // storyboard views are still finishing their own layout pass.
+            // Refresh once more on the next run loop so the visible Play
+            // control cannot remain grey even though it already accepts taps.
+            if ZebraRFIDService.shared.isConnected {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self,
+                          ZebraRFIDService.shared.isConnected else { return }
+                    self.updateScannerControls()
+                    self.referencePlayButton?.isEnabled = !self.isStoppedState
+                }
+            }
         }
     }
 
@@ -4557,7 +4577,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        // No data: show popup only. Do not collect this number as a record.
+        // The item is not known by the current Stock Take data. Keep the
+        // physical value as the stock ID, but deliberately leave SKU empty:
+        // an Unknown item has no reliable SKU. This lets the API distinguish
+        // it from a sold Conflict, which always carries the known SKU.
+        recordUnknownStock(stockID: searchKey, source: "manual")
+
         if showPopup {
             showManualStockTakeResult(.noData(code: searchKey))
         }
@@ -4823,29 +4848,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        var mUnknown = false
-
         // O(1) lookup. The map contains stock_id/SKU plus any RFID/EPC aliases.
         guard let item = stockMap[lookupKey] else {
 
             print("UNKNOWN RFID =", lookupKey)
-            mUnknown = true
-
-            let mUnknowdNewData = NSMutableDictionary()
-            mUnknowdNewData["SKU"] = lookupKey
-            mUnknowdNewData["stock_id"] = lookupKey
-            mUnknowdNewData["po_QTY"] = ""
-            mUnknowdNewData["_id"] = ""
-            mUnknowdNewData["location_id"] = ""
-
-            if !mCONFLICT.contains(where: {
-                $0.replacingOccurrences(of: "|MANUAL", with: "") == lookupKey + "UKN"
-            }) {
-                mUNKNOWNARRAY.add(mUnknowdNewData)
-                mCONFLICT.append(lookupKey + "UKN")
-            }
-
-            mStatus()
+            recordUnknownStock(stockID: lookupKey, source: "rfid")
             // RFID Unknown -> Popup เดียวกับ Manual Search
             showManualStockTakeResult(.noData(code: lookupKey))
             return
@@ -4895,23 +4902,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             mSAVESCANNED.add(scannedItem)
 
             print("Scanned =", mScannedData.count)
-        }
-
-        if mUnknown {
-
-            let mUnknowdNewData = NSMutableDictionary()
-
-            mUnknowdNewData["SKU"] = lookupKey
-            mUnknowdNewData["stock_id"] = lookupKey
-            mUnknowdNewData["po_QTY"] = ""
-            mUnknowdNewData["_id"] = ""
-            mUnknowdNewData["location_id"] = ""
-
-            if !mCONFLICT.contains(lookupKey + "UKN") {
-
-                mUNKNOWNARRAY.add(mUnknowdNewData)
-                mCONFLICT.append(lookupKey + "UKN")
-            }
         }
 
         mPowerView.isHidden = true
@@ -6764,73 +6754,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
     
     func found(code: String) {
-            print("found code = \(code)")
-            var mUnknown = true
-            for i in mStatusData {
-                
-                if let mValue = i as? NSMutableDictionary,
-                   let sku = mValue.value(forKey: "SKU") as? String,
-                   let stockID = mValue.value(forKey: "stock_id") as? String,
-                   let poQtyString = mValue.value(forKey: "po_QTY") as? String,
-                   let poQty = Int(poQtyString) {
-                    
-                    if !code.isEmpty {
-                        let searchKey = normalizedStockLookupKey(code)
-                        if searchKey == normalizedStockLookupKey(sku) || searchKey == normalizedStockLookupKey(stockID) {
-                            if !mScannedData.contains(stockID){
-                                mScannedData.append(stockID)
-                                mScannedCount.append(poQty)
-                                let items = uniqueElementsFrom(array: mScannedData)
-                                mScannedData = items
-                                mScannedStocks.text = "\(mScannedCount.reduce(0, {$0 + $1}))"
-                                let mUnsCount = (Int(mTotalStocks.text ?? "0") ?? 0) - (Int(mScannedStocks.text ?? "0") ?? 0)
-                                mUnscannedStocks.text = "\(mUnsCount)"
-                                let scannedDisplayData = NSMutableDictionary(dictionary: mValue)
-                                scannedDisplayData.setValue("manual", forKey: "scan_source")
-                                mSCANNED.add(scannedDisplayData)
-                                
-                                let mData = NSMutableDictionary()
-                                mData.setValue(stockID, forKey: "stock_id")
-                                mData.setValue(poQty, forKey: "po_QTY")
-                                mData.setValue(sku, forKey: "SKU")
-                                mData.setValue("\(mValue.value(forKey: "_id") ?? "")", forKey: "_id")
-                                mData.setValue("\(mValue.value(forKey: "location_id") ?? "")", forKey: "location_id")
-                                mData.setValue("manual", forKey: "scan_source")
-                                
-                                mSAVESCANNED.add(mData)
-                            }
-                            mUnknown = false
-                        }else{
-                            
-                        }
-                    }
-                }
-            }
-            
-            if mUnknown {
-                // Camera/manual scan that is not found in stock is CONFLICT.
-                // Use the scanned code itself (not mSearchStock.text, which may be empty).
-                let manualKey = normalizedStockLookupKey(code)
-                if !manualKey.isEmpty {
-                    let conflictKey = manualKey + "|MANUAL"
-                    if !mCONFLICT.contains(conflictKey) {
-                        let conflictItem = NSMutableDictionary()
-                        conflictItem.setValue(manualKey, forKey: "SKU")
-                        conflictItem.setValue(manualKey, forKey: "stock_id")
-                        conflictItem.setValue("0", forKey: "po_QTY")
-                        conflictItem.setValue("", forKey: "_id")
-                        conflictItem.setValue("", forKey: "location_id")
-                        conflictItem.setValue("manual", forKey: "scan_source")
-                        self.mCONFLICTARRAY.add(conflictItem)
-                        mCONFLICT.append(conflictKey)
-                        mCONFLICT = uniqueElementsFrom(array: mCONFLICT)
-                    }
-                }
-            }
-            
-            mStatus()
-            
-        }
+        print("found code = \(code)")
+
+        // Camera scans must follow exactly the same rules as keyboard and
+        // RFID scans: only sold_data produces Conflict; all unmatched values
+        // are Unknown and therefore have an empty SKU in the save payload.
+        mGetScanResults(searchText: code, showPopup: true)
+    }
     
 //    func found(code: String) {
 //        print("found code = \(code)")
@@ -7004,7 +6934,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         let key = normalizedStockLookupKey(lookupKey)
         guard !key.isEmpty else { return nil }
 
-        let exactKeys = ["stock_id", "stockId", "_id", "id"]
+        // The Stock Take API has used more than one Stock ID spelling. Match
+        // the physical Stock ID only; _id is retained as a final fallback for
+        // older responses that did not include a dedicated stock-id field.
+        let exactKeys = [
+            "stock_id", "stockId", "stockID", "StockId", "Stock ID",
+            "stock_code", "stockCode", "_id", "id"
+        ]
         if let exactMatch = stockTakeSoldData.first(where: { item in
             exactKeys.contains { field in
                 normalizedStockLookupKey("\(item[field] ?? "")") == key
@@ -7022,7 +6958,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     /// Adds a conflict only for an item explicitly supplied in sold_data.
     private func recordSoldConflict(_ soldItem: NSDictionary, lookupKey: String, source: String) {
         let sku = "\(soldItem["SKU"] ?? soldItem["sku"] ?? lookupKey)"
-        let stockID = "\(soldItem["stock_id"] ?? soldItem["stockId"] ?? lookupKey)"
+        let stockID = "\(soldItem["stock_id"] ?? soldItem["stockId"] ?? soldItem["stockID"] ?? soldItem["StockId"] ?? soldItem["stock_code"] ?? soldItem["stockCode"] ?? lookupKey)"
         let conflictKey = stockID + "|SOLD"
 
         if !mCONFLICT.contains(conflictKey) {
@@ -7036,6 +6972,30 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             mCONFLICTARRAY.add(conflictItem)
         }
 
+        mStatus()
+    }
+
+    /// Adds an unmatched physical tag/code as an Unknown record. There is no
+    /// reliable SKU for this category, so SKU must remain empty rather than
+    /// duplicating stock_id. Conflict records are kept separate in
+    /// mCONFLICTARRAY and always contain the SKU from sold_data.
+    private func recordUnknownStock(stockID: String, source: String) {
+        let normalizedStockID = normalizedStockLookupKey(stockID)
+        guard !normalizedStockID.isEmpty else { return }
+
+        let unknownKey = normalizedStockID + "|UKN"
+        guard !mCONFLICT.contains(unknownKey) else { return }
+
+        let unknownItem = NSMutableDictionary()
+        unknownItem["SKU"] = ""
+        unknownItem["stock_id"] = normalizedStockID
+        unknownItem["po_QTY"] = ""
+        unknownItem["_id"] = ""
+        unknownItem["location_id"] = ""
+        unknownItem["scan_source"] = source
+
+        mUNKNOWNARRAY.add(unknownItem)
+        mCONFLICT.append(unknownKey)
         mStatus()
     }
 
@@ -7290,6 +7250,23 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
     
     
+    /// The Stock Take PDF renders its `Conflict/Unknown` section from the
+    /// `unknown` payload bucket. A conflict is still distinguishable because
+    /// it has a SKU, while a genuinely unknown scan always has an empty SKU.
+    /// Keep the two in-memory collections separate for the app UI, then merge
+    /// them only when saving the report.
+    private func conflictUnknownSavePayload() -> NSMutableArray {
+        let combinedItems = NSMutableArray()
+
+        for source in [mUNKNOWNARRAY, mCONFLICTARRAY] {
+            for case let item as NSDictionary in source {
+                combinedItems.add(NSMutableDictionary(dictionary: item))
+            }
+        }
+
+        return combinedItems
+    }
+
     func mUploadStocksSave(voucherId: String){
         
         
@@ -7306,15 +7283,21 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         
         let urlPath =  mUploadStocks
         
+        let combinedConflictUnknown = conflictUnknownSavePayload()
+        print("🔥 STOCK TAKE CONFLICT/UNKNOWN SAVE COUNT = \\(combinedConflictUnknown.count)")
+
         let  mParams:[String:Any] = [
             "unscanned":mSAVEUNSCANNED,
             "scanned":mSAVESCANNED,
-            "unknown":mUNKNOWNARRAY,
-            "conflict":mCONFLICTARRAY,
+            "unknown":combinedConflictUnknown,
+            // Avoid duplicate rows in a report that reads the unified bucket.
+            "conflict":[] as [Any],
             "total_scanned_qty":Int(mScannedStocks.text ?? "") ?? 0,
             "total_unscanned_qty":Int(mUnscannedStocks.text ?? "") ?? 0,
             "conflict_qty":Int(mConflictStocks.text ?? "") ?? 0,
-            "unknown_qty": Int(mUnknownStocks.text ?? "") ?? 0,
+            // This quantity belongs to the unified Conflict/Unknown report
+            // bucket and must match the number of rows sent above.
+            "unknown_qty": combinedConflictUnknown.count,
             "voucher_id":voucherId,
             "filter":mFilterData]
         
