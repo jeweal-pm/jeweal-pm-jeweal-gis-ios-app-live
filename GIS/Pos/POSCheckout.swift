@@ -106,9 +106,8 @@ class PaymentConfirmation: UIView {
 
 class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,UITableViewDataSource , UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout ,GetVerification , ProceedToPay, UIViewControllerTransitioningDelegate, ConfirmationDelegate, FinalInstallmentDelegate, ScannerDelegate, QRCodeViewDelegate {
     private var selectedSalesPersonId: String {
-        let primary = UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
-        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return primary }
-        return UserDefaults.standard.string(forKey: "SALESPERSONID") ?? ""
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var checkoutSalesPersons: [POSSalesPersonRow] = []
@@ -1319,6 +1318,10 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
 
             let updatedItem = item.mutableCopy() as! NSMutableDictionary
 
+            // saveCustomOrder reads the salesperson from each cart item.
+            // Keep this in addition to the root and summary-order values.
+            updatedItem["sales_person_id"] = selectedSalesPersonId
+
             let deliveryDate = "\(updatedItem["delivery_date"] ?? "")"
 
             print("📅 delivery_date from cart =", deliveryDate)
@@ -1329,6 +1332,18 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
 
             print("📤 sending delivery_date =", updatedItem["delivery_date"] ?? "")
 
+            cart.add(updatedItem)
+        }
+
+        return cart
+    }
+
+    private func checkoutCartWithSalesPerson() -> NSArray {
+        let cart = NSMutableArray()
+
+        for case let item as NSDictionary in mCartTableData {
+            let updatedItem = item.mutableCopy() as! NSMutableDictionary
+            updatedItem["sales_person_id"] = selectedSalesPersonId
             cart.add(updatedItem)
         }
 
@@ -2320,8 +2335,9 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
         mPayData.setValue(mCreditNoteMethod, forKey: "credit_note")
         mPayData.setValue("", forKey: "gift_card")
 
-        print("DEBUG_CART_DATA POSCheckout mPayNow = \(mCartTableData)")
-        mSellInfo.setValue(mCartTableData, forKey: "cart")
+        let checkoutCart = checkoutCartWithSalesPerson()
+        print("DEBUG_CART_DATA POSCheckout mPayNow = \(checkoutCart)")
+        mSellInfo.setValue(checkoutCart, forKey: "cart")
         mSellInfo.setValue(mSummaryOrder, forKey: "summary_order")
         mSellInfo.setValue(mOrderType, forKey: "status_type")
         mSellInfo.setValue(Double(mTotalWithDiscount) ?? 0.00, forKey: "totalamount")

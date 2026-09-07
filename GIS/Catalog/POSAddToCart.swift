@@ -28,6 +28,11 @@ class ProductLocationCell : UITableViewCell {
 var posTabBarInstance: POSTabBarController?
 
 class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate, UIViewControllerTransitioningDelegate ,UITableViewDelegate, UITableViewDataSource, GetCustomerDataDelegate{
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     func mCreateNewCustomer() {
         let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
@@ -1790,7 +1795,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
 //            CommonClass.showFullLoader(view: self.view)
             
             print("POSAddToCart mOrderNow ")
-            let mParams = ["product_id":[self.mProductId], "customer_id":self.mCustomerId, "sales_person_id":"", "type":self.mType, "order_type":"custom_order"] as [String : Any]
+            let mParams = ["product_id":[self.mProductId], "customer_id":self.mCustomerId, "sales_person_id":self.selectedSalesPersonId, "type":self.mType, "order_type":"custom_order"] as [String : Any]
             
             let startTime = Date()
             
@@ -1878,7 +1883,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
         var mParams: [String: Any] = [
             "product_id": [variantId],
             "customer_id": self.mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": self.mType,
             "order_type": "custom_order",
             "pointer": self.mPointerId
@@ -2315,7 +2320,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
         let params: [String: Any] = [
             "product_id": [productId],
             "customer_id": self.mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": self.mType,
             "order_type": "custom_order",
             "pointer": self.mPointerId
@@ -2821,7 +2826,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
                 let params: [String: Any] = [
                     "product_id": [self.mProductId],
                     "customer_id": self.mCustomerId,
-                    "sales_person_id": "",
+                    "sales_person_id": self.selectedSalesPersonId,
                     "type": self.mType,
                     "order_type": "pos_order"
                 ]

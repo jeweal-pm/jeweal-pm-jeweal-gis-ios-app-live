@@ -45,6 +45,11 @@ class CatalogCell :UICollectionViewCell {
 
 
 class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout , UITableViewDelegate ,UITableViewDataSource , RangeSeekSliderDelegate, GetCustomerDataDelegate,GetInventoryFiltersDelegate, UIViewControllerTransitioningDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
 //    enum FaroMode {
 //        case search
@@ -1315,7 +1320,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         let params: [String: Any] = [
             "product_id": [productId],
             "customer_id": mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": mSearchType,
             "order_type": orderType,
             "pointer": ""

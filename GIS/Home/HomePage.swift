@@ -1642,6 +1642,13 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     }
     
     func mClearCart(){
+        // PosCart restores the linked order asynchronously when the user
+        // confirms the connected-order leave popup. Do not race that request.
+        if UserDefaults.standard.bool(forKey: "connected_order_restore_in_progress") {
+            print("HomePage: defer clear cart while linked cart restore is pending")
+            return
+        }
+
         print("🔥 HomePage.swift mClearCart called")
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")

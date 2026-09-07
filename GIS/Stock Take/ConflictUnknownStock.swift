@@ -423,7 +423,7 @@ class ConflictUnknownStock: UIViewController, UITableViewDelegate, UITableViewDa
 
         // DUPLICATE / MANUAL are internal conflict markers only.
         // Never show them in the Conflict list.
-        let isManual =
+        var isManual =
             upperValue.contains("|MANUAL") ||
             upperValue.hasSuffix("MANUAL") ||
             upperValue.contains("|DUPLICATE") ||
@@ -437,6 +437,14 @@ class ConflictUnknownStock: UIViewController, UITableViewDelegate, UITableViewDa
            indexPath.row < mConflictDisplayData.count {
 
             let displayItem = mConflictDisplayData[indexPath.row]
+
+            // Sold conflicts use the internal key "|SOLD", so the key alone
+            // cannot tell us whether the user typed the search. Preserve the
+            // actual scan source added by StockTakePage instead.
+            let scanSource = (displayItem["scan_source"] ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            isManual = isManual || scanSource == "manual"
 
             let sku = displayItem["SKU"]?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -563,4 +571,3 @@ class ConflictUnknownStock: UIViewController, UITableViewDelegate, UITableViewDa
         return 52
     }
 }
-

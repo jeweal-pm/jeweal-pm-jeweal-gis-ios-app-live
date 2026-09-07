@@ -29,6 +29,11 @@ class QuickViewLocationCell : UITableViewCell {
 }
 
 class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout , UITableViewDelegate, UITableViewDataSource, GetCustomerDataDelegate, UIViewControllerTransitioningDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     /**Bottom ReserveOrder View*/
     var mSiriID: String?
@@ -710,7 +715,7 @@ class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewD
                 let mParams = [
                     "product_id": self.mSelectedRows,
                     "customer_id": mCustomerId,
-                    "sales_person_id": "",
+                    "sales_person_id": selectedSalesPersonId,
                     "type": mSearchType,
                     "order_type": "custom_order"
                 ] as [String: Any]
@@ -899,7 +904,7 @@ class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewD
             let mParams = [
                 "product_id": self.mSelectedRows,
                 "customer_id": mCustomerId,
-                "sales_person_id": "",
+                "sales_person_id": selectedSalesPersonId,
                 "type": mSearchType,
                 "order_type": "custom_order"
             ] as [String: Any]

@@ -10,6 +10,11 @@ import Alamofire
 import DropDown
 
 class RepairOrderController :  UIViewController, UIViewControllerTransitioningDelegate ,GetCustomerDataDelegate , UITableViewDataSource ,UITableViewDelegate, GetInventoryDataItemsDelegate , DeleteCustomCartItems, ConfirmationDelegate , GetQuotationDelegate, ServiceLabourDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     @IBOutlet weak var mSearchField: UITextField!
     
@@ -151,7 +156,7 @@ class RepairOrderController :  UIViewController, UIViewControllerTransitioningDe
         mSummaryOrder.setValue(0, forKey: "discount")
         mSummaryOrder.setValue(0, forKey: "discount_percent")
         mSummaryOrder.setValue(mCustomerData, forKey: "customer_id")
-        mSummaryOrder.setValue("", forKey: "sales_person_id")
+        mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
         mSummaryOrder.setValue(Double(mDepositPercents) ?? 0.00, forKey: "deposit")
         mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "deposit_amount")
         mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "Sub_Total")
@@ -1515,4 +1520,3 @@ class RepairOrderController :  UIViewController, UIViewControllerTransitioningDe
     }
     
 }
-

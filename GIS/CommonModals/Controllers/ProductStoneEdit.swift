@@ -375,6 +375,7 @@ class ProductStoneEdit: UIViewController  , UITableViewDelegate, UITableViewData
                         self.mGrossWeight.text = "\(mProductDetails.value(forKey: "GrossWt") ?? "--")"
                         self.mProductId.text = "\(mProductDetails.value(forKey: "ID") ?? "--")"
                         self.mStockId.text = "\(mProductDetails.value(forKey: "stock_id") ?? "--")"
+                        
                         self.mSKUName.text = "\(mProductDetails.value(forKey: "SKU") ?? "--")"
                         
                         if let mStonesData = mProductDetails.value(forKey: "Stones") as? NSArray, mStonesData.count > 0 {

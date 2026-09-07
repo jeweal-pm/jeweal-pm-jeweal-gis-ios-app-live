@@ -977,12 +977,12 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fvn-2a-qAe">
                                         <rect key="frame" x="20" y="12.5" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_ic_green" translatesAutoresizingMaskIntoConstraints="NO" id="by2-4S-qaf">
-                                                <rect key="frame" x="1.5" y="1.5" width="32" height="32"/>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="back_ic" translatesAutoresizingMaskIntoConstraints="NO" id="by2-4S-qaf">
+                                                <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                 <color key="tintColor" systemColor="systemBlueColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="32" id="ksE-rl-WCF"/>
-                                                    <constraint firstAttribute="width" constant="32" id="sPH-eO-6eR"/>
+                                                    <constraint firstAttribute="height" constant="20" id="ksE-rl-WCF"/>
+                                                    <constraint firstAttribute="width" constant="20" id="sPH-eO-6eR"/>
                                                 </constraints>
                                             </imageView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ljx-F1-Vo1">
@@ -6610,12 +6610,12 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AQC-3Q-UzY">
                                         <rect key="frame" x="20" y="12.5" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_ic_green" translatesAutoresizingMaskIntoConstraints="NO" id="QZo-eQ-C9q">
-                                                <rect key="frame" x="1.5" y="1.5" width="32" height="32"/>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="back_ic" translatesAutoresizingMaskIntoConstraints="NO" id="QZo-eQ-C9q">
+                                                <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                 <color key="tintColor" systemColor="systemBlueColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="32" id="Ugl-Tv-hgk"/>
-                                                    <constraint firstAttribute="width" constant="32" id="v0T-Q0-5UA"/>
+                                                    <constraint firstAttribute="height" constant="20" id="Ugl-Tv-hgk"/>
+                                                    <constraint firstAttribute="width" constant="20" id="v0T-Q0-5UA"/>
                                                 </constraints>
                                             </imageView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oFk-3I-XNy">

@@ -71,6 +71,21 @@ class ExchangeController:  UIViewController, UIViewControllerTransitioningDelega
     
     @IBOutlet weak var mSelectedCustomerIcon: UIImageView!
     var mCustomerId = ""
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func cartWithSelectedSalesPerson() -> NSArray {
+        let updatedCart = NSMutableArray()
+        for case let item as NSDictionary in mCartData {
+            let updatedItem = item.mutableCopy() as! NSMutableDictionary
+            updatedItem["sales_person_id"] = selectedSalesPersonId
+            updatedCart.add(updatedItem)
+        }
+        return updatedCart
+    }
     
     // ✨ เพิ่มตัวแปรสำหรับเก็บข้อมูลที่อยู่ ✨
     var mSelectedBillingAddress: [String: Any] = [:]
@@ -390,7 +405,7 @@ class ExchangeController:  UIViewController, UIViewControllerTransitioningDelega
         func isVerified(status: Bool) {
             if status {
                 let mSellInfo = NSMutableDictionary()
-                mSellInfo.setValue(mCartData, forKey: "cart")
+                mSellInfo.setValue(cartWithSelectedSalesPerson(), forKey: "cart")
                 mSellInfo.setValue(totalAmount, forKey: "totalamount")
                 let paymentInfo = NSMutableDictionary()
                 paymentInfo.setValue(0, forKey: "balance_due")
@@ -400,6 +415,7 @@ class ExchangeController:  UIViewController, UIViewControllerTransitioningDelega
                                                "payment_info": paymentInfo,
                                                "order_type": "exchange_order",
                                                "byMobile": true,
+                                               "sales_person_id": selectedSalesPersonId,
                                                "customer_id": mCustomerId]
                 
                 if !self.mSelectedBillingAddress.isEmpty || !self.mSelectedShippingAddress.isEmpty {

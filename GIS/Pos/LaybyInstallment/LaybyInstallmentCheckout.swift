@@ -13,6 +13,11 @@ import DropDown
 import StripePaymentSheet
  
 class LaybyInstallmentCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,UITableViewDataSource , UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout ,GetVerification , ProceedToPay, UIViewControllerTransitioningDelegate, ConfirmationDelegate,FinalInstallmentDelegate, QRCodeViewDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     func isProceedWithStatus(status: Bool, message: String) {
          
     }
@@ -2463,7 +2468,7 @@ class LaybyInstallmentCheckout: UIViewController, UITextFieldDelegate , UITableV
                     mSummaryOrder.setValue(mTaxDiscountPercent, forKey: "discount_percent")
                 
                     mSummaryOrder.setValue(mCustomerId, forKey: "customer_id")
-                    mSummaryOrder.setValue("", forKey: "sales_person_id")
+                    mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
             
                     mSummaryOrder.setValue(Int(mDepositPercents), forKey: "deposit")
                     mSummaryOrder.setValue(Double(mTotalP), forKey: "deposit_amount")
@@ -2513,7 +2518,7 @@ class LaybyInstallmentCheckout: UIViewController, UITextFieldDelegate , UITableV
                     mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,
                                            "transaction_date": "",
                                            "customer_id":self.mCustomerId,
-                                           "sales_person_id":"",
+                                           "sales_person_id":selectedSalesPersonId,
                                            "byMobile":true,
                                            "order_type":self.mOrderType,
                                            "order_id":self.mInstallmentId,
@@ -2533,7 +2538,7 @@ class LaybyInstallmentCheckout: UIViewController, UITextFieldDelegate , UITableV
                                            "payment_info":mPaymentInfo,
                                            "transaction_date": "",
                                            "customer_id":self.mCustomerId,
-                                           "sales_person_id":"",
+                                           "sales_person_id":selectedSalesPersonId,
                                            "byMobile":true,
                                            "order_type":"lay_by" ,
                                            "order_id":self.mLaybyId,

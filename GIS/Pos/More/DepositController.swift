@@ -8,6 +8,23 @@ import Alamofire
 import DropDown
 
 class DepositController : UIViewController, UIViewControllerTransitioningDelegate ,GetCustomerDataDelegate , UITableViewDataSource ,UITableViewDelegate, GetInventoryDataItemsDelegate , DeleteCustomCartItems, AddPaymentInfoDelegate ,GetVerification , ProceedToPay{
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func cartWithSelectedSalesPerson() -> NSMutableArray {
+        let updatedCart = NSMutableArray()
+
+        for case let item as NSDictionary in mCartData {
+            let updatedItem = NSMutableDictionary(dictionary: item)
+            updatedItem["sales_person_id"] = selectedSalesPersonId
+            updatedCart.add(updatedItem)
+        }
+
+        return updatedCart
+    }
     func isProceedWithStatus(status: Bool, message: String) { }
     
     @IBOutlet weak var mSearchField: UITextField!
@@ -408,7 +425,7 @@ class DepositController : UIViewController, UIViewControllerTransitioningDelegat
             mSummaryOrder.setValue(0, forKey: "discount_percent")
             
             mSummaryOrder.setValue(self.mCustomerId, forKey: "customer_id")
-            mSummaryOrder.setValue("", forKey: "sales_person_id")
+            mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
             
             mSummaryOrder.setValue(Int(100), forKey: "deposit")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts), forKey: "deposit_amount")
@@ -425,7 +442,8 @@ class DepositController : UIViewController, UIViewControllerTransitioningDelegat
             mPayData.setValue([], forKey: "credit_note")
             mPayData.setValue("", forKey: "gift_card")
             
-            mSellInfo.setValue(self.mCartData, forKey: "cart")
+            // The Deposit endpoint reads the salesperson from each cart item.
+            mSellInfo.setValue(cartWithSelectedSalesPerson(), forKey: "cart")
             mSellInfo.setValue(mSummaryOrder, forKey: "summary_order")
             mSellInfo.setValue("deposit", forKey: "status_type")
             mSellInfo.setValue(Double(self.mGrandTotalAmounts), forKey: "totalamount")
@@ -440,7 +458,7 @@ class DepositController : UIViewController, UIViewControllerTransitioningDelegat
             formatter.timeStyle = .medium
             formatter.dateStyle = .medium
             
-            self.mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": formatter.string(from: currentDateTime),"customer_id":self.mCustomerId,"sales_person_id":"","byMobile":true,"order_type":"deposit"]
+            self.mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": formatter.string(from: currentDateTime),"customer_id":self.mCustomerId,"sales_person_id":selectedSalesPersonId,"byMobile":true,"order_type":"deposit"]
             
             let mQuotationId = UserDefaults.standard.string(forKey: "quotationId") ?? ""
             if !mQuotationId.isEmpty {

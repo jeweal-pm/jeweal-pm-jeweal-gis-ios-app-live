@@ -10,6 +10,11 @@ import UIKit
 import Alamofire
 class DiamondProductDetails: UIViewController , UIViewControllerTransitioningDelegate ,GetCustomerDataDelegate{
 
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     
     
     @IBOutlet weak var mCertificationImage: UIImageView!
@@ -257,7 +262,7 @@ class DiamondProductDetails: UIViewController , UIViewControllerTransitioningDel
             
             if isPicked == "reserve" {
                 
-                let mParams = ["diamond_id":mProductId, "customer_id":mCustomerId, "sales_person_id":"", "order_type":"reserve","product_type":"inventory"] as [String : Any]
+                let mParams = ["diamond_id":mProductId, "customer_id":mCustomerId, "sales_person_id":selectedSalesPersonId, "order_type":"reserve","product_type":"inventory"] as [String : Any]
                 
                 mGetData(url: mAddDiamondProduct,headers: sGisHeaders, params: mParams) { response , status in
                     CommonClass.stopLoader()
@@ -282,7 +287,7 @@ class DiamondProductDetails: UIViewController , UIViewControllerTransitioningDel
                 
             }
          
-            let mParams = ["diamond_id":mProductId, "customer_id":mCustomerId, "sales_person_id":"", "order_type":"pos_order","product_type":"inventory"] as [String : Any]
+            let mParams = ["diamond_id":mProductId, "customer_id":mCustomerId, "sales_person_id":selectedSalesPersonId, "order_type":"pos_order","product_type":"inventory"] as [String : Any]
             
             mGetData(url: mAddDiamondProduct,headers: sGisHeaders, params: mParams) { response , status in
                 CommonClass.stopLoader()

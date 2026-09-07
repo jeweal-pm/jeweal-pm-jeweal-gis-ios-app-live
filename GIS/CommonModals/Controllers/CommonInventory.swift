@@ -124,6 +124,17 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
         var mSalesManIDList = [String]()
         var mCustomerId = ""
         var mSalesPersonId = ""
+
+        /// Use the salesperson selected for the active POS sale.  This is
+        /// required by the reserve-to-cart payload and must not fall back to
+        /// the logged-in user.
+        private var selectedSalesPersonId: String {
+            let stored = UserDefaults.standard.string(forKey: "SALESPERSONID") ?? ""
+            if !stored.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return stored.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            return mSalesPersonId.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
   
         
         let mCustomerSearchTableView = UITableView()
@@ -449,13 +460,13 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
         print("Metal =", cartItem["Metal"] ?? "")
         print("Size =", cartItem["Size"] ?? "")
         print("Stone =", cartItem["Stone"] ?? "")
-        print("sales_person_id =", mSalesPersonId)
+        print("sales_person_id =", selectedSalesPersonId)
         print("=================")
         return [
             "cartItems":[cartItem],
             "order_type":"reserve",
             "customer_id":mCustomerId,
-            "sales_person_id":mSalesPersonId,
+            "sales_person_id":selectedSalesPersonId,
             "byMobile": true,
             "byPosReserveMobile": true
         ]
@@ -551,7 +562,7 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                 // The stock was already reserved from POS. Do NOT create
                 // another reserve cart. Update the existing linked cart.
                 let params: [String: Any] = [
-                    "sales_person_id": "",
+                    "sales_person_id": selectedSalesPersonId,
                     "customer_id": mCustomerId,
                     "order_type": "pos_order",
                     "product_id": mProductId,
@@ -756,7 +767,7 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
         var mParams: [String: Any] = [
             "product_id": mProductId,
             "customer_id": mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": "inventory",
             "order_type": mOrderType
         ]

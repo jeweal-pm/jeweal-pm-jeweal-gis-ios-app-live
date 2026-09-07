@@ -66,6 +66,11 @@ class ReserveCells: UITableViewCell {
 }
 
 class ItemSearchPage: UIViewController ,  UITableViewDelegate , UITableViewDataSource ,UICollectionViewDelegate , UICollectionViewDataSource, UICollectionViewDelegateFlowLayout , UITextFieldDelegate, AVCaptureMetadataOutputObjectsDelegate, ScannerDelegate, UIViewControllerTransitioningDelegate, GetCustomerDataDelegate, UIGestureRecognizerDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     
     
@@ -520,7 +525,7 @@ class ItemSearchPage: UIViewController ,  UITableViewDelegate , UITableViewDataS
             let mParams = [
                 "product_id": self.mSelectedRows,
                 "customer_id": mCustomerId,
-                "sales_person_id": "",
+                "sales_person_id": selectedSalesPersonId,
                 "type": "inventory",
                 "order_type": "custom_order"
             ] as [String: Any]
@@ -948,10 +953,13 @@ class ItemSearchPage: UIViewController ,  UITableViewDelegate , UITableViewDataS
     }
     
     @IBAction func mHome(_ sender: Any) {
-        
-        let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
-        if let home = storyBoard.instantiateViewController(withIdentifier: "HomePage1") as? HomePage {
-            self.navigationController?.pushViewController(home, animated:true)
+        // This is a back action, not a Home shortcut. Keep it consistent with
+        // the chevron used by the other list screens.
+        if let navigationController = navigationController,
+           navigationController.viewControllers.count > 1 {
+            navigationController.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
         }
     }
     

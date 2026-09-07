@@ -374,9 +374,12 @@ class TotalStock: UIViewController,UITableViewDelegate,UITableViewDataSource, UI
             cells.mStockId.text = "\(mData.value(forKey: "stock_id") ?? "")"
             cells.mQuantity.text = "\(mData.value(forKey: "po_QTY") ?? "") Pcs"
 
-            // Show manual-add icon only for manual input / camera scan
+            // A typed/manual search is recorded with scan_source = "manual".
+            // Normalize the value because older API/local data may differ only
+            // by casing or whitespace.
             let scanSource = "\(mData.value(forKey: "scan_source") ?? "")"
-
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
             cells.manualAddIcon.isHidden = (scanSource != "manual")
             cell = cells
             

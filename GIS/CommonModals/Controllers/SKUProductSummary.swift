@@ -106,6 +106,7 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     private var productShareOptionsOverlay: UIView?
     private var productPDFURL: URL?
     private var productIDForPDF = ""
+    private let productHeaderHeight: CGFloat = 56
 
     private func showProductLoading() {
         DispatchQueue.main.async { [weak self] in
@@ -152,10 +153,13 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
         installProductHeader()
         installProductShareButton()
-        // Keep the product content visually separated from the modal header.
+        // The product body scrolls underneath the fixed header.  Start it below
+        // that header and keep the header opaque so long product names cannot
+        // draw on top of "Product Detail" while scrolling.
         view.subviews.compactMap { $0 as? UIScrollView }.forEach {
-            $0.contentInset.top = 12
-            $0.verticalScrollIndicatorInsets.top = 12
+            $0.contentInset.top = self.productHeaderHeight
+            $0.verticalScrollIndicatorInsets.top = self.productHeaderHeight
+            $0.contentOffset = CGPoint(x: 0, y: -self.productHeaderHeight)
         }
         
         mProductIdLABEL.text = "Product ID".localizedString
@@ -322,6 +326,12 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     }
 
     private func installProductHeader() {
+        let headerBackground = UIView()
+        headerBackground.translatesAutoresizingMaskIntoConstraints = false
+        headerBackground.backgroundColor = .systemBackground
+        headerBackground.isUserInteractionEnabled = false
+        view.addSubview(headerBackground)
+
         let closeButton = UIButton(type: .system)
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         closeButton.tintColor = UIColor(named: "themeText") ?? .darkGray
@@ -338,6 +348,10 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         view.addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
+            headerBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerBackground.heightAnchor.constraint(equalToConstant: productHeaderHeight),
             closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             closeButton.widthAnchor.constraint(equalToConstant: 32),
@@ -345,6 +359,12 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor)
         ])
+
+        // Explicitly retain this z-order. The scroll view originates in the
+        // storyboard and must stay behind the fixed modal controls.
+        view.bringSubviewToFront(headerBackground)
+        view.bringSubviewToFront(closeButton)
+        view.bringSubviewToFront(titleLabel)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -380,6 +400,7 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
             button.heightAnchor.constraint(equalToConstant: 32)
         ])
         productShareButton = button
+        view.bringSubviewToFront(button)
     }
 
     @objc private func shareProductDetail() {
@@ -826,16 +847,21 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
         mProductInfo.text =
             "\(mData["name"] ?? mData["item_name"] ?? "")"
 
-        // Catalog detail currently returns `product_id` as an internal UUID.
-        // Do not show it as the user-facing Product ID; wait for the API's
-        // display ID field instead.
-        let displayProductID = "\(mData["ID"] ?? mData["display_id"] ?? mData["product_code"] ?? "")"
+        // `product_id` is an internal UUID used by APIs (including PDF share),
+        // not the Product ID shown to users.  Only display the dedicated
+        // customer-facing value and show "--" until the API supplies one.
+        // Product ID
+        let displayProductID = "\(mData["ID"] ?? mData["display_id"] ?? mData["product_code"] ?? mData["product_id"] ?? "")"
+
         mProductId.text = displayProductID.isEmpty ? "--" : displayProductID
+        mProductId.lineBreakMode = .byClipping
 
         mSKUName.text =
             "\(mData["SKU"] ?? "")"
 
+//        print("SKUProductSummary mSKUName = \(String(describing: mSKUName.text))")
         let stockId = stockID(from: mData)
+//        print("SKUProductSummary stockId = \(stockId)")
         mStockId.text = stockId.isEmpty ? "--" : stockId
 
         if let priceString = mData["price"] as? String,
@@ -866,10 +892,11 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
             "\(mData["metal_name"] ?? "--")"
 
         mColor.text =
-            "\(mData["color"] ?? mData["Color_name"] ?? "--")"
+            "\(mData["color_name"] ?? mData["Color_name"] ?? mData["color"] ?? "--")"
 
-        mSize.text =
+        let displaymSize =
             "\(mData["size_name"] ?? mData["Size"] ?? "--")"
+        mSize.text = displaymSize.isEmpty ? "--" : displaymSize
 
         mGrossWeight.text =
             "\(mData["GrossWt"] ?? mData["gross_weight"] ?? "--")"

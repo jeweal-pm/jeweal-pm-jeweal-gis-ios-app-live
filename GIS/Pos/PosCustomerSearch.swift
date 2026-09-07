@@ -147,9 +147,11 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
         mGetCustomers()
     }
     @IBAction func mBack(_ sender: Any) {
-        let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
-        if let home = storyBoard.instantiateViewController(withIdentifier: "HomePage1") as? HomePage {
-            self.navigationController?.pushViewController(home, animated:true)
+        if let navigationController = navigationController,
+           navigationController.viewControllers.count > 1 {
+            navigationController.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
         }
     }
     //MoreOptions Buttons

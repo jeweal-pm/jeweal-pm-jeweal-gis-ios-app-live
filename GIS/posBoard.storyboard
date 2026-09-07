@@ -5727,12 +5727,12 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FOM-3Q-0RW">
                                         <rect key="frame" x="20" y="12.5" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_ic_green" translatesAutoresizingMaskIntoConstraints="NO" id="Kcs-xq-nLY">
-                                                <rect key="frame" x="1.5" y="1.5" width="32" height="32"/>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="back_ic" translatesAutoresizingMaskIntoConstraints="NO" id="Kcs-xq-nLY">
+                                                <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                 <color key="tintColor" systemColor="systemBlueColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="32" id="8E8-Ew-FZm"/>
-                                                    <constraint firstAttribute="height" constant="32" id="lg0-Vy-RPH"/>
+                                                    <constraint firstAttribute="width" constant="20" id="8E8-Ew-FZm"/>
+                                                    <constraint firstAttribute="height" constant="20" id="lg0-Vy-RPH"/>
                                                 </constraints>
                                             </imageView>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5w2-jW-U7e">

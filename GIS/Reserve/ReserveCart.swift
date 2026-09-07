@@ -15,10 +15,6 @@ class ReserveCart : UIViewController, UIViewControllerTransitioningDelegate ,Get
     /// The ID chosen in the Sales Person picker.  Do not substitute the
     /// logged-in user here: Reserve orders must belong to the selected person.
     private var selectedSalesPersonId: String {
-        let primary = UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
-        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return primary.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
         return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }

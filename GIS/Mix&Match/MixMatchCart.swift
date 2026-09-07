@@ -38,6 +38,11 @@ class DiamondCartItems : UITableViewCell {
 }
 
 class MixMatchCart: UIViewController, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate ,GetCustomerDataDelegate , UITableViewDataSource ,UITableViewDelegate, GetMInventoryDataItemsDelegate , DeleteCustomCartItems, OpenCustomerMixMatchDelegate,GetDiamondData, GetSelectedDiamondDelegate , GetCatalogData, GetCatalogDetailsDelegate, EditProductDelegate , SearchDelegate, ConfirmationDelegate , GetQuotationDelegate, ServiceLabourDelegate, UITextFieldDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     var mServiceAmounts = [Double]()
 
@@ -568,7 +573,7 @@ class MixMatchCart: UIViewController, UIViewControllerTransitioningDelegate, UIG
             mSummaryOrder.setValue(0, forKey: "discount")
             mSummaryOrder.setValue(0, forKey: "discount_percent")
             mSummaryOrder.setValue(mCustomerData, forKey: "customer_id")
-            mSummaryOrder.setValue("", forKey: "sales_person_id")
+            mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
             mSummaryOrder.setValue(Double(mDepositPercents) ?? 0.00, forKey: "deposit")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "deposit_amount")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "Sub_Total")

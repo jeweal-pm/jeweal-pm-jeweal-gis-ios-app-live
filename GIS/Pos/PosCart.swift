@@ -537,12 +537,11 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     /// before sending a POS payload.  This deliberately has no login-user
     /// fallback, because the API requires the selected salesperson's ID.
     private var selectedSalesPersonId: String {
-        let primary = UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
-        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return primary.trimmingCharacters(in: .whitespacesAndNewlines)
+        let stored = UserDefaults.standard.string(forKey: mSalesPersonIDKey) ?? ""
+        if !stored.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return stored.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-        return (UserDefaults.standard.string(forKey: mSalesPersonIDKey) ?? mSalesPersonId)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return mSalesPersonId.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // Sales Person picker data/UI
@@ -568,6 +567,8 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     var mCartData = NSMutableArray()
     var mCartDataMaster = NSArray()
     private var linkedCartContext: LinkedCartContext?
+    private var isRestoringLinkedCartStatus = false
+    private let connectedOrderRestorePendingKey = "connected_order_restore_in_progress"
 
 
     var mQuantityData = [Int]()
@@ -1226,7 +1227,7 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             mSummaryOrder.setValue(0, forKey: "discount")
             mSummaryOrder.setValue(0, forKey: "discount_percent")
             mSummaryOrder.setValue(mCustomerData, forKey: "customer_id")
-            mSummaryOrder.setValue(self.mSalesPersonId, forKey: "sales_person_id")
+            mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
             mSummaryOrder.setValue(0, forKey: "deposit")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts), forKey: "deposit_amount")
         
@@ -1839,19 +1840,21 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
 
     }
     
-    func mClearCart() {
+    func mClearCart(completion: ((Bool) -> Void)? = nil) {
         print("🔥 POSCart.swift mClearCart called")
         mGetData(
             url: mClearDataApi,
             headers: sGisHeaders,
             params: [:]
         ) { response, status in
+            let didClearCart = status && "\(response["code"] ?? "")" == "200"
 
-            if status,
-               "\(response["code"] ?? "")" == "200" {
+            if didClearCart {
 
                 self.mFetchCartItems()
             }
+
+            completion?(didClearCart)
         }
     }
     
@@ -2100,14 +2103,27 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     
     private func restoreLinkedCartStatus(cartIds: [String]) {
 
+        let validCartIds = cartIds.filter {
+            !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+
+        guard !validCartIds.isEmpty, !isRestoringLinkedCartStatus else {
+            return
+        }
+
+        // This flag prevents Home/More from clearing the cart while the
+        // connected-order restore request is still in flight.
+        isRestoringLinkedCartStatus = true
+        UserDefaults.standard.set(true, forKey: connectedOrderRestorePendingKey)
+
         let params: [String: Any] = [
 
-            "cart_id": cartIds
+            "cart_id": validCartIds
 
         ]
 
         print("========== RESTORE LINKED CART ==========")
-        print("restore cartIds =", cartIds)
+        print("restore cartIds =", validCartIds)
         print(params)
 
         CommonClass.showFullLoader(view: self.view)
@@ -2130,30 +2146,39 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             if status,
                "\(response["code"] ?? "")" == "200" {
 
-//                self.dismiss(animated: true)
-//
-//                self.delegate?.mGetInventoryItems(
-//                    items: self.mProductId
-//                )
-//                UserDefaults.standard.set("0", forKey: "reserve_show_popup")
-                UserDefaults.standard.removeObject(forKey: "reserve_show_popup")
-                UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
-                UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
-                UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
-                LinkedCartContextStore.shared.clear(
-                    orderType: "reserve",
-                    customerId: self.mCustomerId
-                )
+                // The cart must never be cleared until the backend has
+                // confirmed that the linked cart status was restored.
+                print("✅ Linked cart restored; clearing the active POS cart")
+                self.mClearCart { _ in
+                    UserDefaults.standard.removeObject(forKey: "reserve_show_popup")
+                    UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
+                    UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
+                    UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
+                    LinkedCartContextStore.shared.clear(
+                        orderType: "reserve",
+                        customerId: self.mCustomerId
+                    )
 
-                LinkedCartContextStore.shared.clear(
-                    orderType: "pos_order",
-                    customerId: self.mCustomerId
-                )
+                    LinkedCartContextStore.shared.clear(
+                        orderType: "pos_order",
+                        customerId: self.mCustomerId
+                    )
 
-                self.navigationController?.popViewController(animated: true)
-                
+                    self.isRestoringLinkedCartStatus = false
+                    self.navigationController?.popViewController(animated: true)
+
+                    // Home may appear during the pop transition. Keep the
+                    // guard briefly so it cannot issue a second clear call.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        UserDefaults.standard.removeObject(forKey: self.connectedOrderRestorePendingKey)
+                    }
+                }
 
             } else {
+
+                self.isRestoringLinkedCartStatus = false
+                UserDefaults.standard.removeObject(forKey: self.connectedOrderRestorePendingKey)
+                print("⚠️ Linked cart restore did not succeed; clear cart was withheld")
 
                 CommonClass.showSnackBar(
 
@@ -2448,8 +2473,9 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
                             overlay.removeFromSuperview()
 
 //                            self.clearStockTakeResults()
+                            // Navigation and clearing are intentionally handled
+                            // only after restoreLinkedCartStatus returns 200.
                             self.restoreLinkedCartStatus(cartIds: cartIds)
-                            self.navigationController?.popViewController(animated: true)
                         }
                     )
                 },
@@ -2596,8 +2622,14 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
         let isExistingReserveCart =
             (linkedCartContext?.canCreateNewCart == false || storedCanCreateNewCart == false) &&
             linkedOrderType.lowercased() == "reserve"
+        // A stale linked-cart context must not block the user when this POS
+        // page has no items. Ask for confirmation only after the user has
+        // actually added a cart item in the current page.
+        let hasCartItems = mCartData.count > 0
         let shouldShowLeaveConfirmation =
-            !resolvedLinkedCartId.isEmpty && (showPopup == "1" || isExistingReserveCart)
+            hasCartItems &&
+            !resolvedLinkedCartId.isEmpty &&
+            (showPopup == "1" || isExistingReserveCart)
 
         if shouldShowLeaveConfirmation {
             // IMPORTANT: Do not pop or clear the cart here.
@@ -2867,6 +2899,7 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
 
             mInv.delegate = self
             mInv.mCustomerId = mCustomerId
+            mInv.mSalesPersonId = selectedSalesPersonId
 
             // สำคัญ
             mInv.mOrderType = "pos_order"
@@ -3430,6 +3463,9 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
    }
     func mDeleteRow(index : Int)
     {
+        guard index >= 0, index < self.mCartData.count else {
+            return
+        }
         self.mCartData.removeObject(at: index)
         self.mCartTable.reloadData()
         calculateItemsWithAmount()

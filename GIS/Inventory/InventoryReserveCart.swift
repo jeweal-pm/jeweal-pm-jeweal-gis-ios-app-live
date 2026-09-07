@@ -773,14 +773,10 @@ class InventoryReserveCart: UIViewController , GetCustomerDataDelegate , UIViewC
         let deliveryDate = UserDefaults.standard.string(forKey: "reserveDeliveryDate") ?? ""
         let transactionDate = ISO8601DateFormatter().string(from: Date())
         
-        // Sales Person ID selected from the Sales Person UI.
-        // Keep compatibility with both keys used by the existing flows:
-        // - "sales_person_id" (Reserve flow)
-        // - "SALESPERSONID" (existing POS Sales Person selection)
+        // Only use the explicit Sales Person selection. The generic
+        // sales_person_id key may contain the logged-in user's ID.
         let salesPersonId =
-            (UserDefaults.standard.string(forKey: "sales_person_id")
-                ?? UserDefaults.standard.string(forKey: "SALESPERSONID")
-                ?? "")
+            (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
         print("DEBUG_CREATE_RESERVE_SALES_PERSON_ID =", salesPersonId)

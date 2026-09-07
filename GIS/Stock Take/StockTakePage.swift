@@ -300,6 +300,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // True only after EAReader has finished its asynchronous initialization
     // and the tag-data configuration has completed off the main thread.
     private var atidReaderReady = false
+    // The ATID SDK can send initialization callbacks while a disconnect is in
+    // progress. Keep disconnect idempotent and ignore those stale callbacks.
+    private var isATIDDisconnecting = false
+    // ResultNotConnected and ResultTimeout can be delivered repeatedly for a
+    // single failed handshake. Handle only the first one.
+    private var atidConnectionFailed = false
 
     // Zebra can report the same EPC many times while the tag remains in range.
     private var recentRFIDReads: [String: Date] = [:]
@@ -308,6 +314,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // UI state for the Device bottom sheet.
     private var pendingZebraReaderID: Int32?
     private var pendingBluetoothIdentifier: UUID?
+    private var deviceConnectionTimeout: DispatchWorkItem?
     private var deviceEmptyStateView: UIView?
     private var powerEmptyStateView: UIView?
     private var deviceDiscoveryTimer: Timer?
@@ -1770,9 +1777,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
 
             if mScannedData.contains(stockID) {
-                return .conflictWithStockID(
+                // A repeat read of the same item is not a mismatch. The
+                // scanner result is intentionally successful so the camera
+                // UI never presents the item as a Conflict; the count is
+                // still protected by mGetScanResults/getRFIDData.
+                return .correct(
                     sku: sku.isEmpty ? code : sku,
-                    stockID: stockID
+                    stockID: stockID,
+                    imageURL: nil
                 )
             }
 
@@ -2119,13 +2131,45 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             captureSession.stopRunning()
         }
 
-        #if !targetEnvironment(simulator) && canImport(EARfidFramework)
-        if atidInventoryRunning {
-            stopATIDInventory()
-        }
-        #endif
+        // Stock Take owns its RFID sessions. Leaving this screen by any
+        // route must release the reader so returning to Stock Take always
+        // requires the user to choose Connect again.
+        disconnectRFIDForStockTakeExit()
 
         super.viewWillDisappear(animated)
+    }
+
+    private func disconnectRFIDForStockTakeExit() {
+        deviceConnectionTimeout?.cancel()
+        deviceConnectionTimeout = nil
+        pendingBluetoothIdentifier = nil
+        pendingZebraReaderID = nil
+        recentRFIDReads.removeAll()
+
+        if ZebraRFIDService.shared.isInventoryRunning {
+            ZebraRFIDService.shared.stopInventory()
+        }
+
+        if ZebraRFIDService.shared.isConnected ||
+            ZebraRFIDService.shared.currentReaderID != -1 {
+            print("Stock Take exit: disconnect Zebra RFID")
+            ZebraRFIDService.shared.disconnect()
+        }
+
+        if atidPeripheral != nil || atidInventoryRunning || atidReaderReady {
+            print("Stock Take exit: disconnect ATID RFID")
+            disconnectATIDReader()
+        }
+
+        if bluetoothService?.peripheral != nil {
+            print("Stock Take exit: disconnect legacy Bluetooth reader")
+            disconnectLegacyBluetoothReader()
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.updateScannerControls()
+            self?.mDeviceTableView.reloadData()
+        }
     }
   
     
@@ -2490,8 +2534,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     @objc private func zebraConnectionChanged(_ notification: Notification) {
         DispatchQueue.main.async {
+            self.deviceConnectionTimeout?.cancel()
+            self.deviceConnectionTimeout = nil
+            self.pendingZebraReaderID = nil
+
             if ZebraRFIDService.shared.isConnected {
-                self.pendingZebraReaderID = nil
                 self.mDeviceView.isHidden = true
             }
             self.updateScannerControls()
@@ -2501,9 +2548,49 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
+    private func startDeviceConnectionTimeout() {
+        deviceConnectionTimeout?.cancel()
+
+        // Keep the identifier captured for this individual attempt. The
+        // timeout must tear down an incomplete AT388 SDK session; otherwise
+        // the next tap reuses a half-initialized EADevice.
+        let connectingBluetoothIdentifier = pendingBluetoothIdentifier
+
+        let timeout = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+
+            // Some Bluetooth/RFID connection failures do not produce an SDK
+            // callback. Fully reset an unfinished AT388 connection as well
+            // as clearing the row spinner, so the device can be selected
+            // again immediately.
+            if let connectingBluetoothIdentifier,
+               self.atidPeripheral?.identifier == connectingBluetoothIdentifier,
+               !self.atidReaderReady {
+                print("❌ ATID connection timed out; resetting incomplete session")
+                self.disconnectATIDReader()
+            }
+            self.pendingBluetoothIdentifier = nil
+            self.pendingZebraReaderID = nil
+            self.updateScannerControls()
+            self.mDeviceTableView.reloadData()
+            CommonClass.showSnackBar(message: "Unable to connect to device")
+        }
+
+        deviceConnectionTimeout = timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + 12, execute: timeout)
+    }
+
     @objc private func zebraInventoryChanged(_ notification: Notification) {
         DispatchQueue.main.async {
             self.updateScannerControls()
+        }
+    }
+
+    @objc private func zebraRegionRequired(_ notification: Notification) {
+        let message = (notification.object as? String) ?? "Set the RFID region in Power before scanning."
+        DispatchQueue.main.async {
+            self.updateScannerControls()
+            CommonClass.showSnackBar(message: message)
         }
     }
 
@@ -2672,6 +2759,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             self,
             selector: #selector(zebraInventoryChanged(_:)),
             name: .zebraInventoryChanged,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(zebraRegionRequired(_:)),
+            name: .zebraRegionRequired,
             object: nil
         )
 
@@ -2917,6 +3011,21 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
+        // CoreBluetooth may report the same BLE peripheral more than once.
+        // Do not restart the AT388 SDK handshake while it is already
+        // connecting: restarting it is the main cause of a very slow
+        // connection and a permanently spinning row.
+        if pendingBluetoothIdentifier == peripheral.identifier,
+           atidPeripheral?.identifier == peripheral.identifier,
+           (peripheral.state == .connecting ||
+            (peripheral.state == .connected && atidDevice != nil)) {
+            print("ℹ️ ATID connection already in progress =", peripheral.name ?? "Unknown")
+            return
+        }
+
+        isATIDDisconnecting = false
+        atidConnectionFailed = false
+
         if bluetoothService?.isConnected() == true {
             disconnectLegacyBluetoothReader()
         }
@@ -2969,30 +3078,43 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func disconnectATIDReader() {
-        print("🔴 ATID DISCONNECT")
-
-        atidInventoryRunning = false
-
-        if let reader = atidReader {
-            _ = reader.stop()
-            reader.disconnect()
+        guard !isATIDDisconnecting else {
+            print("ℹ️ ATID disconnect already in progress")
+            return
         }
 
+        print("🔴 ATID DISCONNECT")
+        isATIDDisconnecting = true
+
+        let reader = atidReader
+        let device = atidDevice
+        let peripheral = atidPeripheral
+        let wasInventoryRunning = atidInventoryRunning
+
+        // Clear local references before invoking the SDK. Its callbacks can be
+        // synchronous, so they must never see a partially disconnected reader.
+        atidInventoryRunning = false
         atidReader = nil
         atidReaderReady = false
+        atidDevice = nil
+        atidPeripheral = nil
+        pendingBluetoothIdentifier = nil
 
-        if let device = atidDevice {
+        if wasInventoryRunning, let reader = reader {
+            _ = reader.stop()
+        }
+
+        if let reader = reader {
+            reader.disconnect()
+        } else if let device = device {
             device.disconnect()
         }
 
-        atidDevice = nil
-
-        if let peripheral = atidPeripheral {
+        if let peripheral = peripheral {
             centralManager?.cancelPeripheralConnection(peripheral)
         }
 
-        atidPeripheral = nil
-        pendingBluetoothIdentifier = nil
+        isATIDDisconnecting = false
 
         DispatchQueue.main.async {
             self.updateScannerControls()
@@ -3178,10 +3300,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func disconnectATIDReader() {
+        guard !isATIDDisconnecting else { return }
+        isATIDDisconnecting = true
         atidInventoryRunning = false
         atidReaderReady = false
         atidPeripheral = nil
         pendingBluetoothIdentifier = nil
+        isATIDDisconnecting = false
         updateScannerControls()
         mDeviceTableView.reloadData()
     }
@@ -3718,10 +3843,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             atidPeripheral = peripheral
 
             #if !targetEnvironment(simulator) && canImport(EARfidFramework)
-            atidDevice = EADeviceBluetoothLe(
-                peripheral: peripheral,
-                delegate: self
-            )
+            // Build the EARfidFramework bridge once only. Creating it again
+            // for the same connection restarts its initialization sequence.
+            finishATIDPeripheralConnection(peripheral)
 
             pendingBluetoothIdentifier = peripheral.identifier
             DispatchQueue.main.async {
@@ -3747,12 +3871,32 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
+    func centralManager(_ central: CBCentralManager,
+                        didFailToConnect peripheral: CBPeripheral,
+                        error: Error?) {
+        print("❌ Bluetooth connection failed =", error?.localizedDescription ?? "Unknown error")
+        deviceConnectionTimeout?.cancel()
+        deviceConnectionTimeout = nil
+        pendingBluetoothIdentifier = nil
+
+        if peripheral == bluetoothService?.peripheral {
+            bluetoothService?.peripheral = nil
+        }
+
+        DispatchQueue.main.async {
+            self.updateScannerControls()
+            self.mDeviceTableView.reloadData()
+            CommonClass.showSnackBar(message: "Unable to connect to device")
+        }
+    }
+
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         if isATIDPeripheral(peripheral) {
             print("🔴 ATID disconnected =", peripheral.name ?? "Unknown")
 
             if atidPeripheral?.identifier == peripheral.identifier {
                 atidInventoryRunning = false
+                isATIDDisconnecting = false
 
                 #if !targetEnvironment(simulator) && canImport(EARfidFramework)
                 atidReader = nil
@@ -3773,6 +3917,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         if peripheral == self.bluetoothService?.peripheral {
             self.bluetoothService?.peripheral = nil
+        }
+
+        deviceConnectionTimeout?.cancel()
+        deviceConnectionTimeout = nil
+        pendingBluetoothIdentifier = nil
+        DispatchQueue.main.async {
+            self.updateScannerControls()
+            self.mDeviceTableView.reloadData()
         }
     }
 
@@ -4328,6 +4480,23 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         let searchKey = normalizedStockLookupKey(rawSearchText)
         guard !searchKey.isEmpty else { return }
 
+        // A conflict is reserved exclusively for stock returned by sold_data.
+        // Check this first because sold stock is not part of the active
+        // inventory list and therefore cannot be found through stockMap.
+        if let soldItem = soldStockItem(for: searchKey) {
+            recordSoldConflict(soldItem, lookupKey: searchKey, source: "manual")
+
+            if showPopup {
+                showManualStockTakeResult(
+                    .conflictWithStockID(
+                        sku: "\(soldItem["SKU"] ?? searchKey)",
+                        stockID: "\(soldItem["stock_id"] ?? searchKey)"
+                    )
+                )
+            }
+            return
+        }
+
         for rawItem in mInventoryData {
             guard let item = rawItem as? NSDictionary else { continue }
 
@@ -4341,63 +4510,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let poQty = numericValue(item["po_QTY"] ?? item["qty"] ?? item["quantity"])
 
-            // po_QTY == 0 means the matching stock has already been sold.
-            if poQty <= 0 {
-                let conflictKey = stockID + "|SOLD"
-
-                if !mCONFLICT.contains(conflictKey) {
-                    mCONFLICT.append(conflictKey)
-
-                    let conflictItem = NSMutableDictionary()
-                    conflictItem.setValue(sku.isEmpty ? searchKey : sku, forKey: "SKU")
-                    conflictItem.setValue(stockID, forKey: "stock_id")
-                    conflictItem.setValue("\(Int(poQty))", forKey: "po_QTY")
-                    conflictItem.setValue("\(item["_id"] ?? "")", forKey: "_id")
-                    conflictItem.setValue("\(item["location_id"] ?? "")", forKey: "location_id")
-                    if let weight = item["weight"] {
-                        conflictItem.setValue(weight, forKey: "weight")
-                    }
-                    conflictItem.setValue("manual", forKey: "scan_source")
-                    mCONFLICTARRAY.add(conflictItem)
-                }
-
-                mStatus()
-
-                if showPopup {
-                    showManualStockTakeResult(
-                        .conflict(code: sku.isEmpty ? searchKey : sku)
-                    )
-                }
-                return
-            }
-
-            // Same valid stock scanned again => Conflict.
+            // A repeated scan is ignored. It must not become a Conflict.
             if mScannedData.contains(stockID) {
-                let conflictKey = stockID + "|DUPLICATE"
-
-                if !mCONFLICT.contains(conflictKey) {
-                    mCONFLICT.append(conflictKey)
-
-                    let conflictItem = NSMutableDictionary()
-                    conflictItem.setValue(sku.isEmpty ? searchKey : sku, forKey: "SKU")
-                    conflictItem.setValue(stockID, forKey: "stock_id")
-                    conflictItem.setValue("\(Int(poQty))", forKey: "po_QTY")
-                    conflictItem.setValue("\(item["_id"] ?? "")", forKey: "_id")
-                    conflictItem.setValue("\(item["location_id"] ?? "")", forKey: "location_id")
-                    if let weight = item["weight"] {
-                        conflictItem.setValue(weight, forKey: "weight")
-                    }
-                    conflictItem.setValue("manual", forKey: "scan_source")
-                    mCONFLICTARRAY.add(conflictItem)
-                }
-
-                mStatus()
-
-                if showPopup {
-                    showManualStockTakeResult(
-                        .conflict(code: sku.isEmpty ? searchKey : sku)
-                    )
-                }
                 return
             }
 
@@ -4697,6 +4811,18 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         guard !lookupKey.isEmpty else { return }
 
+        // Conflict has one source of truth: sold_data from the Stock Take API.
+        if let soldItem = soldStockItem(for: lookupKey) {
+            recordSoldConflict(soldItem, lookupKey: lookupKey, source: "rfid")
+            showManualStockTakeResult(
+                .conflictWithStockID(
+                    sku: "\(soldItem["SKU"] ?? lookupKey)",
+                    stockID: "\(soldItem["stock_id"] ?? lookupKey)"
+                )
+            )
+            return
+        }
+
         var mUnknown = false
 
         // O(1) lookup. The map contains stock_id/SKU plus any RFID/EPC aliases.
@@ -4734,36 +4860,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         print("SKU =", sku)
         print("stockID =", stockID)
         print("===============================")
-        // Scan ซ้ำ = Conflict
+        // A repeated scan is ignored. Only a sold item may be a Conflict.
         if mScannedData.contains(stockID) {
-
-            print("⚠️ CONFLICT =", stockID)
-
-            if !mCONFLICT.contains(where: {
-                $0.replacingOccurrences(of: "|MANUAL", with: "") == stockID
-            }) {
-                mCONFLICT.append(stockID)
-
-                let conflictItem = NSMutableDictionary()
-
-                conflictItem["SKU"] = sku
-                conflictItem["stock_id"] = stockID
-                conflictItem["po_QTY"] = "\(poQty)"
-                conflictItem["_id"] = "\(item["_id"] ?? "")"
-                conflictItem["location_id"] = "\(item["location_id"] ?? "")"
-
-                mCONFLICTARRAY.add(conflictItem)
-            }
-
-            mStatus()
-            // RFID Conflict -> Popup เดียวกับ Manual Search
-            showManualStockTakeResult(
-                .conflictWithStockID(
-                    sku: sku,
-                    stockID: stockID
-                )
-            )
-
             return
         }
         if !mScannedData.contains(stockID) {
@@ -4938,6 +5036,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     
     func mStatus() {
         print("mStatus Main =", Thread.isMainThread)
+
         mUNSCANNED = NSMutableArray()
         mSAVEUNSCANNED = NSMutableArray()
 
@@ -5733,7 +5832,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     .map {
                         [
                             "SKU": "\($0.value(forKey: "SKU") ?? "")",
-                            "stock_id": "\($0.value(forKey: "stock_id") ?? "")"
+                            "stock_id": "\($0.value(forKey: "stock_id") ?? "")",
+                            "scan_source": "\($0.value(forKey: "scan_source") ?? "")"
                         ]
                     }
             }
@@ -6020,6 +6120,24 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func makeFrequencyCountryMenu() -> UIMenu {
+        let readerRegions = ZebraRFIDService.shared.supportedRegulatoryRegions()
+        if !readerRegions.isEmpty {
+            var actions: [UIAction] = [
+                UIAction(title: "Thailand (TH)") { [weak self] _ in
+                    self?.selectFrequencyCountry("TH")
+                }
+            ]
+            actions.append(contentsOf: readerRegions.map { region in
+                let title = region.name.isEmpty ? region.code : "\(region.name) (\(region.code))"
+                return UIAction(title: title) { [weak self] _ in
+                    self?.selectFrequencyCountry(region.code)
+                }
+            })
+            return UIMenu(title: "Select RFID Region", options: [.displayInline], children: actions)
+        }
+
+        // The generic country list is used only while disconnected. Once a
+        // reader is connected, offer its own allowed regulatory regions above.
         let locale = Locale.current
         let codes = Locale.isoRegionCodes.sorted {
             let left = locale.localizedString(forRegionCode: $0) ?? $0
@@ -6043,6 +6161,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         let success = ZebraRFIDService.shared.setRegulatoryRegion(code)
         print("🌍 RFID country =", code, "success =", success)
+        guard success else {
+            CommonClass.showSnackBar(message: "Unable to set RFID region")
+            return
+        }
+
+        updateScannerControls()
+        CommonClass.showSnackBar(message: "RFID region set to \(code)")
     }
 
     private func showReferencePowerSheet() {
@@ -6119,7 +6244,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let frequencySelector = UIButton(type: .system)
             frequencySelector.translatesAutoresizingMaskIntoConstraints = false
-            frequencySelector.setTitle("TH", for: .normal)
+            frequencySelector.setTitle("Select region", for: .normal)
             frequencySelector.setTitleColor(UIColor(hex: "#4C89E8"), for: .normal)
             frequencySelector.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
             frequencySelector.contentHorizontalAlignment = .left
@@ -6129,7 +6254,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             frequencySelector.contentHorizontalAlignment = .leading
             frequencySelector.titleEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
             frequencySelector.imageEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: -8)
-            frequencySelector.accessibilityLabel = "Frequency country"
+            frequencySelector.accessibilityLabel = "RFID regulatory region"
             frequencySelector.showsMenuAsPrimaryAction = true
             frequencySelector.menu = makeFrequencyCountryMenu()
             sheet.addSubview(frequencySelector)
@@ -6472,6 +6597,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             if let peripheral = device.peripheral {
                 pendingBluetoothIdentifier = peripheral.identifier
+                startDeviceConnectionTimeout()
                 mDeviceTableView.reloadData()
 
                 if isATIDPeripheral(peripheral) {
@@ -6520,6 +6646,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
 
             pendingZebraReaderID = reader.getReaderID()
+            startDeviceConnectionTimeout()
             mDeviceTableView.reloadData()
 
             if isATIDRFIDConnected {
@@ -6546,7 +6673,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
                     ZebraRFIDService.shared.disconnect()
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // The service clears local state before terminating the
+                    // previous BLE session, so a short handoff is sufficient.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
 
                         ZebraRFIDService.shared.connect(
                             readerID: reader.getReaderID()
@@ -6866,6 +6995,48 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .uppercased()
             .replacingOccurrences(of: " ", with: "")
+    }
+
+    /// Finds a sold item by its physical stock identifier. SKU is only used
+    /// when exactly one sold item has that SKU, avoiding false conflicts for
+    /// products that have multiple stock records under the same SKU.
+    private func soldStockItem(for lookupKey: String) -> NSDictionary? {
+        let key = normalizedStockLookupKey(lookupKey)
+        guard !key.isEmpty else { return nil }
+
+        let exactKeys = ["stock_id", "stockId", "_id", "id"]
+        if let exactMatch = stockTakeSoldData.first(where: { item in
+            exactKeys.contains { field in
+                normalizedStockLookupKey("\(item[field] ?? "")") == key
+            }
+        }) {
+            return exactMatch
+        }
+
+        let skuMatches = stockTakeSoldData.filter {
+            normalizedStockLookupKey("\($0["SKU"] ?? $0["sku"] ?? "")") == key
+        }
+        return skuMatches.count == 1 ? skuMatches.first : nil
+    }
+
+    /// Adds a conflict only for an item explicitly supplied in sold_data.
+    private func recordSoldConflict(_ soldItem: NSDictionary, lookupKey: String, source: String) {
+        let sku = "\(soldItem["SKU"] ?? soldItem["sku"] ?? lookupKey)"
+        let stockID = "\(soldItem["stock_id"] ?? soldItem["stockId"] ?? lookupKey)"
+        let conflictKey = stockID + "|SOLD"
+
+        if !mCONFLICT.contains(conflictKey) {
+            mCONFLICT.append(conflictKey)
+
+            let conflictItem = NSMutableDictionary(dictionary: soldItem)
+            conflictItem["SKU"] = sku
+            conflictItem["stock_id"] = stockID
+            conflictItem["po_QTY"] = "0"
+            conflictItem["scan_source"] = source
+            mCONFLICTARRAY.add(conflictItem)
+        }
+
+        mStatus()
     }
 
     private func addStockLookupKey(_ key: String, item: NSDictionary) {
@@ -8663,7 +8834,7 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
             return
         }
 
-        guard let device = atidDevice else {
+        guard !isATIDDisconnecting, let device = atidDevice else {
             print("❌ ATID initialize completed without EADeviceBluetoothLe")
             return
         }
@@ -8672,11 +8843,20 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
 
         // Creating EAReader is asynchronous. Do not run any SDK property
         // calls that may wait for a response on the main queue.
-        let reader = EAReader(
+        // EADeviceBluetoothLe must use the standard device initializer. This
+        // matches ATID's BLE sample: the BT initializer can connect at the
+        // CoreBluetooth layer but fail before readerInitialized is delivered.
+        guard let reader = EAReader(
             device: device,
+            // The ATID SDK can invoke readerInitialized while this initializer
+            // is still returning, so the callback itself adopts the reader.
             delegate: self
-        )
-
+        ) else {
+            print("❌ ATID EAReader could not be created")
+            disconnectATIDReader()
+            CommonClass.showSnackBar(message: "Unable to initialize AT388 reader")
+            return
+        }
         atidReader = reader
         atidReaderReady = false
         atidInventoryRunning = false
@@ -8695,31 +8875,48 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
     func readerInitialized(_ reader: EAReader) {
         print("🟢 ATID readerInitialized callback")
 
-        // IMPORTANT: setTagDataType(), serialNumber and firmwareVersion can
-        // wait inside EARfidFramework. The previous code executed them on
-        // the main queue, which is exactly where the Xcode Thread Performance
-        // Checker showed EARfidFramework waiting for a lower-QoS thread.
+        guard !isATIDDisconnecting,
+              atidPeripheral != nil else {
+            print("ℹ️ Ignore stale ATID readerInitialized callback")
+            return
+        }
+
+        // EAReader can notify its delegate synchronously from initWithDevice.
+        // At that point atidReader has not yet been assigned by
+        // didCompleteInitialize, so adopt the callback reader instead of
+        // discarding a valid connected session.
+        atidReader = reader
+
+        // setTagDataType() must finish before inventory begins, but serial
+        // number and firmware are diagnostic-only. Do not make the customer
+        // wait for those extra BLE round trips before marking AT388 ready.
         DispatchQueue.global(qos: .userInitiated).async { [weak self, weak reader] in
             guard let self = self, let reader = reader else { return }
 
             reader.setTagDataType(TAG_DATA_TYPE_HEX)
-            let serial = reader.serialNumber ?? ""
-            let firmware = reader.firmwareVersion() ?? ""
-
-            print("🟢 ATID serial =", serial)
-            print("🟢 ATID firmware =", firmware)
 
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+                guard let self = self,
+                      !self.isATIDDisconnecting,
+                      self.atidPeripheral != nil else { return }
                 self.atidReader = reader
                 self.atidReaderReady = true
+                self.atidConnectionFailed = false
                 self.atidInventoryRunning = false
                 self.pendingBluetoothIdentifier = nil
+                self.deviceConnectionTimeout?.cancel()
+                self.deviceConnectionTimeout = nil
                 self.mDeviceView.isHidden = true
                 print("🟢 ATID READER READY - Play enabled")
                 self.updateScannerControls()
                 self.mDeviceTableView.reloadData()
             }
+
+            // Diagnostics must never block the connection UI.
+            let serial = reader.serialNumber ?? ""
+            let firmware = reader.firmwareVersion() ?? ""
+            print("🟢 ATID serial =", serial)
+            print("🟢 ATID firmware =", firmware)
         }
     }
 
@@ -8744,6 +8941,34 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
 
     func deviceStateChange(_ error: ResultType) {
         print("ℹ️ ATID device state change =", error)
+
+        // A CoreBluetooth connection is not enough for AT388. The reader
+        // must also be in the ATID interactive BLE protocol. Without it the
+        // SDK reports ResultNotConnected followed by ResultTimeout and never
+        // calls readerInitialized. End that incomplete session immediately
+        // so the user can correct the device mode and reconnect, rather than
+        // leaving the row in a loading state until the generic timeout fires.
+        guard !isATIDDisconnecting,
+              !atidReaderReady,
+              !atidConnectionFailed else { return }
+
+        if error == ResultNotConnected || error == ResultTimeout {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self,
+                      !self.isATIDDisconnecting,
+                      !self.atidReaderReady,
+                      !self.atidConnectionFailed else { return }
+
+                self.atidConnectionFailed = true
+                self.deviceConnectionTimeout?.cancel()
+                self.deviceConnectionTimeout = nil
+                print("❌ ATID RFID protocol handshake failed =", error)
+                self.disconnectATIDReader()
+                CommonClass.showSnackBar(
+                    message: "AT388: set BTH BLE and Interactive-BTH mode, then reconnect"
+                )
+            }
+        }
     }
 
     func updateDeviceState(_ error: ResultType) {

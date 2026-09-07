@@ -59,9 +59,15 @@ class ConfirmationPopUp: UIView {
 
 class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,UITableViewDataSource , UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout ,GetVerification , ProceedToPay, UIViewControllerTransitioningDelegate, QRCodeViewDelegate,STPAuthenticationContext {
     
+    var mQuotationId = ""
     
     
     func isProceedWithStatus(status: Bool, message: String) {}
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     // Tab bar for select option -:
     
@@ -4187,7 +4193,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                 }
                 
                 mSummaryOrder.setValue(subTotal, forKey: "Sub_Total")
-                mSummaryOrder.setValue("", forKey: "sales_person_id")
+                mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
                 
                 print("subTotal =", subTotal)
                 print("mCartTotalAmount =", mCartTotalAmount)
@@ -4245,6 +4251,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                                 "_id": item["custom_cart_id"] ?? "",
                                 "custom_cart_id": item["custom_cart_id"] ?? "",
                                 "delivery_date": currentDateString,
+                                "sales_person_id": self.selectedSalesPersonId,
                                 "giftCard_details": giftCardDetails
                             ]
                         }
@@ -4289,6 +4296,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                             }
                             updatedItem["status_type"] = self.mOrderType
                             updatedItem["order_type"] = self.mOrderType
+                            updatedItem["sales_person_id"] = self.selectedSalesPersonId
                             
                             print("ISO DELIVERY DATE =", updatedItem["delivery_date"] ?? "")
                             return updatedItem
@@ -4301,7 +4309,13 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                         mSellInfo.setValue(updatedCart, forKey: "cart")
                     } else {
                         
-                        mSellInfo.setValue(mCartTableData, forKey: "cart")
+                        let updatedCart = NSMutableArray()
+                        for case let item as NSDictionary in mCartTableData {
+                            let updatedItem = item.mutableCopy() as! NSMutableDictionary
+                            updatedItem["sales_person_id"] = self.selectedSalesPersonId
+                            updatedCart.add(updatedItem)
+                        }
+                        mSellInfo.setValue(updatedCart, forKey: "cart")
                     }
                 }
 //                } else {
@@ -4340,15 +4354,20 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
 
                     print("--------------------------------")
                 }
-                mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":"","byMobile":true,"order_type":self.mOrderType , "order_id":self.mOrderId]
+                mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":selectedSalesPersonId,"byMobile":true,"order_type":self.mOrderType , "order_id":self.mOrderId]
 
                 // Send linked-cart state on the actual final checkout request.
                 self.appendLinkedCartMetadata(to: &mFinalPaymentMethod)
 
                 
-                let mQuotationId = UserDefaults.standard.string(forKey: "quotationId") ?? ""
-                if !mQuotationId.isEmpty {
-                    mFinalPaymentMethod["quatation_id"] = mQuotationId
+                let quotationId = mQuotationId.isEmpty
+                    ? (UserDefaults.standard.string(forKey: "quotationId") ?? "")
+                    : mQuotationId
+                if !quotationId.isEmpty {
+                    // Send the correctly spelled key for the current API, while
+                    // keeping the legacy spelling used by older backend builds.
+                    mFinalPaymentMethod["quotation_id"] = quotationId
+                    mFinalPaymentMethod["quatation_id"] = quotationId
                 }
                 
                 if !mSelectedBillingAddress.isEmpty || !mSelectedShippingAddress.isEmpty {

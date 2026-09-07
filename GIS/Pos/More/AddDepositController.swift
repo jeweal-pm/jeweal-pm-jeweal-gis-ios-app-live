@@ -15,6 +15,11 @@ protocol AddPaymentInfoDelegate {
     func mGetPaymentInfo(items:NSMutableDictionary)
 }
 class AddDepositController: UIViewController, UITextFieldDelegate , UITableViewDelegate ,UITableViewDataSource , UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout ,GetVerification , ProceedToPay, UIViewControllerTransitioningDelegate, QRCodeViewDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     
     
@@ -1912,37 +1917,16 @@ class AddDepositController: UIViewController, UITextFieldDelegate , UITableViewD
                 }
 
             } else {
-
-//                if mCashAmount.text != "" &&
-//                    mCashAmount.text != "." {
-//
-//                    mConvertedAmounts =
-//                        "\(Double(mCashAmounts) ?? 0)"
-//                    
-//
-//                    let amount =
-//                        Double(mConvertedAmounts) ?? 0
-//
-//                    let rounded =
-//                        (amount * 100).rounded() / 100
-//
-//                    mConvertedAmount.text =
-//                        "= \(self.mCurrencyName.text ?? "") \(rounded)"
-//                }
                 if mCashAmount.text != "" &&
                     mCashAmount.text != "." {
 
                     let cashAmount = Double(mCashAmounts) ?? 0
 
-                    let resultantRate =
-                        Double(mExchangeRateValue.text ?? "") ?? 0
-
-                    guard resultantRate > 0 else {
-                        return
-                    }
-
-                    let convertedAmount =
-                        cashAmount * resultantRate
+                    // The default currency is the store currency, so no exchange
+                    // rate is required. Keep the entered cash value as the amount
+                    // to submit; otherwise SUB incorrectly treats it as zero.
+                    let convertedAmount = cashAmount
+                    mConvertedAmounts = "\(convertedAmount)"
 
                     let rounded =
                         (convertedAmount * 100).rounded() / 100
@@ -2006,7 +1990,7 @@ class AddDepositController: UIViewController, UITextFieldDelegate , UITableViewD
                 mSummaryOrder.setValue(mTaxDiscountPercent, forKey: "discount_percent")
             
                 mSummaryOrder.setValue(mCustomerId, forKey: "customer_id")
-                mSummaryOrder.setValue("", forKey: "sales_person_id")
+                mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
         
                 mSummaryOrder.setValue(Int(mDepositPercents), forKey: "deposit")
                 mSummaryOrder.setValue(Double(mTotalP), forKey: "deposit_amount")
@@ -2048,7 +2032,7 @@ class AddDepositController: UIViewController, UITextFieldDelegate , UITableViewD
           
 
 
-            mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":"","order_type":self.mOrderType , "order_id":self.mOrderId]
+            mFinalPaymentMethod = ["sell_info": mSellInfo, "payment_info":mPaymentInfo,"transaction_date": "","customer_id":self.mCustomerId,"sales_person_id":selectedSalesPersonId,"order_type":self.mOrderType , "order_id":self.mOrderId]
          
         }
     }
@@ -2089,7 +2073,7 @@ class AddDepositController: UIViewController, UITextFieldDelegate , UITableViewD
             mSummaryOrder.setValue(mTaxDiscountPercent, forKey: "discount_percent")
         
             mSummaryOrder.setValue(mCustomerId, forKey: "customer_id")
-            mSummaryOrder.setValue("", forKey: "sales_person_id")
+            mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
     
             mSummaryOrder.setValue(Int(mDepositPercents), forKey: "deposit")
             mSummaryOrder.setValue(Double(mTotalP), forKey: "deposit_amount")

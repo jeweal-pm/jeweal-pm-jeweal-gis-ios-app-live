@@ -23,6 +23,7 @@ class RemovePopUp: UIView {
     var index = Int()
     
     var delegate:DeleteCustomCartItems? = nil
+    private var isDeletingCartItem = false
 
     @IBOutlet weak var mMessage: UILabel!
     @IBOutlet weak var mConfirmButton: UIButton!
@@ -35,11 +36,21 @@ class RemovePopUp: UIView {
     }
 
     @IBAction func mCancel(_ sender: Any) {
+        isDeletingCartItem = false
         self.removeFromSuperview()
     }
     
     @IBAction func mConfirm(_ sender: Any) {
+        // The popup may receive two taps while the delete request is pending.
+        // Process the request only once so the cart delegate cannot remove the
+        // same local item twice.
+        guard !isDeletingCartItem else { return }
+        isDeletingCartItem = true
+        mConfirmButton.isEnabled = false
+
         if mType == "deposit" || mType == "quotation" || mType == "giftCard" || mType == "refund" || mType == "exchange" {
+            isDeletingCartItem = false
+            mConfirmButton.isEnabled = true
             self.removeFromSuperview()
             self.delegate?.mDeleteCartItems(index:self.index)
             return
@@ -53,13 +64,19 @@ class RemovePopUp: UIView {
             CommonClass.stopLoader()
             if status {
             if "\(response.value(forKey: "code") ?? "")" == "200" {
+                self.isDeletingCartItem = false
+                self.mConfirmButton.isEnabled = true
                 self.removeFromSuperview()
                 self.delegate?.mDeleteCartItems(index:self.index)
             }else{
-          
+                self.isDeletingCartItem = false
+                self.mConfirmButton.isEnabled = true
+            }
+            } else {
+                self.isDeletingCartItem = false
+                self.mConfirmButton.isEnabled = true
             }
         }
-    }
         
     }
 }
@@ -122,6 +139,23 @@ class CustomCartItems : UITableViewCell {
     
 }
 class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, GetCustomerDataDelegate, UITableViewDataSource, UITableViewDelegate, GetInventoryDataItemsDelegate, DeleteCustomCartItems, SearchDelegate, EditProductDelegate, ConfirmationDelegate, GetQuotationDelegate, ServiceLabourDelegate, UITextFieldDelegate {
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func cartWithSelectedSalesPerson() -> NSMutableArray {
+        let updatedCart = NSMutableArray()
+
+        for case let item as NSDictionary in mCartData {
+            let updatedItem = NSMutableDictionary(dictionary: item)
+            updatedItem["sales_person_id"] = selectedSalesPersonId
+            updatedCart.add(updatedItem)
+        }
+
+        return updatedCart
+    }
 
     // MARK: - Quote Suggestions
     // Show suggestions only after the Note field is tapped.
@@ -430,7 +464,7 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
         var mParams: [String: Any] = [
             "product_id": [id],
             "customer_id": mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": type,
             "order_type": "custom_order"
         ]
@@ -634,7 +668,7 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
         var params: [String: Any] = [
             "product_id": [id],
             "customer_id": mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": type,
             "order_type": "custom_order"
         ]
@@ -1001,6 +1035,8 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
     func mGetQuotationData(status:Bool, quotationId: String) {
         self.isQuotation = status
         self.mQuotationId = quotationId
+        // CustomOrderCheckout reads this value when it builds saveCustomOrder.
+        UserDefaults.standard.setValue(quotationId, forKey: "quotationId")
         mFetchCartItems()
     }
     
@@ -1484,20 +1520,22 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
             mSummaryOrder.setValue(0, forKey: "discount")
             mSummaryOrder.setValue(0, forKey: "discount_percent")
             mSummaryOrder.setValue(mCustomerData, forKey: "customer_id")
-            mSummaryOrder.setValue("", forKey: "sales_person_id")
+            mSummaryOrder.setValue(selectedSalesPersonId, forKey: "sales_person_id")
             mSummaryOrder.setValue(Double(mDepositPercents) ?? 0.00, forKey: "deposit")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "deposit_amount")
             mSummaryOrder.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "Sub_Total")
         
-            mSellInfo.setValue(self.mCartData, forKey: "cart")
+            mSellInfo.setValue(cartWithSelectedSalesPerson(), forKey: "cart")
             mSellInfo.setValue(mSummaryOrder, forKey: "summary_order")
             mSellInfo.setValue("custom_order", forKey: "status_type")
             mSellInfo.setValue(Double(self.mGrandTotalAmounts) ?? 0.00, forKey: "totalamount")
-        let  mFinalData = ["sell_info": mSellInfo, "totalamount":self.mGrandTotalAmounts,
-                           "order_type":"custom_order",
+        let  mFinalData = ["sell_info": mSellInfo,
+                           "totalamount": self.mGrandTotalAmounts,
+                           "order_type": "custom_order",
                            "quatetime": noOfReceived ?? "Customer is interested but wants to hold for now",
-                           
-                           "duedate":date] as [String : Any]
+                           "duedate": date,
+                           "sales_person_id": selectedSalesPersonId,
+                           "byMobile": true] as [String : Any]
         CommonClass.showFullLoader(view: self.view)
         
             mGetData(url: mSaveQuotation,headers: sGisHeaders,  params: mFinalData) { response , status in
@@ -1624,6 +1662,7 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
                 mCheckOut.mTotalWithDiscount =  self.mTotalDepositAmounts
                 mCheckOut.mTaxPercent =  ""
                 mCheckOut.mCustomerId = self.mCustomerId
+                mCheckOut.mQuotationId = self.mQuotationId
                 
                 print("========== CUSTOM CART BEFORE CHECKOUT ==========")
 
@@ -1922,7 +1961,7 @@ class CustomCart: UIViewController, UIViewControllerTransitioningDelegate, UIGes
         let mParams: [String: Any] = [
             "product_id": [id],
             "customer_id": self.mCustomerId,
-            "sales_person_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "type": "catalog",
             "order_type": "custom_order"
         ]

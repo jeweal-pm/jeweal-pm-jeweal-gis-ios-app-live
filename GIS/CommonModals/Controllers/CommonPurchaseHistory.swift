@@ -53,6 +53,11 @@ class CommonPurchaseHistory: UIViewController, UITableViewDelegate, UITableViewD
     var mCartId = ""
     var mDiscount = ""
     var mDiscountPercent = ""
+
+    private var selectedSalesPersonId: String {
+        return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
     
     @IBOutlet weak var mHeadingLABEL: UILabel!
     override func viewWillAppear(_ animated: Bool) {
@@ -154,7 +159,12 @@ class CommonPurchaseHistory: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
             
-            let mParams = ["cart_ids":mData, "customer_id":mCustomerId, "order_type":mOrderType] as [String : Any]
+            let mParams = [
+                "cart_ids": mData,
+                "customer_id": mCustomerId,
+                "order_type": mOrderType,
+                "sales_person_id": selectedSalesPersonId
+            ] as [String : Any]
             
             mGetData(url: mAddRepairProduct ,headers: sGisHeaders,  params:mParams) { response , status in
                 

@@ -72,7 +72,9 @@ class MoreController: UIViewController, OpenCustomerMixMatchDelegate, UIViewCont
         // Do not clear an existing linked Reserve or Repair cart merely
         // because the More tab becomes visible. That would remove the cart
         // before PosCart can ask the user whether to quit the linked flow.
-        if hasActiveLinkedCart {
+        if UserDefaults.standard.bool(forKey: "connected_order_restore_in_progress") {
+            print("MoreController: defer clear cart while linked cart restore is pending")
+        } else if hasActiveLinkedCart {
             print("MoreController: preserve active linked cart")
         } else {
             print("🔥 MoreController.swift mClearCart called")
