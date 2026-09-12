@@ -126,42 +126,10 @@ struct ImageSearchView: View {
                 //
                 ScrollView(.vertical, showsIndicators: false) {
 
-                    // The shutter button belongs to the scroll content.
-                    // This keeps it at the bottom of the camera at rest,
-                    // and moves it upward together with Library when the
-                    // user scrolls the Library over the camera.
-                    ZStack(alignment: .bottom) {
-
-                        Color.clear
-
-                        Button {
-                            guard !isCapturingPhoto else { return }
-                            isCapturingPhoto = true
-                            takePhoto()
-                        } label: {
-                            ZStack {
-                                Circle()
-                                    .stroke(Color.white, lineWidth: 6)
-                                    .frame(width: 78, height: 78)
-
-                                if isCapturingPhoto {
-                                    ProgressView()
-                                        .progressViewStyle(
-                                            CircularProgressViewStyle(tint: .gray)
-                                        )
-                                        .scaleEffect(1.15)
-                                } else {
-                                    Circle()
-                                        .fill(Color.white)
-                                        .frame(width: 62, height: 62)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(isCapturingPhoto)
-                        .padding(.bottom, 28)
-                        .zIndex(1000)
-                    }
+                    // Reserve the camera area. The shutter is deliberately
+                    // outside this ScrollView so it never rides up the page
+                    // when the Library is scrolled.
+                    Color.clear
                     .frame(
                         width: geometry.size.width,
                         height: cameraHeight
@@ -261,6 +229,37 @@ struct ImageSearchView: View {
                     alignment: .top
                 )
                 .clipped()
+
+                // Keep the shutter anchored to the camera, independent of
+                // the library scroll offset.
+                VStack {
+                    Spacer()
+                    Button {
+                        guard !isCapturingPhoto else { return }
+                        isCapturingPhoto = true
+                        takePhoto()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white, lineWidth: 6)
+                                .frame(width: 78, height: 78)
+                            if isCapturingPhoto {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                                    .scaleEffect(1.15)
+                            } else {
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 62, height: 62)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isCapturingPhoto)
+                    .padding(.bottom, 28)
+                }
+                .frame(width: geometry.size.width, height: cameraHeight)
+                .zIndex(1500)
 
                 // =================================================
                 // CLOSE CONTROL

@@ -14,17 +14,20 @@ struct PromptChipSection: View {
     let completed: [String]
     let answers: [DiscoveryAnswer]
     @Binding var selected: String?
+    let onSelect: ((String, Bool) -> Void)?
 
     init(
         prompts: [String],
         completed: [String] = [],
         answers: [DiscoveryAnswer] = [],
-        selected: Binding<String?>
+        selected: Binding<String?>,
+        onSelect: ((String, Bool) -> Void)? = nil
     ) {
         self.prompts = prompts
         self.completed = completed
         self.answers = answers
         self._selected = selected
+        self.onSelect = onSelect
     }
 
     private let columns = [
@@ -58,7 +61,9 @@ struct PromptChipSection: View {
                         dampingFraction: 0.88
                     )
                 ) {
-                    selected = item
+                    let willSelect = selected != item
+                    selected = willSelect ? item : nil
+                    onSelect?(item, willSelect)
                 }
             }
         }

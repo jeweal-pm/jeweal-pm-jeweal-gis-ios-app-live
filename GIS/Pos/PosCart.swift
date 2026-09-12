@@ -569,6 +569,9 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     private var linkedCartContext: LinkedCartContext?
     private var isRestoringLinkedCartStatus = false
     private let connectedOrderRestorePendingKey = "connected_order_restore_in_progress"
+    private let connectedOrderRestoreSignatureKey = "connected_order_restore_cart_signature"
+    private let connectedOrderRestoreCartIDsKey = "reserve_restore_cart_ids"
+    private let connectedOrderSkipCartClearUntilKey = "connected_order_skip_cart_clear_until"
 
 
     var mQuantityData = [Int]()
@@ -1840,7 +1843,20 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
 
     }
     
-    func mClearCart(completion: ((Bool) -> Void)? = nil) {
+    func mClearCart(
+        allowDuringConnectedOrderRestore: Bool = false,
+        completion: ((Bool) -> Void)? = nil
+    ) {
+        // A connected-order restore must finish first.  A lifecycle or legacy
+        // clear call while it is pending would delete the very cart the restore
+        // request is trying to update on the backend.
+        if UserDefaults.standard.bool(forKey: connectedOrderRestorePendingKey),
+           !allowDuringConnectedOrderRestore {
+            print("⚠️ Clear cart withheld while connected-order restore is pending")
+            completion?(false)
+            return
+        }
+
         print("🔥 POSCart.swift mClearCart called")
         mGetData(
             url: mClearDataApi,
@@ -2103,18 +2119,29 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     
     private func restoreLinkedCartStatus(cartIds: [String]) {
 
-        let validCartIds = cartIds.filter {
-            !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        var seenCartIds = Set<String>()
+        let validCartIds = cartIds.compactMap { rawID -> String? in
+            let id = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !id.isEmpty, seenCartIds.insert(id).inserted else { return nil }
+            return id
         }
 
-        guard !validCartIds.isEmpty, !isRestoringLinkedCartStatus else {
+        let restoreSignature = validCartIds.joined(separator: ",")
+        let defaults = UserDefaults.standard
+        let isRestoreAlreadyPending = defaults.bool(forKey: connectedOrderRestorePendingKey)
+
+        guard !validCartIds.isEmpty,
+              !isRestoringLinkedCartStatus,
+              !isRestoreAlreadyPending else {
+            print("ℹ️ Connected-order restore already pending; duplicate ignored =", validCartIds)
             return
         }
 
         // This flag prevents Home/More from clearing the cart while the
         // connected-order restore request is still in flight.
         isRestoringLinkedCartStatus = true
-        UserDefaults.standard.set(true, forKey: connectedOrderRestorePendingKey)
+        defaults.set(true, forKey: connectedOrderRestorePendingKey)
+        defaults.set(restoreSignature, forKey: connectedOrderRestoreSignatureKey)
 
         let params: [String: Any] = [
 
@@ -2146,38 +2173,48 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             if status,
                "\(response["code"] ?? "")" == "200" {
 
-                // The cart must never be cleared until the backend has
-                // confirmed that the linked cart status was restored.
-                print("✅ Linked cart restored; clearing the active POS cart")
-                self.mClearCart { _ in
-                    UserDefaults.standard.removeObject(forKey: "reserve_show_popup")
-                    UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
-                    UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
-                    UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
-                    LinkedCartContextStore.shared.clear(
-                        orderType: "reserve",
-                        customerId: self.mCustomerId
-                    )
+                // The server owns the cart state for connected orders. Never
+                // call the cart-clear API here; it would remove the cart before
+                // the restored linked-order state can be retained.
+                print("✅ Linked cart restored; cart-clear API was not called")
+                UserDefaults.standard.set(
+                    Date().addingTimeInterval(5).timeIntervalSince1970,
+                    forKey: self.connectedOrderSkipCartClearUntilKey
+                )
+                UserDefaults.standard.removeObject(forKey: "reserve_show_popup")
+                UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_id")
+                UserDefaults.standard.removeObject(forKey: "reserve_linked_cart_ids")
+                UserDefaults.standard.removeObject(forKey: self.connectedOrderRestoreCartIDsKey)
+                UserDefaults.standard.removeObject(forKey: "reserve_linked_order_type")
+                UserDefaults.standard.removeObject(forKey: "reserve_can_create_new_cart")
+                LinkedCartContextStore.shared.clear(
+                    orderType: "reserve",
+                    customerId: self.mCustomerId
+                )
 
-                    LinkedCartContextStore.shared.clear(
-                        orderType: "pos_order",
-                        customerId: self.mCustomerId
-                    )
+                LinkedCartContextStore.shared.clear(
+                    orderType: "pos_order",
+                    customerId: self.mCustomerId
+                )
 
-                    self.isRestoringLinkedCartStatus = false
-                    self.navigationController?.popViewController(animated: true)
+                self.isRestoringLinkedCartStatus = false
+                self.navigationController?.popViewController(animated: true)
 
-                    // Home may appear during the pop transition. Keep the
-                    // guard briefly so it cannot issue a second clear call.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        UserDefaults.standard.removeObject(forKey: self.connectedOrderRestorePendingKey)
-                    }
+                // Prevent duplicate restore callbacks while navigation settles.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    UserDefaults.standard.removeObject(forKey: self.connectedOrderRestorePendingKey)
+                    UserDefaults.standard.removeObject(forKey: self.connectedOrderRestoreSignatureKey)
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    UserDefaults.standard.removeObject(forKey: self.connectedOrderSkipCartClearUntilKey)
                 }
 
             } else {
 
                 self.isRestoringLinkedCartStatus = false
                 UserDefaults.standard.removeObject(forKey: self.connectedOrderRestorePendingKey)
+                UserDefaults.standard.removeObject(forKey: self.connectedOrderRestoreSignatureKey)
                 print("⚠️ Linked cart restore did not succeed; clear cart was withheld")
 
                 CommonClass.showSnackBar(
@@ -2589,53 +2626,31 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             )
         }
 
-        // The linked cart id can come from the context store, but that store
-        // is not guaranteed to be readable after the Cart Details screen has
-        // been restored. Keep the id saved by CommonInventory as a fallback.
-        let storedLinkedCartId =
-            UserDefaults.standard.string(forKey: "reserve_linked_cart_id") ?? ""
-
-        let storedLinkedOrderType =
-            UserDefaults.standard.string(forKey: "reserve_linked_order_type") ?? ""
-        let storedCanCreateNewCart = UserDefaults.standard.object(
-            forKey: "reserve_can_create_new_cart"
-        ) as? Bool
-
-        let resolvedLinkedCartId: String = {
-            // Restore the original Reserve cart supplied by Inventory. The
-            // addItemToCart response may contain a newly-created POS cart.
-            if let context = linkedCartContext, !context.linkedCartId.isEmpty {
-                return context.linkedCartId.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return storedLinkedCartId.trimmingCharacters(in: .whitespacesAndNewlines)
-        }()
-
-        print("mBack context.linkedCartId = \(String(describing: linkedCartContext?.linkedCartId))")
-        print("mBack storedLinkedCartId = \(storedLinkedCartId)")
-        print("mBack resolvedLinkedCartId = \(resolvedLinkedCartId)")
-
-        let linkedOrderType = (
-            linkedCartContext?.linkedOrderType.isEmpty == false
-                ? linkedCartContext?.linkedOrderType
-                : storedLinkedOrderType
-        ) ?? ""
-        let isExistingReserveCart =
-            (linkedCartContext?.canCreateNewCart == false || storedCanCreateNewCart == false) &&
-            linkedOrderType.lowercased() == "reserve"
+        // The restore endpoint must receive only the cart IDs returned by the
+        // latest addItemToCart response. Do not substitute IDs from Inventory
+        // or a previous linked-cart context.
+        let addItemToCartResponseIDs = UserDefaults.standard.stringArray(
+            forKey: connectedOrderRestoreCartIDsKey
+        ) ?? []
+        var seenCartIds = Set<String>()
+        let resolvedLinkedCartIds = addItemToCartResponseIDs.compactMap { rawID -> String? in
+            let id = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !id.isEmpty, seenCartIds.insert(id).inserted else { return nil }
+            return id
+        }
+        print("mBack addItemToCart response IDs = \(resolvedLinkedCartIds)")
         // A stale linked-cart context must not block the user when this POS
         // page has no items. Ask for confirmation only after the user has
         // actually added a cart item in the current page.
         let hasCartItems = mCartData.count > 0
         let shouldShowLeaveConfirmation =
-            hasCartItems &&
-            !resolvedLinkedCartId.isEmpty &&
-            (showPopup == "1" || isExistingReserveCart)
+            hasCartItems && !resolvedLinkedCartIds.isEmpty
 
         if shouldShowLeaveConfirmation {
             // IMPORTANT: Do not pop or clear the cart here.
             // The popup must be shown first.
             sshowReserveConfirmation(
-                cartIds: [resolvedLinkedCartId]
+                cartIds: resolvedLinkedCartIds
             )
         } else {
             self.navigationController?.popViewController(animated: true)

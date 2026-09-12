@@ -178,7 +178,12 @@ struct FaroResultView: View {
             resultCartOverlay
             resultToastOverlay
         }
-        .fullScreenCover(isPresented: $showConfirmOrder) {
+        .fullScreenCover(isPresented: $showConfirmOrder, onDismiss: {
+            // The Order screen works with one row per item. Rebuild the
+            // result cart when it closes so a deleted item cannot reappear
+            // after navigating back to the previous screen.
+            syncSelectedProductsFromConfirmCart()
+        }) {
             FaroConfirmOrderView(
                 // Use the expanded cart here. selectedProducts stores one
                 // dictionary per unique product and keeps the quantity in
@@ -207,7 +212,11 @@ struct FaroResultView: View {
     private var resultContentView: some View {
         VStack(spacing: 0) {
             FaroHeader {
-                dismiss()
+                // This screen is presented over FaroScannerView.  Returning
+                // must reset that parent to Faro home, not dismiss an
+                // arbitrary presentation layer and leave the scanner state
+                // stranded behind it.
+                onReturnToFaroHome()
             }
             .padding(.bottom, 8)
 
@@ -463,16 +472,12 @@ struct FaroResultView: View {
 
     private func resultProductCell(_ product: NSMutableDictionary) -> some View {
         let sku = product["SKU"] as? String ?? ""
-        let selectedIndex = selectedProducts.firstIndex {
-            ($0["SKU"] as? String ?? "") == sku
-        }
-
-        let quantity: Int
-        if let selectedIndex {
-            quantity = selectedProducts[selectedIndex]["quantity"] as? Int ?? 1
-        } else {
-            quantity = 0
-        }
+        // One catalogue card can be added with several option variants.
+        // Show the total for its SKU rather than whichever variant happened
+        // to be first in the array.
+        let quantity = selectedProducts
+            .filter { ($0["SKU"] as? String ?? "") == sku }
+            .reduce(0) { $0 + ($1["quantity"] as? Int ?? 1) }
 
         return FaroProductCard(
             product: product,
@@ -518,13 +523,41 @@ struct FaroResultView: View {
             selectedProducts.append(newProduct)
         }
 
-        showToast = true
+        withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) {
+            showToast = true
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            withAnimation {
+            withAnimation(.easeInOut(duration: 0.22)) {
                 showToast = false
             }
         }
+    }
+
+    private func syncSelectedProductsFromConfirmCart() {
+        var merged: [NSMutableDictionary] = []
+
+        for item in confirmProducts {
+            let sku = item["SKU"] as? String ?? ""
+            let metal = item["selected_metal"] as? String ?? ""
+            let stone = item["selected_stone"] as? String ?? ""
+            let size = item["selected_size"] as? String ?? ""
+
+            if let index = merged.firstIndex(where: {
+                ($0["SKU"] as? String ?? "") == sku &&
+                ($0["selected_metal"] as? String ?? "") == metal &&
+                ($0["selected_stone"] as? String ?? "") == stone &&
+                ($0["selected_size"] as? String ?? "") == size
+            }) {
+                merged[index]["quantity"] = (merged[index]["quantity"] as? Int ?? 1) + 1
+            } else {
+                let copy = NSMutableDictionary(dictionary: item)
+                copy["quantity"] = 1
+                merged.append(copy)
+            }
+        }
+
+        selectedProducts = merged
     }
 
     @ViewBuilder
@@ -560,7 +593,7 @@ struct FaroResultView: View {
                 ToastView()
                 Spacer()
             }
-            .transition(.move(edge: .top))
+            .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 
@@ -1122,7 +1155,7 @@ private struct FaroImageGalleryView: View {
         
         ZStack(alignment: .topTrailing) {
             
-            Color(UIColor.systemGroupedBackground)
+            Color.white
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -1168,7 +1201,7 @@ private struct FaroImageGalleryView: View {
                         
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
-                    .frame(height: 420)
+                    .frame(height: 340)
                     
                     HStack {
                         
@@ -1259,7 +1292,7 @@ private struct FaroImageGalleryView: View {
                                 Color.gray.opacity(0.15)
                                 
                             }
-                            .frame(width:92,height:92)
+                            .frame(width:72,height:72)
                             .background(Color.white)
                             .overlay(
                                 
@@ -1400,7 +1433,7 @@ private struct FaroConfirmOrderView: View {
             Spacer()
 
             Text("Order")
-                .font(FaroFont.semibold(18))
+                .font(FaroFont.regular(18))
                 .foregroundColor(.black)
 
             Spacer()
@@ -1928,7 +1961,7 @@ private struct FaroEditOrderView: View {
             Spacer()
 
             Text("Edit Order")
-                .font(FaroFont.semibold(18))
+                .font(FaroFont.regular(18))
                 .foregroundColor(.black)
 
             Spacer()
@@ -2073,7 +2106,11 @@ private struct FaroEditDropdown: View {
                                     }
                                     .padding(.horizontal, 12)
                                     .frame(height: rowHeight)
-                                    .background(Color.white)
+                                    .background(
+                                        selection == option
+                                            ? Color(red: 242 / 255, green: 251 / 255, blue: 250 / 255)
+                                            : Color.white
+                                    )
                                 }
                                 .buttonStyle(.plain)
 

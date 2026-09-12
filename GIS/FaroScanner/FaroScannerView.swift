@@ -695,6 +695,14 @@ struct FaroScannerView: View {
 //            }
 
         }
+        .onChange(of: isFocused) { focused in
+            // Focusing the home search should expand the card immediately,
+            // before a user starts typing.  This matches the Faro input spec
+            // and avoids the delayed, jumping layout seen in the old flow.
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                searchExpanded = focused || showDiscovery
+            }
+        }
         .onDisappear {
             voiceInput.stop()
         }
@@ -812,11 +820,11 @@ struct FaroScannerView: View {
             .background {
 
                 Image("faro_search_bg")
-//                    .resizable()
-//                    .scaledToFit()
-                    .frame(width: 520)
-                    .offset(y: 14)
-                    .opacity(0.5)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                    .opacity(0.34)
                     .allowsHitTesting(false)
 
             }
@@ -834,7 +842,7 @@ struct FaroScannerView: View {
                     : (
                         selectedImage != nil
                         ? (imagePreviewExpanded ? 192 : 104)
-                        : 104
+                        : (searchExpanded ? 132 : 104)
                     )
             )
             .animation(
@@ -862,9 +870,8 @@ struct FaroScannerView: View {
             )
 
             .scaleEffect(isFocused ? 1.015 : 1)
-//            .offset(
-//                y: showDiscovery ? -18 : 0
-//            )
+            .opacity(showSearch ? 1 : 0)
+            .offset(y: showSearch ? 0 : 96)
     }
     
     @ViewBuilder
@@ -1480,9 +1487,7 @@ struct FaroScannerView: View {
                 }
                 .contentShape(Rectangle())
 
-                Spacer()
-
-                Spacer()
+                Spacer(minLength: 0)
 
                 // Normal state = checkmark. Recognition text is intentionally
                 // not displayed here; it is kept internally for the confirm action.
@@ -1520,6 +1525,7 @@ struct FaroScannerView: View {
             }
             .padding(.horizontal, 14)
             .padding(.bottom, 4)
+            .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 86)
@@ -1546,49 +1552,35 @@ struct FaroScannerView: View {
                         )
                     )
 
-                // X beside the thumbnail = remove image only.
-                Button {
-
-                    withAnimation(
-                        .spring(
-                            response: 0.45,
-                            dampingFraction: 0.82
-                        )
-                    ) {
-
-                        selectedImage = nil
-                        isImageSearch = false
-                        imagePreviewExpanded = false
-                        searchText = ""
-
-                        // Show the final X on the full search row.
-                        showCloseButton = true
-
-                        imageSearchFocused = false
-                        isFocused = false
-                        hideKeyboard()
-
-                    }
-
-                } label: {
-
-                    Image(systemName: "xmark")
-                        .font(
-                            .system(
-                                size: 11,
-                                weight: .semibold
+                // The expanded design keeps this row clean.  The image can
+                // be removed from the compact state only.
+                if !imagePreviewExpanded {
+                    Button {
+                        withAnimation(
+                            .spring(
+                                response: 0.45,
+                                dampingFraction: 0.82
                             )
-                        )
-                        .foregroundColor(.gray)
-                        .frame(
-                            width: 22,
-                            height: 22
-                        )
-
+                        ) {
+                            selectedImage = nil
+                            isImageSearch = false
+                            imagePreviewExpanded = false
+                            searchText = ""
+                            showCloseButton = true
+                            imageSearchFocused = false
+                            isFocused = false
+                            hideKeyboard()
+                        }
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.gray)
+                            .frame(width: 22, height: 22)
+                    }
+                    .transition(
+                        .scale.combined(with: .opacity)
+                    )
                 }
-                .transition(
-                    .scale.combined(with: .opacity)
-                )
 
             }
 
@@ -1618,41 +1610,29 @@ struct FaroScannerView: View {
 
             Spacer(minLength: 0)
 
-            // "^" only collapses/expands the large image.
-            // It NEVER clears selectedImage.
-            Button {
-
-                withAnimation(
-                    .spring(
-                        response: 0.45,
-                        dampingFraction: 0.82
-                    )
-                ) {
-
-                    imagePreviewExpanded.toggle()
-
+            // The expanded state has one clear action: collapse the preview.
+            // The compact state intentionally has no down-arrow control.
+            if imagePreviewExpanded {
+                Button {
+                    withAnimation(
+                        .spring(response: 0.45, dampingFraction: 0.82)
+                    ) {
+                        imagePreviewExpanded.toggle()
+                    }
+                } label: {
+                    Image(systemName: "chevron.up")
+                        .font(
+                            .system(
+                                size: 13,
+                                weight: .medium
+                            )
+                        )
+                        .foregroundColor(.gray)
+                        .frame(
+                            width: 28,
+                            height: 28
+                        )
                 }
-
-            } label: {
-
-                Image(
-                    systemName:
-                        imagePreviewExpanded
-                        ? "chevron.up"
-                        : "chevron.down"
-                )
-                .font(
-                    .system(
-                        size: 13,
-                        weight: .medium
-                    )
-                )
-                .foregroundColor(.gray)
-                .frame(
-                    width: 28,
-                    height: 28
-                )
-
             }
 
         }
@@ -2137,7 +2117,7 @@ struct FaroScannerView: View {
         }
 
         // Let the pulse be visible briefly, then close Voice Mode.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.72) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.38) {
             searchText = finalText
             showMic = false
             showSend = true
@@ -2329,16 +2309,16 @@ struct FaroScannerView: View {
                 Image("faro_search")
                     .resizable()
                     .scaledToFit()
-                    .frame(width:100)
+                    .frame(width: 88, height: 34)
 
             }
-            .padding(.trailing, 4)
-            .offset(x:showSend ? -44 : 0)
+            .offset(x: showSend ? -38 : 0)
             .transition(.opacity.combined(with: .scale(scale: 0.9)))
             }
 
         }
-        .frame(width:108,alignment:.trailing)
+        .frame(width: 96, height: 36, alignment: .trailing)
+        .clipped()
         .animation(
             .interactiveSpring(
                 response:0.38,

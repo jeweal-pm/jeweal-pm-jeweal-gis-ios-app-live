@@ -15,7 +15,7 @@ struct ToastView: View {
         HStack {
 
             Image(systemName:"checkmark.circle.fill")
-                .foregroundColor(.green)
+                .foregroundColor(Color(red: 82/255, green: 203/255, blue: 196/255))
 
             Text("Item added to order.")
 
@@ -32,7 +32,7 @@ struct ToastView: View {
             )
         )
 
-        .shadow(radius:10)
+        .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
 
         .padding()
 

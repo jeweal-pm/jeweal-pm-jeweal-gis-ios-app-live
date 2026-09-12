@@ -1642,12 +1642,25 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     }
     
     func mClearCart(){
+        let defaults = UserDefaults.standard
+
         // PosCart restores the linked order asynchronously when the user
         // confirms the connected-order leave popup. Do not race that request.
-        if UserDefaults.standard.bool(forKey: "connected_order_restore_in_progress") {
+        if defaults.bool(forKey: "connected_order_restore_in_progress") {
             print("HomePage: defer clear cart while linked cart restore is pending")
             return
         }
+
+        // The return to Home immediately after a successful connected-order
+        // restore is not a user request to clear the backend cart. Skip only
+        // this automatic call, then allow normal cart clearing again.
+        let skipUntil = defaults.double(forKey: "connected_order_skip_cart_clear_until")
+        if skipUntil > Date().timeIntervalSince1970 {
+            print("HomePage: skip automatic clear cart after linked cart restore")
+            defaults.removeObject(forKey: "connected_order_skip_cart_clear_until")
+            return
+        }
+        defaults.removeObject(forKey: "connected_order_skip_cart_clear_until")
 
         print("🔥 HomePage.swift mClearCart called")
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")

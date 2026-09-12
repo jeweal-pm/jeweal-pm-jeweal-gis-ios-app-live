@@ -285,6 +285,7 @@ let mStockIdManage = BaseUrl+"Mobile/pos/customOrder/stockIdManage"
 let mVoucherStatus = BaseUrl+"Mobile/common/getVoucherStatus"
 
 let mGeneratePaypalQRCode = BaseUrl + "pos/PaymentQRcode/generatePaypalQRcodeMobile"
+let mGenerateCregisQRCode = BaseUrl + "POS/PaymentQRcode/generateQRcode"
 
 /**Installments  & Layby*/
 let mGetInstallmentPlans = BaseUrl+"Mobile/receive/calculateInstallments"
@@ -353,6 +354,7 @@ let mGetCurrencies = BaseUrl+"Mobile/common/exchange-rates"
 let mGetQRCode = BaseUrl+"POS/PaymentQRcode/generateQRcode"
 let mCancelQR = BaseUrl+"POS/PaymentQRcode/cancelQRcode"
 let mGetPaymentStatus = BaseUrl+"POS/PaymentQRcode/getPaymentStatus"
+let mCregisQueryOrder = BaseUrl+"POS/PaymentQRcode/cregis/queryOrder"
 let mGetStipData = BaseUrl+"pos/PaymentQRcode/getPayment-token"
 
 

@@ -48,10 +48,11 @@ class DeviceItems: UITableViewCell {
         accessoryView = nil
     }
 
-    func configure(name: String, id: String, connected: Bool, loading: Bool) {
+    func configure(name: String, id: String, connected: Bool, loading: Bool, preparing: Bool = false) {
         mDeviceName.text = name
         mDeviceId.text = id
         mDeviceStatus.isHidden = true
+        mDeviceStatus.text = nil
 
         activityIndicator?.stopAnimating()
         activityIndicator = nil
@@ -63,6 +64,29 @@ class DeviceItems: UITableViewCell {
             spinner.startAnimating()
             accessoryView = spinner
             activityIndicator = spinner
+        } else if connected && preparing {
+            mDeviceStatus.text = "Preparing RFID reader…"
+            mDeviceStatus.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+            mDeviceStatus.textColor = UIColor.secondaryLabel
+            mDeviceStatus.isHidden = false
+
+            let stateView = UIView(frame: CGRect(x: 0, y: 0, width: 48, height: 24))
+
+            let check = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
+            check.tintColor = UIColor(red: 0.36, green: 0.78, blue: 0.76, alpha: 1.0)
+            check.contentMode = .scaleAspectFit
+            check.frame = CGRect(x: 0, y: 2, width: 20, height: 20)
+            stateView.addSubview(check)
+
+            let spinner = UIActivityIndicatorView(style: .medium)
+            spinner.color = UIColor.systemGray3
+            spinner.frame = CGRect(x: 25, y: 0, width: 24, height: 24)
+            spinner.startAnimating()
+            stateView.addSubview(spinner)
+
+            accessoryView = stateView
+            activityIndicator = spinner
+            checkImageView = check
         } else if connected {
             let imageView = UIImageView(
                 image: UIImage(systemName: "checkmark.circle.fill")
@@ -82,7 +106,8 @@ class DeviceItems: UITableViewCell {
             name: data.name ?? "Unknown Device",
             id: data.identifier.uuidString,
             connected: isConnected,
-            loading: false
+            loading: false,
+            preparing: false
         )
     }
 }
@@ -296,6 +321,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     #endif
     private var atidPeripheral: CBPeripheral?
     private var atidPeripheralIdentifiers = Set<UUID>()
+    // CoreBluetooth connects before EARfidFramework finishes its reader
+    // handshake. Keep this separate from atidReaderReady so the device list
+    // does not keep showing a spinner during the SDK's internal setup.
+    private var atidTransportConnected = false
+    // A tap on Play may occur immediately after the Bluetooth connection
+    // succeeds. Keep that intent until EARfidFramework finishes preparing the
+    // reader, rather than making the user tap a second time.
+    private var atidStartRequested = false
     private var atidInventoryRunning = false
     // True only after EAReader has finished its asynchronous initialization
     // and the tag-data configuration has completed off the main thread.
@@ -306,6 +339,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // ResultNotConnected and ResultTimeout can be delivered repeatedly for a
     // single failed handshake. Handle only the first one.
     private var atidConnectionFailed = false
+    // EARfidFramework performs a number of synchronous BLE setup calls while
+    // creating its device/reader objects.  Never run those calls on the main
+    // queue: the Device sheet must remain tappable as soon as Bluetooth has
+    // connected and the green checkmark is shown.
+    private let atidInitializationQueue = DispatchQueue(
+        label: "com.gis.stocktake.atid.initialization",
+        qos: .userInitiated
+    )
 
     // Zebra can report the same EPC many times while the tag remains in range.
     private var recentRFIDReads: [String: Date] = [:]
@@ -1368,7 +1409,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func updateReferencePlayButton() {
-        let connected = isAnyRFIDConnected
+        // AT388 should look ready as soon as its Bluetooth transport is
+        // connected. The actual inventory command is safely queued until the
+        // readerInitialized callback arrives.
+        let connected = isAnyRFIDConnected || atidTransportConnected
         let running = bluetoothService?.scannerIsRunning == 1 || ZebraRFIDService.shared.isInventoryRunning || atidInventoryRunning
 
         let activeColor = UIColor(hex: "#111111")
@@ -2225,7 +2269,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     private func updateScannerControls() {
         updateReferencePlayButton()
-        let connected = isAnyRFIDConnected
+        let connected = isAnyRFIDConnected || atidTransportConnected
         let running = bluetoothService?.scannerIsRunning == 1 || ZebraRFIDService.shared.isInventoryRunning || atidInventoryRunning
         let hasScannedData = (Int(mScannedStocks?.text ?? "0") ?? 0) > 0
         let hasConflictData = (Int(mConflictStocks?.text ?? "0") ?? 0) > 0
@@ -3058,12 +3102,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         pendingBluetoothIdentifier = peripheral.identifier
         atidPeripheralIdentifiers.insert(peripheral.identifier)
         atidPeripheral = peripheral
+        atidTransportConnected = peripheral.state == .connected
 
         print("🔵 ATID CONNECT REQUEST =", peripheral.name ?? "Unknown")
         print("🔵 ATID UUID =", peripheral.identifier.uuidString)
 
         if peripheral.state == .connected {
-            finishATIDPeripheralConnection(peripheral)
+            beginATIDReaderInitialization(peripheral)
         } else {
             centralManager?.connect(peripheral, options: nil)
         }
@@ -3080,6 +3125,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 peripheral: peripheral,
                 delegate: self
             )
+        }
+    }
+
+    private func beginATIDReaderInitialization(_ peripheral: CBPeripheral) {
+        atidInitializationQueue.async { [weak self] in
+            guard let self = self,
+                  !self.isATIDDisconnecting,
+                  self.atidPeripheral?.identifier == peripheral.identifier else {
+                return
+            }
+            self.finishATIDPeripheralConnection(peripheral)
         }
     }
 
@@ -3114,10 +3170,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // Clear local references before invoking the SDK. Its callbacks can be
         // synchronous, so they must never see a partially disconnected reader.
         atidInventoryRunning = false
+        atidStartRequested = false
         atidReader = nil
         atidReaderReady = false
         atidDevice = nil
         atidPeripheral = nil
+        atidTransportConnected = false
         pendingBluetoothIdentifier = nil
 
         if wasInventoryRunning, let reader = reader {
@@ -3324,6 +3382,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         isATIDDisconnecting = true
         atidInventoryRunning = false
         atidReaderReady = false
+        atidStartRequested = false
         atidPeripheral = nil
         pendingBluetoothIdentifier = nil
         isATIDDisconnecting = false
@@ -3861,14 +3920,19 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             print("🟢 ATID CoreBluetooth connected =", peripheral.name ?? "Unknown")
 
             atidPeripheral = peripheral
+            atidTransportConnected = true
 
             #if !targetEnvironment(simulator) && canImport(EARfidFramework)
             // Build the EARfidFramework bridge once only. Creating it again
             // for the same connection restarts its initialization sequence.
-            finishATIDPeripheralConnection(peripheral)
+            beginATIDReaderInitialization(peripheral)
 
             pendingBluetoothIdentifier = peripheral.identifier
             DispatchQueue.main.async {
+                // Keep the Device sheet open after the green checkmark so the
+                // user can dismiss it themselves. The Play button becomes
+                // active immediately; a Play tap is queued until the reader
+                // initialization callback arrives.
                 self.updateScannerControls()
                 self.mDeviceTableView.reloadData()
             }
@@ -3899,6 +3963,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         deviceConnectionTimeout = nil
         pendingBluetoothIdentifier = nil
 
+        if isATIDPeripheral(peripheral) {
+            atidTransportConnected = false
+            if atidPeripheral?.identifier == peripheral.identifier {
+                atidPeripheral = nil
+            }
+        }
+
         if peripheral == bluetoothService?.peripheral {
             bluetoothService?.peripheral = nil
         }
@@ -3922,9 +3993,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 atidReader = nil
                 atidReaderReady = false
                 atidDevice = nil
+                atidStartRequested = false
                 #endif
 
                 atidPeripheral = nil
+                atidTransportConnected = false
                 pendingBluetoothIdentifier = nil
             }
 
@@ -5247,7 +5320,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        guard isAnyRFIDConnected else {
+        let atidTransportReady = atidTransportConnected && atidPeripheral?.state == .connected
+        guard isAnyRFIDConnected || atidTransportReady else {
             sender.isSelected = false
             updateScannerControls()
             return
@@ -5304,6 +5378,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
             return
         }
+
+        if atidTransportReady {
+            // The user is allowed to press Play as soon as the AT388 row has
+            // its green checkmark. EARfidFramework may still need a brief
+            // moment to deliver readerInitialized, so retain the request and
+            // start inventory automatically from that callback.
+            atidStartRequested = true
+            print("⏳ ATID Play queued until reader initialization completes")
+            updateScannerControls()
+            return
+        }
         #endif
 
         if bluetoothService?.scannerIsRunning == 1 {
@@ -5340,8 +5425,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "xmark"), for: .normal)
         button.tintColor = UIColor(hex: "#222222")
-        button.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        // The visible x-mark is small, but its touch target must remain easy
+        // to hit when the device list is updating after a connection.
+        button.widthAnchor.constraint(equalToConstant: 56).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 56).isActive = true
+        button.contentEdgeInsets = UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14)
+        button.isUserInteractionEnabled = true
         return button
     }
 
@@ -5385,7 +5474,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             sheet.addSubview(title)
 
             let close = makeSheetCloseButton()
-            close.addTarget(self, action: #selector(closeReferenceDeviceSheet), for: .touchUpInside)
+            // Dismiss on touch-down so a pending ATID SDK callback cannot make
+            // the X feel unresponsive while the reader is still preparing.
+            close.addTarget(self, action: #selector(closeReferenceDeviceSheet), for: .touchDown)
             sheet.addSubview(close)
 
             if let table = mDeviceTableView {
@@ -5448,7 +5539,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 title.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 16),
                 title.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 34),
 
-                close.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -16),
+                close.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -2),
                 close.centerYAnchor.constraint(equalTo: title.centerYAnchor),
 
                 empty.leadingAnchor.constraint(equalTo: sheet.leadingAnchor),
@@ -5481,7 +5572,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     @objc private func closeReferenceDeviceSheet() {
+        // Keep this dismissal independent of RFID initialization. Once the
+        // transport row displays its green checkmark, the user must always be
+        // able to return to Stock Take and use Play.
         referenceDeviceSheet?.isHidden = true
+        mDeviceView?.isHidden = true
         deviceDiscoveryTimer?.invalidate()
         deviceDiscoveryTimer = nil
         syncReferenceOverlayVisibility()
@@ -6539,23 +6634,33 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         switch device.type {
         case .bluetooth:
             let id = device.peripheral?.identifier.uuidString ?? ""
+            let loading = pendingBluetoothIdentifier == device.peripheral?.identifier
 
             let connected: Bool
             if let peripheral = device.peripheral, isATIDPeripheral(peripheral) {
-                connected = isATIDRFIDConnected &&
+                let isCurrentATIDTransport = atidTransportConnected &&
                     atidPeripheral?.identifier == peripheral.identifier
+                connected = isATIDRFIDConnected || isCurrentATIDTransport
+                let preparing = isCurrentATIDTransport && !atidReaderReady
+
+                cell.configure(
+                    name: device.name,
+                    id: id,
+                    connected: connected,
+                    loading: loading,
+                    preparing: preparing
+                )
+                return cell
             } else {
                 connected = device.peripheral == bluetoothService?.peripheral &&
                     bluetoothService?.isConnected() == true
             }
 
-            let loading = pendingBluetoothIdentifier == device.peripheral?.identifier && !connected
-
             cell.configure(
                 name: device.name,
                 id: id,
                 connected: connected,
-                loading: loading
+                loading: loading && !connected
             )
 
         case .zebra:
@@ -8811,6 +8916,7 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
                 self.atidReaderReady = false
                 self.atidDevice = nil
                 self.atidInventoryRunning = false
+                self.atidStartRequested = false
                 self.updateScannerControls()
                 self.mDeviceTableView.reloadData()
             }
@@ -8824,34 +8930,40 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
 
         print("🟢 ATID EADevice initialized =", device.name() ?? "Unknown")
 
-        // Creating EAReader is asynchronous. Do not run any SDK property
-        // calls that may wait for a response on the main queue.
-        // EADeviceBluetoothLe must use the standard device initializer. This
-        // matches ATID's BLE sample: the BT initializer can connect at the
-        // CoreBluetooth layer but fail before readerInitialized is delivered.
-        guard let reader = EAReader(
-            device: device,
-            // The ATID SDK can invoke readerInitialized while this initializer
-            // is still returning, so the callback itself adopts the reader.
-            delegate: self
-        ) else {
-            print("❌ ATID EAReader could not be created")
-            disconnectATIDReader()
-            CommonClass.showSnackBar(message: "Unable to initialize AT388 reader")
-            return
-        }
-        atidReader = reader
-        atidReaderReady = false
-        atidInventoryRunning = false
-        pendingBluetoothIdentifier = nil
+        // EAReader creation can synchronously wait for several BLE responses.
+        // Keep it off the main queue so the user can immediately close the
+        // Device sheet after the transport has connected.
+        atidInitializationQueue.async { [weak self] in
+            guard let self = self, !self.isATIDDisconnecting else { return }
 
-        print("🟢 ATID EAReader created; waiting for readerInitialized callback")
+            // EADeviceBluetoothLe must use the standard device initializer.
+            // This matches ATID's BLE sample: the BT initializer can connect
+            // at the CoreBluetooth layer but fail before readerInitialized.
+            guard let reader = EAReader(
+                device: device,
+                // The SDK can invoke readerInitialized while this initializer
+                // is still returning, so that callback adopts the reader.
+                delegate: self
+            ) else {
+                print("❌ ATID EAReader could not be created")
+                DispatchQueue.main.async {
+                    self.disconnectATIDReader()
+                    CommonClass.showSnackBar(message: "Unable to initialize AT388 reader")
+                }
+                return
+            }
 
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.mDeviceView.isHidden = true
-            self.updateScannerControls()
-            self.mDeviceTableView.reloadData()
+            self.atidReader = reader
+            self.atidReaderReady = false
+            self.atidInventoryRunning = false
+            self.pendingBluetoothIdentifier = nil
+
+            print("🟢 ATID EAReader created; waiting for readerInitialized callback")
+
+            DispatchQueue.main.async {
+                self.updateScannerControls()
+                self.mDeviceTableView.reloadData()
+            }
         }
     }
 
@@ -8870,13 +8982,12 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
         // discarding a valid connected session.
         atidReader = reader
 
-        // setTagDataType() must finish before inventory begins, but serial
-        // number and firmware are diagnostic-only. Do not make the customer
-        // wait for those extra BLE round trips before marking AT388 ready.
+        // The reader is ready as soon as the SDK gives us this callback.
+        // Configuring its tag data type can take several BLE round trips; do
+        // it afterwards so the device row does not keep spinning while the
+        // AT388 is already connected.
         DispatchQueue.global(qos: .userInitiated).async { [weak self, weak reader] in
             guard let self = self, let reader = reader else { return }
-
-            reader.setTagDataType(TAG_DATA_TYPE_HEX)
 
             DispatchQueue.main.async { [weak self] in
                 guard let self = self,
@@ -8887,15 +8998,22 @@ extension StockTakePage: EADeviceInitializeDelegate, EAReaderDelegate {
                 self.atidConnectionFailed = false
                 self.atidInventoryRunning = false
                 self.pendingBluetoothIdentifier = nil
+                let shouldStartInventory = self.atidStartRequested
+                self.atidStartRequested = false
                 self.deviceConnectionTimeout?.cancel()
                 self.deviceConnectionTimeout = nil
-                self.mDeviceView.isHidden = true
                 print("🟢 ATID READER READY - Play enabled")
                 self.updateScannerControls()
                 self.mDeviceTableView.reloadData()
+
+                if shouldStartInventory {
+                    print("▶️ ATID starting queued inventory request")
+                    self.startATIDInventory()
+                }
             }
 
-            // Diagnostics must never block the connection UI.
+            // Configuration and diagnostics must never block the connection UI.
+            reader.setTagDataType(TAG_DATA_TYPE_HEX)
             let serial = reader.serialNumber ?? ""
             let firmware = reader.firmwareVersion() ?? ""
             print("🟢 ATID serial =", serial)

@@ -18,7 +18,12 @@ struct FaroProductCard: View {
 
     private let collapsedCardHeight: CGFloat = 292
 
-    private let expandedCardHeight: CGFloat = 318
+    // Keep the expanded card stable while a menu is opened, but do not leave
+    // empty selector rows on products that do not provide every attribute.
+    private var expandedCardHeight: CGFloat {
+        let selectorCount = [metals, stones, sizes].filter { !$0.isEmpty }.count
+        return 190 + (CGFloat(selectorCount) * 43)
+    }
 
     private let cardCornerRadius: CGFloat = 10
 
@@ -344,7 +349,7 @@ struct FaroProductCard: View {
 
             .padding(.horizontal, 10)
 
-            .padding(.top, 2)
+            .padding(.top, 6)
 
             Spacer(minLength: 0)
 
@@ -532,13 +537,14 @@ struct FaroProductCard: View {
 
             .padding(.horizontal, 10)
 
-            .padding(.top, 2)
+            .padding(.top, 5)
 
             // MARK: Dropdowns
 
             VStack(spacing: 7) {
 
-                FaroProductDropdownRow(
+                if !metals.isEmpty {
+                    FaroProductDropdownRow(
 
                     title: "Metal",
 
@@ -588,9 +594,11 @@ struct FaroProductCard: View {
 
                     }
 
-                )
+                    )
+                }
 
-                FaroProductDropdownRow(
+                if !stones.isEmpty {
+                    FaroProductDropdownRow(
 
                     title: "Stone",
 
@@ -640,9 +648,11 @@ struct FaroProductCard: View {
 
                     }
 
-                )
+                    )
+                }
 
-                FaroProductDropdownRow(
+                if !sizes.isEmpty {
+                    FaroProductDropdownRow(
 
                     title: "Size",
 
@@ -692,7 +702,8 @@ struct FaroProductCard: View {
 
                     }
 
-                )
+                    )
+                }
 
             }
 

@@ -607,27 +607,60 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                         UserDefaults.standard.setValue("", forKey: "mClearCart")
 
                         let linkedCartContext = LinkedCartContext(inventoryItem: inventoryItem)
-                        let cartIdFromAddResponse: String = {
-                            guard let ids = response["data"] as? [Any],
-                                  let firstId = ids.first,
-                                  !(firstId is NSNull) else {
-                                return ""
+
+                        // Backend returns the authoritative cart IDs for this
+                        // addItemToCart request. These exact IDs must be sent
+                        // back to restoreLinkedCartStatus when the user leaves
+                        // the connected-order flow.
+                        let returnedCartIds: [String] = {
+                            let values = response["data"] as? [Any] ?? []
+                            var seen = Set<String>()
+
+                            // Preserve the API's response order. The same list
+                            // is later passed back to restoreLinkedCartStatus.
+                            return values.compactMap { value in
+                                guard !(value is NSNull) else { return nil }
+                                let id = "\(value)".trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !id.isEmpty, seen.insert(id).inserted else { return nil }
+                                return id
                             }
-                            return "\(firstId)".trimmingCharacters(in: .whitespacesAndNewlines)
                         }()
-                        // The restore endpoint must receive the original
-                        // Reserve cart from Inventory. `data[0]` can be a new
-                        // POS cart created by addItemToCart, so it is only a
-                        // fallback when Inventory did not provide a linked id.
-                        let cartIdForRestore = linkedCartContext.linkedCartId.isEmpty
-                            ? cartIdFromAddResponse
-                            : linkedCartContext.linkedCartId
+
+                        if showPopup == "1", !returnedCartIds.isEmpty {
+                            // `data` is the authoritative set of cart IDs for
+                            // this addItemToCart request. Replace any IDs left
+                            // from an earlier test/session so the restore call
+                            // can never send stale cart IDs.
+                            UserDefaults.standard.set(
+                                returnedCartIds,
+                                forKey: "reserve_restore_cart_ids"
+                            )
+                            print("SAVE addItemToCart restore cart IDs =", returnedCartIds)
+                        }
+
+                        // Keep legacy context values for the current cart UI,
+                        // but do not use them as restore request IDs.
+                        let cartIdForRestore = linkedCartContext.linkedCartId
 
                         // Keep the linked cart id as a direct fallback for the
                         // Cart Details back flow. The inventory response is the
                         // source of truth and is available even if the context
                         // store cannot be read later.
                         if !cartIdForRestore.isEmpty {
+                            // A cart can contain several existing Reserve orders.
+                            // Keep every original linked cart id so the leave flow
+                            // can restore all of them before the active POS cart is
+                            // cleared.
+                            var linkedCartIds = UserDefaults.standard.stringArray(
+                                forKey: "reserve_linked_cart_ids"
+                            ) ?? []
+                            if !linkedCartIds.contains(cartIdForRestore) {
+                                linkedCartIds.append(cartIdForRestore)
+                            }
+                            UserDefaults.standard.set(
+                                linkedCartIds,
+                                forKey: "reserve_linked_cart_ids"
+                            )
                             UserDefaults.standard.set(
                                 cartIdForRestore,
                                 forKey: "reserve_linked_cart_id"
@@ -643,7 +676,7 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                                 linkedCartContext.canCreateNewCart,
                                 forKey: "reserve_can_create_new_cart"
                             )
-                            print("SAVE reserve_linked_cart_id =", cartIdForRestore)
+                            print("SAVE reserve_linked_cart_ids =", linkedCartIds)
                         }
 
                         // Keep the same existing Reserve cart context available to
@@ -1142,16 +1175,33 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                     if ["stock", "reserve", "custom_order", "repair_order"].contains(statusType) {
                         
                         
-                        if ["custom_order", "reserve", "repair_order"].contains(statusType) {
-                            if let mInvData = mInventoryData[indexPath.row] as? NSDictionary {
-                                
-                                if let mCOData = mInvData.value(forKey: "pos") as? NSDictionary {
-                                    if self.mCustomerId != mCOData.value(forKey: "customer_id") as? String {
-                                        let msg = "This Item is reserved for \(mCOData.value(forKey: "customer_name") ?? "Other user")"
-                                        CommonClass.showSnackBar(message: msg)
-                                        return
-                                    }
-                                }
+                        if ["custom_order", "reserve", "repair_order"].contains(statusType),
+                           let mInvData = mInventoryData[indexPath.row] as? NSDictionary {
+
+                            let linkedOrderData = mInvData.value(forKey: "pos") as? NSDictionary
+                            let linkedCustomerId = [
+                                linkedOrderData?.value(forKey: "customer_id"),
+                                mInvData.value(forKey: "customer_id"),
+                                mInvData.value(forKey: "linked_customer_id"),
+                                mInvData.value(forKey: "reserve_customer_id")
+                            ]
+                            .compactMap { value -> String? in
+                                guard let value, !(value is NSNull) else { return nil }
+                                let id = "\(value)".trimmingCharacters(in: .whitespacesAndNewlines)
+                                return id.isEmpty ? nil : id
+                            }
+                            .first
+
+                            if let linkedCustomerId,
+                               !self.mCustomerId.isEmpty,
+                               self.mCustomerId != linkedCustomerId {
+                                let customerName = linkedOrderData?.value(forKey: "customer_name")
+                                    ?? mInvData.value(forKey: "customer_name")
+                                    ?? "another customer"
+                                CommonClass.showSnackBar(
+                                    message: "This item is reserved for \(customerName)"
+                                )
+                                return
                             }
                         }
                         

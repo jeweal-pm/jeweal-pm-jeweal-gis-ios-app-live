@@ -25,6 +25,8 @@ struct DiscoveryView: View {
     
     @State
     private var baseKeyword = ""
+    @State
+    private var isApplyingPromptText = false
     
 
     //-----------------------------------------
@@ -97,7 +99,14 @@ struct DiscoveryView: View {
                                     prompts: prompts,
                                     completed: selectedAnswers.map(\.questionId),
                                     answers: selectedAnswers,
-                                    selected: $selectedPrompt
+                                    selected: $selectedPrompt,
+                                    onSelect: { prompt, isSelected in
+                                        if isSelected {
+                                            previewPrompt(prompt)
+                                        } else {
+                                            clearPromptPreview()
+                                        }
+                                    }
                                 ).animation(
                                     .interactiveSpring(
                                         response: 0.45,
@@ -183,12 +192,13 @@ struct DiscoveryView: View {
 
             }
             .onChange(of: searchText) { value in
-
-                if selectedAnswers.isEmpty {
-
-                    baseKeyword = value
-
-                }
+                // A direct edit is a new free-text search.  Do not leave a
+                // parent/child chip looking selected after its generated text
+                // has been changed by the user.
+                guard !isApplyingPromptText else { return }
+                baseKeyword = value
+                selectedPrompt = nil
+                selectedAnswers.removeAll()
 
             }
 
@@ -327,6 +337,38 @@ struct DiscoveryView: View {
 
         // Keep the question open so the user can choose more than one answer.
 
+    }
+
+    private func previewPrompt(_ prompt: String) {
+        // Show the active question in the input before rendering its child
+        // chips.  This gives the user immediate context and mirrors the Faro
+        // discovery flow instead of leaving an apparently unchanged field.
+        let preview: String
+        switch prompt {
+        case "Who is it for?": preview = "I'm shopping for"
+        case "Occasion": preview = "I'm looking for jewelry for"
+        case "Jewelry Type": preview = "I'm looking for a"
+        default: preview = prompt
+        }
+
+        baseKeyword = ""
+        isApplyingPromptText = true
+        searchText = preview
+        DispatchQueue.main.async {
+            isApplyingPromptText = false
+        }
+    }
+
+    private func clearPromptPreview() {
+        guard selectedAnswers.isEmpty else {
+            refreshSearchText()
+            return
+        }
+        isApplyingPromptText = true
+        searchText = baseKeyword
+        DispatchQueue.main.async {
+            isApplyingPromptText = false
+        }
     }
     
     
@@ -555,18 +597,16 @@ struct DiscoveryView: View {
                 in: .whitespacesAndNewlines
             )
 
+        isApplyingPromptText = true
         if keyword.isEmpty {
-
             searchText = discovery
-
         } else if discovery.isEmpty {
-
             searchText = keyword
-
         } else {
-
             searchText = "\(keyword), \(discovery)"
-
+        }
+        DispatchQueue.main.async {
+            isApplyingPromptText = false
         }
 
         faroMode =
