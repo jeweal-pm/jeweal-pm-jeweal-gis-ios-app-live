@@ -13,7 +13,7 @@ import AVFoundation
 
 
 
-class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
+class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate, UIGestureRecognizerDelegate {
     
     let shape = CAShapeLayer()
     let layer = CAGradientLayer()
@@ -32,7 +32,13 @@ class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     @IBOutlet weak var mQRLABEL: UILabel!
     
     @IBOutlet weak var mOrLABEL: UILabel!
-    
+
+    // MARK: - GIS Trace keyboard
+    private weak var traceCardView: UIView?
+    private var traceCenterYConstraint: NSLayoutConstraint?
+    private let traceKeyboardLift: CGFloat = 45
+    private var keyboardIsActuallyVisible = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -48,7 +54,11 @@ class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
 }
 
         //mScannerImage.image = UIImage.gif(asset: "scanner")
+
+        configureTraceSearchInput()
         addDoneButtonOnKeyboard()
+        configureTraceKeyboardHandling()
+        configureTapOutsideToDismissKeyboard()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -56,8 +66,166 @@ class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         if (captureSession?.isRunning == true) {
             captureSession.stopRunning()
         }
+
+        keyboardIsActuallyVisible = false
+        restoreTracePosition(animated: false)
+        view.endEditing(true)
     }
     
+    private func configureTraceSearchInput() {
+        mSearchField.keyboardType = .numberPad
+        mSearchField.autocorrectionType = .no
+        mSearchField.spellCheckingType = .no
+        mSearchField.textContentType = .none
+    }
+
+    private func configureTraceKeyboardHandling() {
+        // Find the white Trace card from the real search field hierarchy.
+        // Storyboard:
+        // UITextField -> UIStackView -> search row UIView -> vertical UIStackView -> Trace card UIView
+        var current: UIView? = mSearchField
+        for _ in 0..<4 {
+            current = current?.superview
+        }
+        traceCardView = current
+
+        resolveTraceCenterConstraintIfNeeded()
+
+        // IMPORTANT:
+        // Do not use keyboardWillShow / keyboardWillHide here.
+        // On the first opening iOS may temporarily transition the keyboard,
+        // which caused the card to move up and immediately reset.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(traceKeyboardDidShow(_:)),
+            name: UIResponder.keyboardDidShowNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(traceKeyboardDidHide(_:)),
+            name: UIResponder.keyboardDidHideNotification,
+            object: nil
+        )
+    }
+
+    private func resolveTraceCenterConstraintIfNeeded() {
+        guard traceCenterYConstraint == nil,
+              let card = traceCardView else { return }
+
+        // The storyboard centers the Trace card (mD9-S3-vHC) to the controller root view.
+        traceCenterYConstraint = view.constraints.first(where: { constraint in
+            guard constraint.firstAttribute == .centerY,
+                  constraint.secondAttribute == .centerY else {
+                return false
+            }
+
+            let first = constraint.firstItem as? UIView
+            let second = constraint.secondItem as? UIView
+
+            return (first === card && second === view) ||
+                   (first === view && second === card)
+        })
+
+        print("⌨️ GIS Trace centerY constraint found =", traceCenterYConstraint != nil)
+    }
+
+    @objc private func traceKeyboardDidShow(_ notification: Notification) {
+        keyboardIsActuallyVisible = true
+        resolveTraceCenterConstraintIfNeeded()
+
+        // Run on the next main-loop turn so the very first keyboard layout has
+        // completely finished before changing our own Auto Layout constraint.
+        DispatchQueue.main.async { [weak self] in
+            self?.applyTraceKeyboardLift()
+        }
+
+        // First keyboard creation can perform one extra layout pass.
+        // Re-assert the SAME absolute constraint once after that pass.
+        // This does not add another 45pt; it simply keeps the final value at 45pt.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { [weak self] in
+            guard let self = self, self.keyboardIsActuallyVisible else { return }
+            self.applyTraceKeyboardLift()
+        }
+    }
+
+    private func applyTraceKeyboardLift() {
+        guard keyboardIsActuallyVisible,
+              let constraint = traceCenterYConstraint else { return }
+
+        let firstIsCard = (constraint.firstItem as? UIView) === traceCardView
+
+        // Always use an absolute value. Never accumulate movement.
+        constraint.constant = firstIsCard ? -traceKeyboardLift : traceKeyboardLift
+
+        UIView.animate(
+            withDuration: 0.18,
+            delay: 0,
+            options: [.beginFromCurrentState, .curveEaseOut, .allowUserInteraction],
+            animations: { [weak self] in
+                self?.view.layoutIfNeeded()
+            },
+            completion: nil
+        )
+    }
+
+    @objc private func traceKeyboardDidHide(_ notification: Notification) {
+        keyboardIsActuallyVisible = false
+        restoreTracePosition(animated: true)
+    }
+
+    private func restoreTracePosition(animated: Bool) {
+        guard let constraint = traceCenterYConstraint else { return }
+
+        constraint.constant = 0
+
+        let changes: () -> Void = { [weak self] in
+            guard let self = self else { return }
+            self.view.layoutIfNeeded()
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.18,
+                delay: 0,
+                options: [.beginFromCurrentState, .curveEaseOut, .allowUserInteraction],
+                animations: changes,
+                completion: nil
+            )
+        } else {
+            changes()
+        }
+    }
+
+    private func configureTapOutsideToDismissKeyboard() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(traceDismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        tap.delegate = self
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc private func traceDismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // Tapping the text field itself should not immediately dismiss its keyboard.
+        var touched: UIView? = touch.view
+
+        while let current = touched {
+            if current === mSearchField {
+                return false
+            }
+            touched = current.superview
+        }
+
+        return true
+    }
+
     func addDoneButtonOnKeyboard(){
         let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
         doneToolbar.barStyle = .default
@@ -225,4 +393,9 @@ class Track: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         return .portrait
     }
     
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
 }

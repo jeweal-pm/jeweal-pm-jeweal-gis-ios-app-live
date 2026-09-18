@@ -269,7 +269,7 @@ let mGetCustomerFilter = BaseUrl+"App/customer/customerFilter"
 
 let mPOSCustomerTransactions = BaseUrl+"Mobile/pos/report/customer"
 let mPOSSalesPerson = BaseUrl+"Mobile/pos/report/salesPerson"
-let mPOSSettings = BaseUrl+"Mobile/common/getPOSSettings"
+let mPOSSettings = BaseUrl+"POS/common/getPOSSettings"
 let mClearDataApi = BaseUrl+"Mobile/pos/customOrder/cartClear"
 let mFetchStoreData = BaseUrl+"Pos/posDetails_get"
 let mFetchPaymentMethod = BaseUrl+"pos/checkout/payment/getCashMethodList"

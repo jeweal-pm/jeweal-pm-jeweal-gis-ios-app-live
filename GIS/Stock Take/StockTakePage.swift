@@ -320,6 +320,15 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var atidReader: EAReader?
     #endif
     private var atidPeripheral: CBPeripheral?
+    // AT388 direct BLE transport (mirrors the React Native implementation).
+    // We connect with CoreBluetooth, discover services/characteristics, then
+    // send the AT388 protocol commands directly instead of waiting for
+    // EARfidFramework's second initialization/handshake.
+    private var atidBLEService: CBService?
+    private var atidBLECharacteristic: CBCharacteristic?
+    private var atidNotifyReady = false
+    private var atidPendingCharacteristicServices = 0
+    private var atidConnectStartedAt: CFAbsoluteTime = 0
     private var atidPeripheralIdentifiers = Set<UUID>()
     // CoreBluetooth connects before EARfidFramework finishes its reader
     // handshake. Keep this separate from atidReaderReady so the device list
@@ -1916,8 +1925,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // Always use the programmatic reference Power sheet.  This avoids the
         // old storyboard sheet, whose layout does not match the supplied design.
         print("referencePowerTapped")
-        if referencePowerSheet?.isHidden == false {
-            closeReferencePowerSheet()
+        if isReferencePowerMenuVisible {
+            dismissReferencePowerMenus()
+            syncReferenceOverlayVisibility()
+            updateScannerControls()
         } else {
             showReferencePowerSheet()
         }
@@ -2039,14 +2050,25 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     @objc private func referenceSheetDimTapped() {
         // Tapping the dimmed page area dismisses the currently open sheet.
         referenceDeviceSheet?.isHidden = true
-        referencePowerNoDeviceSheet?.isHidden = true
         mDeviceView?.isHidden = true
-        mPowerView?.isHidden = true
-        referenceBottomButtons["Power"]?.isSelected = false
+        dismissReferencePowerMenus()
         deviceDiscoveryTimer?.invalidate()
         deviceDiscoveryTimer = nil
         syncReferenceOverlayVisibility()
         updateScannerControls()
+    }
+
+    private var isReferencePowerMenuVisible: Bool {
+        !(referencePowerSheet?.isHidden ?? true) ||
+        !(referencePowerNoDeviceSheet?.isHidden ?? true) ||
+        !(mPowerView?.isHidden ?? true)
+    }
+
+    private func dismissReferencePowerMenus() {
+        referencePowerSheet?.isHidden = true
+        referencePowerNoDeviceSheet?.isHidden = true
+        mPowerView?.isHidden = true
+        referenceBottomButtons["Power"]?.isSelected = false
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -2090,7 +2112,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         
         // Set UI colors and images
         mPowerLabel?.textColor = UIColor(named: "theme6A")
-        mStartIcon?.image = UIImage(named: "play_icgreen")
+        mStartIcon?.image = UIImage(systemName: "play.fill")
+        mStartIcon?.tintColor = .white
+        mStartIcon?.alpha = 1.0
         mConnectIcon?.image = UIImage(named: "connect_icgrey")
         mConnectLabel?.textColor = UIColor(named: "theme6A")
         updateReferenceStockTakeUI()
@@ -2175,10 +2199,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             captureSession.stopRunning()
         }
 
-        // Stock Take owns its RFID sessions. Leaving this screen by any
-        // route must release the reader so returning to Stock Take always
-        // requires the user to choose Connect again.
-        disconnectRFIDForStockTakeExit()
+        // Only disconnect RFID when actually leaving Stock Take (going back
+        // to Home).  Pushing child screens (Total, Scanned, Conflict,
+        // Unknown, Unscanned) should keep the reader connected so scanning
+        // can resume immediately when the user returns.
+        if isMovingFromParent || isBeingDismissed {
+            disconnectRFIDForStockTakeExit()
+        } else {
+            // Navigating to a child screen — stop active inventory but keep
+            // the reader connected.
+            stopActiveInventoryIfRunning()
+        }
 
         super.viewWillDisappear(animated)
     }
@@ -2217,13 +2248,24 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
   
     
+    /// Stop any running inventory without disconnecting the reader.
+    /// Used when navigating to child screens so the connection stays alive.
+    private func stopActiveInventoryIfRunning() {
+        if ZebraRFIDService.shared.isInventoryRunning {
+            ZebraRFIDService.shared.stopInventory()
+        }
+        if atidInventoryRunning {
+            stopATIDInventory()
+        }
+        if bluetoothService?.scannerIsRunning == 1 {
+            stopRFID()
+        }
+    }
+
     private var isATIDRFIDConnected: Bool {
-        #if !targetEnvironment(simulator) && canImport(EARfidFramework)
-        return atidPeripheral?.state == .connected && atidReader != nil && atidReaderReady
-        #else
-        // EARfidFramework is device-only. RFID is unavailable on Simulator.
-        return false
-        #endif
+        return atidPeripheral?.state == .connected &&
+            atidBLECharacteristic != nil &&
+            atidReaderReady
     }
 
     private var isAnyRFIDConnected: Bool {
@@ -2308,10 +2350,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 icon.image = UIImage(systemName: "play.fill")
                 icon.tintColor = .white
             } else {
-                icon.image = UIImage(named: "play_icgreen")
-                icon.tintColor = nil
+                // The initial disabled Play circle is grey, but the triangle
+                // itself remains white in the approved Stock Take design.
+                icon.image = UIImage(systemName: "play.fill")
+                icon.tintColor = .white
             }
-            icon.alpha = connected ? 1.0 : 0.45
+            icon.alpha = 1.0
             icon.contentMode = .scaleAspectFit
         }
 
@@ -2616,8 +2660,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         deviceConnectionTimeout?.cancel()
 
         // Keep the identifier captured for this individual attempt. The
-        // timeout must tear down an incomplete AT388 SDK session; otherwise
-        // the next tap reuses a half-initialized EADevice.
+        // timeout must tear down an incomplete AT388 BLE session so the
+        // device can be selected again immediately.
         let connectingBluetoothIdentifier = pendingBluetoothIdentifier
 
         let timeout = DispatchWorkItem { [weak self] in
@@ -3024,8 +3068,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mFilters.mCollectionId = mCollectionId
         mFilters.mStonesId = mStonesId
         mFilters.mSizeId = mSizeId
-        mFilters.mLocationsId = mStatusId
-        mFilters.mStatusId = mLocationsId
+        // Keep each filter mapped to its own field. The previous reversed
+        // assignment sent status IDs as locations (and vice versa), causing
+        // the stock-take API to return an empty result set.
+        mFilters.mLocationsId = mLocationsId
+        mFilters.mStatusId = mStatusId
         mFilters.mMinPrices = mMinPrices
         mFilters.mMaxPrices = mMaxPrices
         mFilters.modalPresentationStyle = .automatic
@@ -3075,15 +3122,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        // CoreBluetooth may report the same BLE peripheral more than once.
-        // Do not restart the AT388 SDK handshake while it is already
-        // connecting: restarting it is the main cause of a very slow
-        // connection and a permanently spinning row.
         if pendingBluetoothIdentifier == peripheral.identifier,
            atidPeripheral?.identifier == peripheral.identifier,
-           (peripheral.state == .connecting ||
-            (peripheral.state == .connected && atidDevice != nil)) {
-            print("ℹ️ ATID connection already in progress =", peripheral.name ?? "Unknown")
+           (peripheral.state == .connecting || peripheral.state == .connected) {
+            print("ℹ️ ATID BLE connection already in progress =", peripheral.name ?? "Unknown")
             return
         }
 
@@ -3103,12 +3145,21 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidPeripheralIdentifiers.insert(peripheral.identifier)
         atidPeripheral = peripheral
         atidTransportConnected = peripheral.state == .connected
+        atidBLEService = nil
+        atidBLECharacteristic = nil
+        atidNotifyReady = false
+        atidPendingCharacteristicServices = 0
+        atidReaderReady = false
+        atidInventoryRunning = false
+        atidConnectStartedAt = CFAbsoluteTimeGetCurrent()
 
-        print("🔵 ATID CONNECT REQUEST =", peripheral.name ?? "Unknown")
-        print("🔵 ATID UUID =", peripheral.identifier.uuidString)
+        peripheral.delegate = self
+
+        print("🔵 AT388 DIRECT BLE CONNECT REQUEST =", peripheral.name ?? "Unknown")
+        print("🔵 AT388 UUID =", peripheral.identifier.uuidString)
 
         if peripheral.state == .connected {
-            beginATIDReaderInitialization(peripheral)
+            beginATIDDirectBLEDiscovery(peripheral)
         } else {
             centralManager?.connect(peripheral, options: nil)
         }
@@ -3117,25 +3168,57 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mDeviceTableView.reloadData()
     }
 
-    private func finishATIDPeripheralConnection(_ peripheral: CBPeripheral) {
-        guard isATIDPeripheral(peripheral) else { return }
-
-        if atidDevice == nil {
-            atidDevice = EADeviceBluetoothLe(
-                peripheral: peripheral,
-                delegate: self
-            )
-        }
+    private func beginATIDDirectBLEDiscovery(_ peripheral: CBPeripheral) {
+        guard atidPeripheral?.identifier == peripheral.identifier else { return }
+        peripheral.delegate = self
+        let elapsed = CFAbsoluteTimeGetCurrent() - atidConnectStartedAt
+        print(String(format: "⏱ AT388 BLE connected %.3fs - discovering services", elapsed))
+        peripheral.discoverServices(nil)
     }
 
-    private func beginATIDReaderInitialization(_ peripheral: CBPeripheral) {
-        atidInitializationQueue.async { [weak self] in
+    private func finishATIDDirectBLESetup(_ peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+        guard atidPeripheral?.identifier == peripheral.identifier, !atidReaderReady else { return }
+
+        let p = characteristic.properties
+        let canNotify = p.contains(.notify) || p.contains(.indicate)
+        let canWrite = p.contains(.write) || p.contains(.writeWithoutResponse)
+        print("ℹ️ AT388 finishSetup: char=\(characteristic.uuid) notify=\(canNotify) write=\(canWrite)")
+
+        if canNotify {
+            peripheral.setNotifyValue(true, for: characteristic)
+        } else {
+            print("⚠️ AT388 finishSetup: characteristic does NOT support notify — will not receive scan data!")
+        }
+
+        // React Native waits 150 ms after service retrieval on iOS. Keep the
+        // same stabilization delay, then mark the reader ready.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self, weak peripheral] in
             guard let self = self,
-                  !self.isATIDDisconnecting,
-                  self.atidPeripheral?.identifier == peripheral.identifier else {
-                return
+                  let peripheral = peripheral,
+                  self.atidPeripheral?.identifier == peripheral.identifier,
+                  peripheral.state == .connected,
+                  self.atidBLECharacteristic != nil else { return }
+
+            self.atidReaderReady = true
+            self.atidTransportConnected = true
+            self.pendingBluetoothIdentifier = nil
+            self.deviceConnectionTimeout?.cancel()
+            self.deviceConnectionTimeout = nil
+
+            let elapsed = CFAbsoluteTimeGetCurrent() - self.atidConnectStartedAt
+            print(String(format: "✅ AT388 DIRECT BLE READY %.3fs service=%@ char=%@",
+                         elapsed,
+                         self.atidBLEService?.uuid.uuidString ?? "-",
+                         self.atidBLECharacteristic?.uuid.uuidString ?? "-"))
+
+            let shouldStart = self.atidStartRequested
+            self.atidStartRequested = false
+            self.updateScannerControls()
+            self.mDeviceTableView.reloadData()
+
+            if shouldStart {
+                self.startATIDInventory()
             }
-            self.finishATIDPeripheralConnection(peripheral)
         }
     }
 
@@ -3159,34 +3242,32 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        print("🔴 ATID DISCONNECT")
+        print("🔴 AT388 DIRECT BLE DISCONNECT")
         isATIDDisconnecting = true
 
-        let reader = atidReader
-        let device = atidDevice
         let peripheral = atidPeripheral
-        let wasInventoryRunning = atidInventoryRunning
 
-        // Clear local references before invoking the SDK. Its callbacks can be
-        // synchronous, so they must never see a partially disconnected reader.
+        if atidInventoryRunning {
+            writeATIDCommand(command: 0x8A, data: [0x00])
+        }
+
         atidInventoryRunning = false
         atidStartRequested = false
-        atidReader = nil
         atidReaderReady = false
-        atidDevice = nil
+        atidNotifyReady = false
+        atidPendingCharacteristicServices = 0
+        atidBLECharacteristic = nil
+        atidBLEService = nil
         atidPeripheral = nil
         atidTransportConnected = false
         pendingBluetoothIdentifier = nil
 
-        if wasInventoryRunning, let reader = reader {
-            _ = reader.stop()
-        }
-
-        if let reader = reader {
-            reader.disconnect()
-        } else if let device = device {
-            device.disconnect()
-        }
+        #if !targetEnvironment(simulator) && canImport(EARfidFramework)
+        // The direct BLE path does not use these objects; clear any stale
+        // objects left by older builds/sessions.
+        atidReader = nil
+        atidDevice = nil
+        #endif
 
         if let peripheral = peripheral {
             centralManager?.cancelPeripheralConnection(peripheral)
@@ -3200,61 +3281,126 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
-    private func startATIDInventory() {
-        guard let reader = atidReader,
-              isATIDRFIDConnected else {
-            print("❌ ATID START: reader is not ready")
+    private func atidCommand(_ command: UInt8, data: [UInt8] = []) -> Data {
+        let length = UInt8(data.count + 3)
+        var packet: [UInt8] = [0xA0, length, 0x01, command]
+        packet.append(contentsOf: data)
+        let checksum = packet.reduce(0) { (Int($0) + Int($1)) & 0xFF }
+        packet.append(UInt8(checksum))
+        return Data(packet)
+    }
+
+    private func writeATIDCommand(command: UInt8, data: [UInt8] = []) {
+        guard let peripheral = atidPeripheral,
+              peripheral.state == .connected,
+              let characteristic = atidBLECharacteristic else {
+            print("❌ AT388 BLE WRITE: characteristic is not ready")
             return
         }
 
+        let payload = atidCommand(command, data: data)
+        let bytes = payload.map { String(format: "%02X", $0) }.joined(separator: " ")
+        print("📤 AT388 BLE CMD =", bytes)
+
+        if characteristic.properties.contains(.writeWithoutResponse) {
+            peripheral.writeValue(payload, for: characteristic, type: .withoutResponse)
+        } else if characteristic.properties.contains(.write) {
+            peripheral.writeValue(payload, for: characteristic, type: .withResponse)
+        } else {
+            print("❌ AT388 BLE characteristic is not writable")
+        }
+    }
+
+    private func startATIDInventory() {
+        guard isATIDRFIDConnected else {
+            print("❌ AT388 START: BLE characteristic is not ready")
+            print("   peripheral.state =", atidPeripheral?.state.rawValue ?? -1,
+                  "char =", atidBLECharacteristic != nil,
+                  "readerReady =", atidReaderReady)
+            return
+        }
+
+        guard !atidInventoryRunning else { return }
         recentRFIDReads.removeAll()
 
-        // EAReader.inventory() can wait for an SDK response. Never call it
-        // on the main thread or the Play/Pause button will appear frozen.
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+        if let char = atidBLECharacteristic {
+            let p = char.properties
+            print("ℹ️ AT388 char properties: notify=\(p.contains(.notify)) indicate=\(p.contains(.indicate)) write=\(p.contains(.write)) writeNoResp=\(p.contains(.writeWithoutResponse)) isNotifying=\(char.isNotifying)")
+            print("ℹ️ AT388 atidNotifyReady=\(atidNotifyReady)")
+        }
+
+        let sendStart = { [weak self] in
+            guard let self = self, self.isATIDRFIDConnected else {
+                print("❌ AT388 sendStart: connection lost before write")
+                return
+            }
+            self.writeATIDCommand(command: 0x89, data: [0x00])
             self.atidInventoryRunning = true
+            print("▶️ AT388 DIRECT BLE INVENTORY START")
             self.updateScannerControls()
         }
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self, weak reader] in
-            guard let self = self, let reader = reader else { return }
-
-            let result = reader.inventory()
-            print("📡 ATID INVENTORY START result =", result)
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                if result != ResultNoError {
-                    self.atidInventoryRunning = false
-                    print("❌ ATID inventory failed result =", result)
-                }
-                self.updateScannerControls()
-            }
+        // Match the React Native driver: subscribe first, then allow ~200 ms
+        // for notifications to settle before sending inventory start.
+        if !atidNotifyReady,
+           let peripheral = atidPeripheral,
+           let characteristic = atidBLECharacteristic,
+           characteristic.properties.contains(.notify) || characteristic.properties.contains(.indicate) {
+            print("ℹ️ AT388 re-subscribing notifications before inventory start")
+            peripheral.setNotifyValue(true, for: characteristic)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.20, execute: sendStart)
+        } else if atidNotifyReady {
+            sendStart()
+        } else {
+            // Characteristic does NOT support notify — cannot receive responses
+            print("⚠️ AT388 characteristic does NOT support notify/indicate — scanner responses will not be received!")
+            sendStart()
         }
     }
 
     private func stopATIDInventory() {
-        guard let reader = atidReader else {
+        guard atidPeripheral?.state == .connected, atidBLECharacteristic != nil else {
             atidInventoryRunning = false
             updateScannerControls()
             return
         }
 
-        // Update the UI immediately so Pause changes back to Play without
-        // waiting for the SDK stop response. The SDK call itself is moved
-        // off the main thread because it can also wait for a response packet.
         atidInventoryRunning = false
         recentRFIDReads.removeAll()
+        writeATIDCommand(command: 0x8A, data: [0x00])
+        print("🛑 AT388 DIRECT BLE INVENTORY STOP")
         updateScannerControls()
+    }
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self, weak reader] in
-            guard let self = self, let reader = reader else { return }
-            let result = reader.stop()
-            print("🛑 ATID INVENTORY STOP result =", result)
+    private func parseATIDInventoryFrame(_ data: Data) -> String? {
+        let bytes = [UInt8](data)
+        guard bytes.count >= 8, bytes[0] == 0xA0 else { return nil }
+        guard bytes[1] > 0, bytes[3] == 0x89 else { return nil }
 
-            DispatchQueue.main.async { [weak self] in
-                self?.updateScannerControls()
+        // Same frame parsing as at388.driver.ts: remove header, length,
+        // address, command, RSSI and checksum.
+        guard bytes.count > 6 else { return nil }
+        let payload = bytes[5..<(bytes.count - 1)]
+        guard payload.count >= 4 else { return nil }
+        return payload.map { String(format: "%02X", $0) }.joined()
+    }
+
+    private func handleATIDBLEData(_ data: Data) {
+        if let epc = parseATIDInventoryFrame(data) {
+            handleATIDTag(epc, rssi: 0, phase: 0)
+            return
+        }
+
+        // Keep the React Native driver's fallback behavior for firmware that
+        // emits legacy ASCII/hex notifications instead of a framed packet.
+        if let text = String(data: data, encoding: .utf8) {
+            let cleaned = text
+                .replacingOccurrences(of: "\0", with: "")
+                .components(separatedBy: .whitespacesAndNewlines)
+                .joined()
+            let hex = cleaned.filter { $0.isHexDigit }.uppercased()
+            if hex.count >= 8 {
+                handleATIDTag(hex, rssi: 0, phase: 0)
             }
         }
     }
@@ -3917,28 +4063,18 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         central.stopScan()
 
         if isATIDPeripheral(peripheral) {
-            print("🟢 ATID CoreBluetooth connected =", peripheral.name ?? "Unknown")
+            print("🟢 AT388 CoreBluetooth connected =", peripheral.name ?? "Unknown")
 
             atidPeripheral = peripheral
             atidTransportConnected = true
-
-            #if !targetEnvironment(simulator) && canImport(EARfidFramework)
-            // Build the EARfidFramework bridge once only. Creating it again
-            // for the same connection restarts its initialization sequence.
-            beginATIDReaderInitialization(peripheral)
+            peripheral.delegate = self
+            beginATIDDirectBLEDiscovery(peripheral)
 
             pendingBluetoothIdentifier = peripheral.identifier
             DispatchQueue.main.async {
-                // Keep the Device sheet open after the green checkmark so the
-                // user can dismiss it themselves. The Play button becomes
-                // active immediately; a Play tap is queued until the reader
-                // initialization callback arrives.
                 self.updateScannerControls()
                 self.mDeviceTableView.reloadData()
             }
-            #else
-            print("❌ EARfidFramework is not linked to this target.")
-            #endif
             return
         }
 
@@ -3991,10 +4127,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
                 #if !targetEnvironment(simulator) && canImport(EARfidFramework)
                 atidReader = nil
-                atidReaderReady = false
                 atidDevice = nil
-                atidStartRequested = false
                 #endif
+                atidReaderReady = false
+                atidStartRequested = false
+                atidNotifyReady = false
+                atidPendingCharacteristicServices = 0
+                atidBLECharacteristic = nil
+                atidBLEService = nil
 
                 atidPeripheral = nil
                 atidTransportConnected = false
@@ -4023,6 +4163,29 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     // Handles discovery event
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        if isATIDPeripheral(peripheral) {
+            if let error = error {
+                print("❌ AT388 service discovery failed =", error.localizedDescription)
+                disconnectATIDReader()
+                return
+            }
+
+            let services = peripheral.services ?? []
+            let elapsed = CFAbsoluteTimeGetCurrent() - atidConnectStartedAt
+            print(String(format: "⏱ AT388 services discovered %.3fs count=%d", elapsed, services.count))
+
+            guard !services.isEmpty else {
+                print("❌ AT388 has no BLE services")
+                disconnectATIDReader()
+                return
+            }
+
+            atidPendingCharacteristicServices = services.count
+            for service in services {
+                peripheral.discoverCharacteristics(nil, for: service)
+            }
+            return
+        }
         if let services = peripheral.services,
            let bluetoothService = self.bluetoothService,
            peripheral == self.bluetoothService?.peripheral {
@@ -4049,6 +4212,48 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     // Handling discovery of characteristics
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        if isATIDPeripheral(peripheral) {
+            defer {
+                atidPendingCharacteristicServices = max(0, atidPendingCharacteristicServices - 1)
+                if atidPendingCharacteristicServices == 0,
+                   !atidReaderReady,
+                   let fallback = atidBLECharacteristic {
+                    finishATIDDirectBLESetup(peripheral, characteristic: fallback)
+                }
+            }
+
+            if let error = error {
+                print("❌ AT388 characteristic discovery failed =", error.localizedDescription)
+                return
+            }
+
+            let characteristics = service.characteristics ?? []
+            print("ℹ️ AT388 service \(service.uuid) has \(characteristics.count) characteristics")
+            for characteristic in characteristics {
+                let p = characteristic.properties
+                let canNotify = p.contains(.notify) || p.contains(.indicate)
+                let canWrite = p.contains(.write) || p.contains(.writeWithoutResponse)
+                print("   AT388 char \(characteristic.uuid): notify=\(canNotify) write=\(canWrite) props=\(p.rawValue)")
+
+                // Same priority as at388.driver.ts: search ALL services for a
+                // single characteristic that can both notify and write. Do
+                // not finalize the first writable metadata characteristic.
+                if canNotify && canWrite {
+                    atidBLEService = service
+                    atidBLECharacteristic = characteristic
+                    print("✅ AT388 SELECTED char \(characteristic.uuid) (notify+write)")
+                    finishATIDDirectBLESetup(peripheral, characteristic: characteristic)
+                    return
+                }
+
+                if atidBLECharacteristic == nil && canWrite {
+                    atidBLEService = service
+                    atidBLECharacteristic = characteristic
+                    print("⚠️ AT388 FALLBACK char \(characteristic.uuid) (write-only, no notify)")
+                }
+            }
+            return
+        }
         
         if let characteristics = service.characteristics, peripheral == self.bluetoothService?.peripheral {
             for characteristic in characteristics {
@@ -4094,12 +4299,31 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if isATIDPeripheral(peripheral) {
+            if let error = error {
+                print("❌ AT388 write failed =", error.localizedDescription)
+            } else {
+                print("✅ AT388 write completed")
+            }
+            return
+        }
         print("Error Writing... \(error?.localizedDescription ?? "")")
     }
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
         print("Error Writing : \(error?.localizedDescription ?? "")")
     }
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if isATIDPeripheral(peripheral),
+           characteristic.uuid == atidBLECharacteristic?.uuid {
+            if let error = error {
+                print("❌ AT388 notification error =", error.localizedDescription)
+                return
+            }
+            if let data = characteristic.value {
+                handleATIDBLEData(data)
+            }
+            return
+        }
         if let val = characteristic.value, let str = String(data: val, encoding: .utf8) {
 
         }
@@ -4123,6 +4347,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         
     }
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        if isATIDPeripheral(peripheral),
+           characteristic.uuid == atidBLECharacteristic?.uuid {
+            if let error = error {
+                print("❌ AT388 notify setup failed =", error.localizedDescription)
+                atidNotifyReady = false
+            } else {
+                atidNotifyReady = characteristic.isNotifying
+                print("✅ AT388 NOTIFY READY =", characteristic.isNotifying)
+            }
+            return
+        }
         if let val = characteristic.value, let str = String(data: val, encoding: .utf8) {
 
         }
@@ -5423,13 +5658,15 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private func makeSheetCloseButton() -> UIButton {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "xmark"), for: .normal)
+        // The reference uses a small, light X. Keep the 44pt tap area while
+        // reducing only the rendered symbol to its designed visual size.
+        let configuration = UIImage.SymbolConfiguration(pointSize: 13, weight: .regular)
+        button.setImage(UIImage(systemName: "xmark", withConfiguration: configuration), for: .normal)
         button.tintColor = UIColor(hex: "#222222")
-        // The visible x-mark is small, but its touch target must remain easy
-        // to hit when the device list is updating after a connection.
-        button.widthAnchor.constraint(equalToConstant: 56).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 56).isActive = true
-        button.contentEdgeInsets = UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14)
+        button.accessibilityLabel = "Close"
+        // Keep a generous touch target while showing the compact X from the design.
+        button.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 44).isActive = true
         button.isUserInteractionEnabled = true
         return button
     }
@@ -5562,6 +5799,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 subtitle.leadingAnchor.constraint(greaterThanOrEqualTo: empty.leadingAnchor, constant: 20),
                 subtitle.trailingAnchor.constraint(lessThanOrEqualTo: empty.trailingAnchor, constant: -20)
             ])
+            sheet.bringSubviewToFront(close)
         }
 
         referenceDeviceSheet?.isHidden = false
@@ -5663,10 +5901,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     @objc private func closeReferencePowerNoDeviceSheet() {
-        referencePowerNoDeviceSheet?.isHidden = true
-        if let powerButton = referenceBottomButtons["Power"] {
-            powerButton.isSelected = false
-        }
+        dismissReferencePowerMenus()
         syncReferenceOverlayVisibility()
         updateScannerControls()
     }
@@ -6161,8 +6396,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // Use the same reference Power sheet from both the storyboard action
         // and the programmatic bottom-bar action.
         print("mPower")
-        if referencePowerSheet?.isHidden == false {
-            closeReferencePowerSheet()
+        if isReferencePowerMenuVisible {
+            dismissReferencePowerMenus()
+            syncReferenceOverlayVisibility()
+            updateScannerControls()
         } else {
             showReferencePowerSheet()
         }
@@ -6284,13 +6521,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let title = UILabel()
             title.translatesAutoresizingMaskIntoConstraints = false
-            title.text = "RFID Settings"
+            title.text = "Power"
             title.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
             title.textColor = UIColor(hex: "#333333")
             sheet.addSubview(title)
 
             let close = makeSheetCloseButton()
-            close.addTarget(self, action: #selector(closeReferencePowerSheet), for: .touchUpInside)
+            close.addTarget(self, action: #selector(closeReferencePowerSheet), for: .touchDown)
             sheet.addSubview(close)
 
             let powerLabel = UILabel()
@@ -6366,8 +6603,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
                 close.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -16),
                 close.centerYAnchor.constraint(equalTo: title.centerYAnchor),
-                close.widthAnchor.constraint(equalToConstant: 28),
-                close.heightAnchor.constraint(equalToConstant: 28),
 
                 powerLabel.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 20),
                 powerLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 34),
@@ -6398,6 +6633,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 frequencySelector.topAnchor.constraint(equalTo: frequencyLabel.bottomAnchor, constant: 12),
                 frequencySelector.heightAnchor.constraint(equalToConstant: 36)
             ])
+            sheet.bringSubviewToFront(close)
         }
 
         let minPower = ZebraRFIDService.shared.minPower
@@ -6431,10 +6667,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     @objc private func closeReferencePowerSheet() {
         print("closeReferencePowerSheet")
-        referencePowerSheet?.isHidden = true
-        if let powerButton = referenceBottomButtons["Power"] {
-            powerButton.isSelected = false
-        }
+        dismissReferencePowerMenus()
         syncReferenceOverlayVisibility()
         updateScannerControls()
     }

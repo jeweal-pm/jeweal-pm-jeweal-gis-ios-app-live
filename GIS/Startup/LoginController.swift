@@ -78,6 +78,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     
     @IBOutlet weak var mStoreHeader: UILabel!
     private let mOrganizationButton = UIButton(type: .system)
+    private let mOrganizationSubtitle = UILabel()
     
     
     override func viewDidLoad() {
@@ -100,7 +101,10 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         
         mUserName.autocorrectionType = UITextAutocorrectionType.no
         
-        mStoreHeader.text  = "Organizations"
+        configureOrganizationSheetHeader()
+        mStoreHeader.numberOfLines = 1
+        mStoreHeader.adjustsFontSizeToFitWidth = false
+        mStoreHeader.lineBreakMode = .byClipping
         mStoreView.layer.cornerRadius = 20
         mStoreView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
         
@@ -142,6 +146,54 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         self.view.backgroundColor = UIColor(named: "themeBackground")
         self.mStoreContentView.isHidden = true
         
+    }
+
+    private func configureOrganizationSheetHeader() {
+        mStoreHeader.text = "Organization"
+        mStoreHeader.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.25, alpha: 1.0)
+        mStoreHeader.font = UIFont(name: "SegoeUI-Semibold", size: 20)
+            ?? UIFont.systemFont(ofSize: 20, weight: .semibold)
+
+        guard mOrganizationSubtitle.superview == nil else {
+            mOrganizationSubtitle.isHidden = false
+            return
+        }
+
+        mOrganizationSubtitle.translatesAutoresizingMaskIntoConstraints = false
+        mOrganizationSubtitle.text = "Select an organization to continue"
+        mOrganizationSubtitle.textAlignment = .center
+        mOrganizationSubtitle.textColor = UIColor(
+            red: 134.0 / 255.0,
+            green: 134.0 / 255.0,
+            blue: 134.0 / 255.0,
+            alpha: 1.0
+        )
+        mOrganizationSubtitle.font = UIFont(name: "SegoeUI", size: 12)
+            ?? UIFont.systemFont(ofSize: 12, weight: .regular)
+        mStoreView.addSubview(mOrganizationSubtitle)
+
+        NSLayoutConstraint.activate([
+            mOrganizationSubtitle.topAnchor.constraint(
+                equalTo: mStoreHeader.bottomAnchor,
+                constant: 8
+            ),
+            mOrganizationSubtitle.centerXAnchor.constraint(
+                equalTo: mStoreView.centerXAnchor
+            ),
+            mOrganizationSubtitle.leadingAnchor.constraint(
+                greaterThanOrEqualTo: mStoreView.leadingAnchor,
+                constant: 24
+            ),
+            mOrganizationSubtitle.trailingAnchor.constraint(
+                lessThanOrEqualTo: mStoreView.trailingAnchor,
+                constant: -24
+            )
+        ])
+    }
+
+    private func configureStoreSheetHeader() {
+        mStoreHeader.text = "Choose Store"
+        mOrganizationSubtitle.isHidden = true
     }
     
     private func setupOrganizationButton() {
@@ -306,7 +358,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     private func dismissStoreContentView() {
         self.mStoreContentView.slideTop()
         self.mStoreContentView.isHidden = true
-        self.mStoreHeader.text = "Organizations"
+        configureOrganizationSheetHeader()
         self.mKey = ""
     }
 
@@ -611,6 +663,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                     if let mData = jsonResult["data"] as? [String: Any],
                        let orgData = mData["org_data"] as? NSArray {
                         self.mKey = "org"
+                        self.configureOrganizationSheetHeader()
                         self.mStoreData = orgData
                         self.mStoreTableView.delegate = self
                         self.mStoreTableView.dataSource = self
@@ -919,7 +972,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                             }
                             UserDefaults.standard.set(jsonResult, forKey: "storeData")
                             self.mKey = "store"
-                            self.mStoreHeader.text  = "Choose Store"
+                            self.configureStoreSheetHeader()
                             self.mStoreData = mStoreData
                             self.mStoreTableView.delegate = self
                             self.mStoreTableView.dataSource = self

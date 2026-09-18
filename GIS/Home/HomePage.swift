@@ -11,15 +11,6 @@ import Alamofire
 
 
 
-extension UIButton {
-    open override var isEnabled: Bool {
-        didSet {
-            alpha = isEnabled ? 1.0 : 0.5
-        }
-    }
-}
-
-
 class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, UIViewControllerTransitioningDelegate, SearchDelegate, ScannerDelegate {
 
    
@@ -101,6 +92,67 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     
     private let faroButton = UIButton(type: .custom)
     private let scanQrButton = UIButton(type: .custom)
+    private var menuRows: [UIStackView] = []
+    private var menuTiles: [UIView] = []
+    private weak var diamondMenuTile: UIView?
+
+    /// Keeps the home menu as a two-column grid. When Diamond is unavailable,
+    /// the next menu tile moves into its position instead of stretching Inventory.
+    private func updateMenuGrid(showingDiamond: Bool) {
+        let diamondTile: UIView
+        if let cachedDiamondTile = diamondMenuTile {
+            diamondTile = cachedDiamondTile
+        } else if let initialDiamondTile = mDIAMONDBUTTON.superview {
+            diamondTile = initialDiamondTile
+            diamondMenuTile = initialDiamondTile
+        } else {
+            return
+        }
+
+        if menuRows.isEmpty {
+            guard let diamondRow = diamondTile.superview as? UIStackView,
+                  let menuGrid = diamondRow.superview as? UIStackView else { return }
+            menuRows = menuGrid.arrangedSubviews.compactMap { $0 as? UIStackView }
+            menuTiles = menuRows.flatMap { $0.arrangedSubviews }
+        }
+
+        let visibleTiles = menuTiles.filter { showingDiamond || $0 !== diamondTile }
+
+        for (index, row) in menuRows.enumerated() {
+            row.arrangedSubviews.forEach {
+                row.removeArrangedSubview($0)
+                $0.removeFromSuperview()
+            }
+
+            let firstTileIndex = index * 2
+            for tileIndex in firstTileIndex..<min(firstTileIndex + 2, visibleTiles.count) {
+                row.addArrangedSubview(visibleTiles[tileIndex])
+            }
+
+            // Keep the final menu item the same width as every other tile.
+            // A .fillEqually row with only one arrangedSubview would otherwise
+            // stretch Graph across both columns when Diamond is hidden.
+            if row.arrangedSubviews.count == 1 {
+                let spacerTile = UIView()
+                spacerTile.backgroundColor = .clear
+                spacerTile.isUserInteractionEnabled = false
+                spacerTile.accessibilityIdentifier = "homeMenuSpacer"
+                row.addArrangedSubview(spacerTile)
+            }
+
+            row.isHidden = row.arrangedSubviews.isEmpty
+        }
+    }
+
+    /// POS Settings is the source of truth for Diamond availability in the
+    /// currently selected store.
+    private func applyProductChoice(_ value: Any?) {
+        let shouldShowDiamond = "\(value ?? 0)" == "1"
+
+        UserDefaults.standard.set(shouldShowDiamond, forKey: "isMixMatch")
+        mDIAMONDBUTTON.isEnabled = shouldShowDiamond
+        updateMenuGrid(showingDiamond: shouldShowDiamond)
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -150,27 +202,8 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                                     
                                 }
                                 
-                                if let mMixMatch = mGeneralSetup.value(forKey: "productChoice") as? String {
-                                    if mMixMatch == "1" {
-                                        UserDefaults.standard.set(true, forKey: "isMixMatch")
-                                        self.mDIAMONDBUTTON.layer.cornerRadius = 12
-                                        self.mDIAMONDBUTTON.backgroundColor =  .clear
-                                        self.mDIAMONDBUTTON.isEnabled = true
-                                    }else{
-                                        UserDefaults.standard.set(false, forKey: "isMixMatch")
-                                        self.mDIAMONDBUTTON.layer.cornerRadius = 12
-                                        self.mDIAMONDBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-                                        self.mDIAMONDBUTTON.isEnabled = false
-                                    }
-                                    
-                                    
-                                    
-                                }else{
-                                    UserDefaults.standard.set(false, forKey: "isMixMatch")
-                                    self.mDIAMONDBUTTON.layer.cornerRadius = 12
-                                    self.mDIAMONDBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-                                    self.mDIAMONDBUTTON.isEnabled = false
-                                }
+                                // productChoice is read from POS Settings below. The active
+                                // store setting must not be overridden by the legacy GraphQL value.
                                 
                                 if let mQuotation = mGeneralSetup.value(forKey: "isQuotation") as? String {
                                     if mQuotation == "1" {
@@ -312,7 +345,8 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                     if let jsonResult = json as? NSDictionary {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
-                            
+                            self.applyProductChoice(mData["productChoice"])
+
                             let faroActive = "\(mData["faro_active"] ?? "0")" == "1"
                                 UserDefaults.standard.set(faroActive, forKey: "faro_active")
                             
@@ -1065,23 +1099,13 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         
         mGRAPHBUTTON.layer.cornerRadius = 12
         mGRAPHBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-        mGRAPHBUTTON.isEnabled = false
+        // Graph is an active Home menu item. Keep it tappable just like
+        // Inventory, Catalog, Stock Take, Customer and Trace.
+        mGRAPHBUTTON.isEnabled = true
         
-        if let isMixMax = UserDefaults.standard.bool(forKey: "isMixMatch") as? Bool {
-            if isMixMax {
-                mDIAMONDBUTTON.layer.cornerRadius = 12
-                mDIAMONDBUTTON.backgroundColor =  .clear
-                mDIAMONDBUTTON.isEnabled = true
-            }else{
-                mDIAMONDBUTTON.layer.cornerRadius = 12
-                mDIAMONDBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-                mDIAMONDBUTTON.isEnabled = false
-            }
-        }else{
-            mDIAMONDBUTTON.layer.cornerRadius = 12
-            mDIAMONDBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-            mDIAMONDBUTTON.isEnabled = false
-        }
+        // Keep Diamond hidden until POS Settings confirms it is enabled for
+        // this store. A stored value prevents a visual flash on later visits.
+        applyProductChoice(UserDefaults.standard.bool(forKey: "isMixMatch") ? 1 : 0)
         
         mUserName.text = UserDefaults.standard.string(forKey: "locationName") ?? "--"
         
@@ -1578,7 +1602,8 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                                                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                                                     if let jsonResult = json as? NSDictionary {
                                                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
-                                                            
+                                                            self.applyProductChoice(mData["productChoice"])
+
                                                             if let mPriceFormat = mData.value(forKey: "price_format") as? NSDictionary {
                                                                 if let mStoreCurrency = mPriceFormat.value(forKey: "currency") as? String {
                                                                     UserDefaults.standard.set(mStoreCurrency, forKey: "storeCurrency")

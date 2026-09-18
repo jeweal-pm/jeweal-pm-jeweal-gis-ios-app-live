@@ -2585,12 +2585,6 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     
     @IBAction func mBack(_ sender: Any) {
 
-        let showPopup =
-            UserDefaults.standard.string(
-                forKey: "reserve_show_popup"
-            ) ?? "0"
-
-        print("mBack showPopup = \(showPopup)")
 //        //=========== mockInventory ==========//
 //        let mockInventory = NSMutableDictionary()
 //
@@ -2638,13 +2632,14 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             guard !id.isEmpty, seenCartIds.insert(id).inserted else { return nil }
             return id
         }
-        print("mBack addItemToCart response IDs = \(resolvedLinkedCartIds)")
+        let hasConnectedOrderReserve = !resolvedLinkedCartIds.isEmpty
+        print("mBack connected reserve cart IDs = \(resolvedLinkedCartIds)")
+        print("mBack hasConnectedOrderReserve = \(hasConnectedOrderReserve)")
         // A stale linked-cart context must not block the user when this POS
         // page has no items. Ask for confirmation only after the user has
         // actually added a cart item in the current page.
         let hasCartItems = mCartData.count > 0
-        let shouldShowLeaveConfirmation =
-            hasCartItems && !resolvedLinkedCartIds.isEmpty
+        let shouldShowLeaveConfirmation = hasCartItems && hasConnectedOrderReserve
 
         if shouldShowLeaveConfirmation {
             // IMPORTANT: Do not pop or clear the cart here.

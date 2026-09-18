@@ -592,18 +592,12 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
 
                     if status && "\(response.value(forKey: "code") ?? "")" == "200" {
 
-                        let showPopup: String
-                        if let value = response["showPopup"] as? Bool {
-                            showPopup = value ? "1" : "0"
-                        } else if let value = response["showPopup"] as? NSNumber {
-                            showPopup = value.intValue == 1 ? "1" : "0"
-                        } else if let value = response["showPopup"] as? String {
-                            showPopup = value == "1" || value.lowercased() == "true" ? "1" : "0"
-                        } else {
-                            showPopup = "0"
-                        }
-
-                        UserDefaults.standard.set(showPopup, forKey: "reserve_show_popup")
+                        // This branch is reached only for an existing
+                        // order-linked reserve.  The leave confirmation must
+                        // therefore survive even when the backend's generic
+                        // `showPopup` flag is false because a free-stock item
+                        // was also added to the active cart.
+                        UserDefaults.standard.set("1", forKey: "reserve_show_popup")
                         UserDefaults.standard.setValue("", forKey: "mClearCart")
 
                         let linkedCartContext = LinkedCartContext(inventoryItem: inventoryItem)
@@ -626,16 +620,26 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                             }
                         }()
 
-                        if showPopup == "1", !returnedCartIds.isEmpty {
-                            // `data` is the authoritative set of cart IDs for
-                            // this addItemToCart request. Replace any IDs left
-                            // from an earlier test/session so the restore call
-                            // can never send stale cart IDs.
+                        if !returnedCartIds.isEmpty {
+                            // `data` is the only source permitted for the
+                            // restore request. Keep a de-duplicated union so
+                            // sequentially adding connected reserves (with
+                            // free stock between them) cannot discard an
+                            // earlier linked cart ID.
+                            let previousIds = UserDefaults.standard.stringArray(
+                                forKey: "reserve_restore_cart_ids"
+                            ) ?? []
+                            var seenIds = Set<String>()
+                            let restoreCartIds = (previousIds + returnedCartIds).compactMap { rawID -> String? in
+                                let id = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !id.isEmpty, seenIds.insert(id).inserted else { return nil }
+                                return id
+                            }
                             UserDefaults.standard.set(
-                                returnedCartIds,
+                                restoreCartIds,
                                 forKey: "reserve_restore_cart_ids"
                             )
-                            print("SAVE addItemToCart restore cart IDs =", returnedCartIds)
+                            print("SAVE connected reserve restore cart IDs =", restoreCartIds)
                         }
 
                         // Keep legacy context values for the current cart UI,

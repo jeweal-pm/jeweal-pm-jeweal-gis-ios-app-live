@@ -30,6 +30,7 @@ open class SessionDelegate: NSObject, @unchecked Sendable {
 
     weak var stateProvider: (any SessionStateProvider)?
     var eventMonitor: (any EventMonitor)?
+    var sessionInvalidationCleanup = Protected<(() -> Void)?>(nil)
 
     /// Creates an instance from the given `FileManager`.
     ///
@@ -73,7 +74,15 @@ extension SessionDelegate: URLSessionDelegate {
     open func urlSession(_ session: URLSession, didBecomeInvalidWithError error: (any Error)?) {
         eventMonitor?.urlSession(session, didBecomeInvalidWithError: error)
 
+        // When invalidated due to Session.deinit, stateProvider will already have dropped to nil.
         stateProvider?.cancelRequestsForSessionInvalidation(with: error)
+
+        let sessionInvalidationCleanup = sessionInvalidationCleanup.write {
+            let cleanup = $0
+            $0 = nil
+            return cleanup
+        }
+        sessionInvalidationCleanup?()
     }
 }
 
@@ -89,19 +98,18 @@ extension SessionDelegate: URLSessionTaskDelegate {
                          completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         eventMonitor?.urlSession(session, task: task, didReceive: challenge)
 
-        let evaluation: ChallengeEvaluation
-        switch challenge.protectionSpace.authenticationMethod {
+        let evaluation: ChallengeEvaluation = switch challenge.protectionSpace.authenticationMethod {
         case NSURLAuthenticationMethodHTTPBasic, NSURLAuthenticationMethodHTTPDigest, NSURLAuthenticationMethodNTLM,
              NSURLAuthenticationMethodNegotiate:
-            evaluation = attemptCredentialAuthentication(for: challenge, belongingTo: task)
+            attemptCredentialAuthentication(for: challenge, belongingTo: task)
         #if canImport(Security)
         case NSURLAuthenticationMethodServerTrust:
-            evaluation = attemptServerTrustAuthentication(with: challenge)
+            attemptServerTrustAuthentication(with: challenge)
         case NSURLAuthenticationMethodClientCertificate:
-            evaluation = attemptCredentialAuthentication(for: challenge, belongingTo: task)
+            attemptCredentialAuthentication(for: challenge, belongingTo: task)
         #endif
         default:
-            evaluation = (.performDefaultHandling, nil, nil)
+            (.performDefaultHandling, nil, nil)
         }
 
         if let error = evaluation.error {
@@ -212,7 +220,6 @@ extension SessionDelegate: URLSessionTaskDelegate {
     }
 
     open func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
-//        NSLog("URLSession: \(session), task: \(task), didCompleteWithError: \(error)")
         eventMonitor?.urlSession(session, task: task, didCompleteWithError: error)
 
         let request = stateProvider?.request(for: task)

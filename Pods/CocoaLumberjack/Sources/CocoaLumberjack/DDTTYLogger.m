@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2025, Deusty, LLC
+// Copyright (c) 2010-2026, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -694,7 +694,7 @@ static DDTTYLogger *sharedInstance;
         __auto_type rgbColorSpace = CGColorSpaceCreateDeviceRGB();
 
         unsigned char pixel[4];
-        __auto_type context = CGBitmapContextCreate(&pixel, 1, 1, 8, 4, rgbColorSpace, (CGBitmapInfo)(kCGBitmapAlphaInfoMask & kCGImageAlphaNoneSkipLast));
+        __auto_type context = CGBitmapContextCreate(&pixel, 1, 1, 8, 4, rgbColorSpace, (CGBitmapInfo)(((CGImageAlphaInfo)kCGBitmapAlphaInfoMask) & kCGImageAlphaNoneSkipLast));
 
         CGContextSetFillColorWithColor(context, [color CGColor]);
         CGContextFillRect(context, CGRectMake(0, 0, 1, 1));
@@ -1205,9 +1205,12 @@ static DDTTYLogger *sharedInstance;
 
         if (isFormatted) {
             // The log message has already been formatted.
-            const size_t maxIovecLen = 5;
+
+            // Needs to be a define, because otherwise the compiler warns "Variable length array folded to constant array as an extension"
+#define DD_TTYLOGGER_MAX_IOVEC_LEN 5
+
             size_t iovecLen = _automaticallyAppendNewlineForCustomFormatters ? 5 : 4;
-            struct iovec v[maxIovecLen] = { 0 };
+            struct iovec v[DD_TTYLOGGER_MAX_IOVEC_LEN] = { 0 };
 
             if (colorProfile) {
                 v[0].iov_base = colorProfile->fgCode;
@@ -1216,8 +1219,8 @@ static DDTTYLogger *sharedInstance;
                 v[1].iov_base = colorProfile->bgCode;
                 v[1].iov_len = colorProfile->bgCodeLen;
 
-                v[maxIovecLen - 1].iov_base = colorProfile->resetCode;
-                v[maxIovecLen - 1].iov_len = colorProfile->resetCodeLen;
+                v[DD_TTYLOGGER_MAX_IOVEC_LEN - 1].iov_base = colorProfile->resetCode;
+                v[DD_TTYLOGGER_MAX_IOVEC_LEN - 1].iov_len = colorProfile->resetCodeLen;
             }
 
             v[2].iov_base = msg;

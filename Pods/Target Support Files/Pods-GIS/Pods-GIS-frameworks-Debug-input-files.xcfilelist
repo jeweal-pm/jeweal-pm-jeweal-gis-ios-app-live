@@ -17,6 +17,7 @@ ${BUILT_PRODUCTS_DIR}/NVActivityIndicatorView/NVActivityIndicatorView.framework
 ${BUILT_PRODUCTS_DIR}/RSSelectionMenu/RSSelectionMenu.framework
 ${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework
 ${BUILT_PRODUCTS_DIR}/SDWebImageSVGCoder/SDWebImageSVGCoder.framework
+${BUILT_PRODUCTS_DIR}/SKCountryPicker/SKCountryPicker.framework
 ${BUILT_PRODUCTS_DIR}/SVGKit/SVGKit.framework
 ${BUILT_PRODUCTS_DIR}/SwiftyGif/SwiftyGif.framework
 ${BUILT_PRODUCTS_DIR}/UIDrawer/UIDrawer.framework

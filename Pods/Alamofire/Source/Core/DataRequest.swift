@@ -105,10 +105,7 @@ public class DataRequest: Request, @unchecked Sendable {
             httpResponseHandler.queue.async {
                 httpResponseHandler.handler(response) { disposition in
                     if disposition == .cancel {
-                        self.mutableState.write { mutableState in
-                            mutableState.state = .cancelled
-                            mutableState.error = mutableState.error ?? AFError.explicitlyCancelled
-                        }
+                        self.cancel()
                     }
 
                     self.underlyingQueue.async {
@@ -249,7 +246,7 @@ public class DataRequest: Request, @unchecked Sendable {
         -> Self {
         appendResponseSerializer {
             // Start work that should be on the serialization queue.
-            let start = ProcessInfo.processInfo.systemUptime
+            let start = Instant()
             let result: AFResult<Serializer.SerializedObject> = Result {
                 try responseSerializer.serialize(request: self.request,
                                                  response: self.response,
@@ -259,7 +256,7 @@ public class DataRequest: Request, @unchecked Sendable {
                 error.asAFError(or: .responseSerializationFailed(reason: .customSerializationFailed(error: error)))
             }
 
-            let end = ProcessInfo.processInfo.systemUptime
+            let end = Instant()
             // End work that should be on the serialization queue.
 
             self.underlyingQueue.async {

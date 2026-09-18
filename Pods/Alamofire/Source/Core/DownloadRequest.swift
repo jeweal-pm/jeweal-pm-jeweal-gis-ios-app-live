@@ -67,7 +67,7 @@ public final class DownloadRequest: Request, @unchecked Sendable {
                                                    options: Options = []) -> Destination {
         { temporaryURL, response in
             let directoryURLs = FileManager.default.urls(for: directory, in: domain)
-            let url = directoryURLs.first?.appendingPathComponent(response.suggestedFilename!) ?? temporaryURL
+            let url = response.suggestedFilename.flatMap { directoryURLs.first?.appendingPathComponent($0) } ?? temporaryURL
 
             return (url, options)
         }
@@ -271,10 +271,17 @@ public final class DownloadRequest: Request, @unchecked Sendable {
 
             underlyingQueue.async { self.didCancel() }
 
-            guard let task = mutableState.tasks.last as? URLSessionDownloadTask, task.state != .completed else {
+            // Ensure we have a task. If we do, didCreateTask has been called but wouldn't have changed the task state
+            // since we just transitioned to cancelled. If we don't, didCreateTask hasn't been called yet, so we can
+            // start the finish process and return early, as didCreateTask will perform the task changes but we won't
+            // receive any task delegate callback.
+            guard let task = mutableState.tasks.last as? URLSessionDownloadTask else {
                 underlyingQueue.async { self.finish() }
                 return
             }
+            // We have a task, if it's completed, return early, as the delegate callbacks should be in flight and
+            // cancelling it will have no effect.
+            guard task.state != .completed else { return }
 
             if let completionHandler {
                 // Resume to ensure metrics are gathered.
@@ -368,7 +375,7 @@ public final class DownloadRequest: Request, @unchecked Sendable {
         -> Self {
         appendResponseSerializer {
             // Start work that should be on the serialization queue.
-            let start = ProcessInfo.processInfo.systemUptime
+            let start = Instant()
             let result: AFResult<Serializer.SerializedObject> = Result {
                 try responseSerializer.serializeDownload(request: self.request,
                                                          response: self.response,
@@ -377,7 +384,7 @@ public final class DownloadRequest: Request, @unchecked Sendable {
             }.mapError { error in
                 error.asAFError(or: .responseSerializationFailed(reason: .customSerializationFailed(error: error)))
             }
-            let end = ProcessInfo.processInfo.systemUptime
+            let end = Instant()
             // End work that should be on the serialization queue.
 
             self.underlyingQueue.async {
@@ -391,7 +398,7 @@ public final class DownloadRequest: Request, @unchecked Sendable {
 
                 self.eventMonitor?.request(self, didParseResponse: response)
 
-                guard let serializerError = result.failure, let delegate = self.delegate else {
+                guard !self.isCancelled, let serializerError = result.failure, let delegate = self.delegate else {
                     self.responseSerializerDidComplete { queue.async { completionHandler(response) } }
                     return
                 }

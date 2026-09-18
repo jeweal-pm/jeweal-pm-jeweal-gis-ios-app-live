@@ -421,6 +421,8 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
     private var cregisOrderID = ""
     private var isCregisPaymentPolling = false
     private var cregisPollingWorkItem: DispatchWorkItem?
+    private var cregisGenerateResponseData: [String: Any] = [:]
+    private var cregisPaidResponseData: [String: Any] = [:]
     let qrCodeView = QRCodeView.loadFromNib()
     
     var mIsCrossLocationReserve = false
@@ -4656,6 +4658,8 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
 
             self.cregisTransactionID = transactionID
             self.cregisOrderID = orderID
+            self.cregisGenerateResponseData = data
+            self.cregisPaidResponseData = [:]
             self.mOpenCregisCheckout(data)
             self.mBeginCregisPaymentPolling()
         }
@@ -4699,6 +4703,10 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
                    headers: sGisHeaders2).responseJSON { [weak self] response in
             guard let self = self, self.isCregisPaymentPolling else { return }
             if self.mCregisResponseIsPaid(response.value) {
+                if let json = response.value as? [String: Any],
+                   let data = json["data"] as? [String: Any] {
+                    self.cregisPaidResponseData = data
+                }
                 self.mCompleteCregisPayment()
             } else {
                 self.mQueryCregisOrder()
@@ -4721,6 +4729,10 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
                    headers: sGisHeaders2).responseJSON { [weak self] response in
             guard let self = self, self.isCregisPaymentPolling else { return }
             if self.mCregisResponseIsPaid(response.value) {
+                if let json = response.value as? [String: Any],
+                   let data = json["data"] as? [String: Any] {
+                    self.cregisPaidResponseData = data
+                }
                 self.mCompleteCregisPayment()
             } else {
                 self.mScheduleNextCregisPoll()
@@ -4758,16 +4770,54 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
         guard isCregisPaymentPolling else { return }
         mStopCregisPaymentPolling()
 
+        let amountText = mCreditFillAmount.text ?? ""
+        let amountValue = Double(amountText.replacingOccurrences(of: ",", with: "")) ?? 0
+
+        // Build a merged dictionary: payment method config → generateQR response → paid response
+        // Later sources override earlier ones so the most specific data wins.
+        var merged: [String: Any] = [:]
+        if let methodData = mSelectedPaypalMethodData as? [String: Any] {
+            merged.merge(methodData) { _, new in new }
+        }
+        merged.merge(cregisGenerateResponseData) { _, new in new }
+        merged.merge(cregisPaidResponseData) { _, new in new }
+
+        let logo = "\(merged["PayMethod_logo"] ?? merged["logo"] ?? "")"
+        let paymentMethodRef = "\(merged["PaymentMethod"] ?? mPaymentID)"
+        let cryptoCurrency = "\(merged["cryptoCurrency"] ?? merged["cryptocurrency"] ?? merged["crypto_currency"] ?? "")"
+        let network = "\(merged["network"] ?? "")"
+        let blockchain = "\(merged["blockchain"] ?? "")"
+        let tokenName = "\(merged["token_name"] ?? "")"
+        let receiveCurrency = "\(merged["receive_currency"] ?? "")"
+        let receiveAmount = "\(merged["receive_amount"] ?? amountText)"
+
         let payment = NSMutableDictionary()
         payment.setValue("Cregis", forKey: "name")
+        payment.setValue(logo, forKey: "logo")
+        payment.setValue("", forKey: "card_name")
         payment.setValue("", forKey: "card_number")
-        payment.setValue("Cregis", forKey: "card_name")
         payment.setValue(mPaymentMethod, forKey: "payment_method_id")
-        payment.setValue("", forKey: "logo")
-        payment.setValue(mCreditFillAmount.text ?? "", forKey: "amount")
+        payment.setValue(amountValue, forKey: "amount")
         payment.setValue("Credit_Card", forKey: "Paymentmethod_type")
+        payment.setValue("cregis-payment", forKey: "payment_slag")
+        payment.setValue(paymentMethodRef, forKey: "PaymentMethod")
         payment.setValue(cregisTransactionID, forKey: "client_reference_id")
+        payment.setValue(cregisTransactionID, forKey: "transID")
         payment.setValue(cregisOrderID, forKey: "cregis_id")
+        payment.setValue(true, forKey: "payment")
+        payment.setValue(cryptoCurrency, forKey: "cryptoCurrency")
+        payment.setValue(cryptoCurrency, forKey: "cryptocurrency")
+        payment.setValue(cryptoCurrency, forKey: "crypto_currency")
+        payment.setValue(network, forKey: "network")
+        payment.setValue(blockchain, forKey: "blockchain")
+        payment.setValue(tokenName, forKey: "token_name")
+        payment.setValue(receiveCurrency, forKey: "receive_currency")
+        payment.setValue(receiveAmount, forKey: "receive_amount")
+
+        print("========== CREGIS PAYMENT DICT ==========")
+        print(payment)
+        print("==========================================")
+
         mCreditCardMethod.add(payment)
 
         var amounts = [Double]()

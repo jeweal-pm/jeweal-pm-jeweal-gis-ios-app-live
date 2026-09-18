@@ -14,6 +14,7 @@ import StripePaymentSheet
 import CorePayments
 import PayPalWebPayments
 import SwiftUI
+import WebKit
 
 
 let mConfirmationPopUp = UINib(nibName:"confirmation",bundle:.main).instantiate(withOwner: nil, options: nil).first as? ConfirmationPopUp ?? ConfirmationPopUp()
@@ -398,6 +399,14 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
     var mPaypalOrderID = ""
     var mPaypalEncryptedPayload = ""
     
+    // MARK: Cregis payment properties
+    private var cregisTransactionID = ""
+    private var cregisOrderID = ""
+    private var isCregisPaymentPolling = false
+    private var cregisPollingWorkItem: DispatchWorkItem?
+    private var cregisGenerateResponseData: [String: Any] = [:]
+    private var cregisPaidResponseData: [String: Any] = [:]
+    
     var mSelectedPaypalMethodData: NSDictionary?
     var mPaypalTransID: String = ""
 
@@ -619,6 +628,8 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
         print("METHOD =", mPaymentMethod)
         print("CLIENT =", mPaypalClientID)
         print("ENV =", mPaypalEnvironment)
+        print("SLUG =", mSelectdPaymentMethod)
+        print("FULL PAYMENT DATA =", data)
 
         mCreditCardPaymentId =
             "\(data["id"] ?? "")"
@@ -2316,7 +2327,12 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             
             if inputAmount <= balanceDueInDouble {
 //                self.mGetStripeDataBackEnd()
-                if mSelectdPaymentMethod == "stripe-payment" {
+                if mSelectdPaymentMethod == "cregis-payment" {
+
+                    mStartCregisPayment()
+                    return
+
+                } else if mSelectdPaymentMethod == "stripe-payment" {
 
                     mGetStripeDataBackEnd()
 
@@ -5770,7 +5786,293 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
         }
         
     }
+
+    // MARK: - Cregis Payment
+
+    private func mStartCregisPayment() {
+        guard let text = mCreditFillAmount.text,
+              let amount = Double(text.replacingOccurrences(of: ",", with: "")),
+              amount > 0,
+              !mPaymentMethod.isEmpty else {
+            CommonClass.showSnackBar(message: "Please fill valid payment details")
+            return
+        }
+        guard Reachability.isConnectedToNetwork() else {
+            CommonClass.showSnackBar(message: "Please check your internet connection")
+            return
+        }
+
+        mStopCregisPaymentPolling()
+        let params: [String: Any] = [
+            "payment_id": mPaymentMethod,
+            "amount": amount,
+            "customerId": mCustomerId,
+            "payment_slag": "cregis-payment"
+        ]
+
+        CommonClass.showFullLoader(view: view)
+        AF.request(mGenerateCregisQRCode,
+                   method: .post,
+                   parameters: params,
+                   encoding: JSONEncoding.default,
+                   headers: sGisHeaders2).responseJSON { [weak self] response in
+            guard let self = self else { return }
+            CommonClass.stopLoader()
+
+            guard case .success(let value) = response.result,
+                  let json = value as? [String: Any],
+                  json["code"] as? Int == 200,
+                  let data = json["data"] as? [String: Any] else {
+                let message = (response.value as? [String: Any])?["message"] as? String ?? "Unable to start Cregis payment"
+                CommonClass.showSnackBar(message: message)
+                return
+            }
+
+            let transactionID = data["client_reference_id"] as? String ?? ""
+            let orderID = (data["cregis_id"] as? String) ?? (data["charges_id"] as? String) ?? ""
+            guard !transactionID.isEmpty, !orderID.isEmpty else {
+                CommonClass.showSnackBar(message: "Invalid Cregis payment session")
+                return
+            }
+
+            self.cregisTransactionID = transactionID
+            self.cregisOrderID = orderID
+            self.cregisGenerateResponseData = data
+            self.cregisPaidResponseData = [:]
+            self.mOpenCregisCheckout(data)
+            self.mBeginCregisPaymentPolling()
+        }
+    }
+
+    private func mOpenCregisCheckout(_ data: [String: Any]) {
+        let urlString = ["checkout_url", "open_url", "sessionUrl", "approvalLink"]
+            .compactMap { data[$0] as? String }
+            .first { !$0.isEmpty }
+
+        guard let urlString = urlString, let url = URL(string: urlString) else {
+            CommonClass.showSnackBar(message: "Cregis checkout URL is unavailable")
+            return
+        }
+        DispatchQueue.main.async {
+            let paymentWebView = CregisCheckoutWebViewController(url: url)
+            let navigation = UINavigationController(rootViewController: paymentWebView)
+            navigation.modalPresentationStyle = .fullScreen
+            self.present(navigation, animated: true)
+        }
+    }
+
+    private func mBeginCregisPaymentPolling() {
+        mStopCregisPaymentPolling()
+        isCregisPaymentPolling = true
+        mPollCregisPaymentStatus()
+    }
+
+    private func mPollCregisPaymentStatus() {
+        guard isCregisPaymentPolling, !cregisTransactionID.isEmpty, !cregisOrderID.isEmpty else { return }
+        let params: [String: Any] = [
+            "transactionId": cregisTransactionID,
+            "payment_slag": "cregis-payment",
+            "cregis_id": cregisOrderID
+        ]
+
+        AF.request(mGetPaymentStatus,
+                   method: .post,
+                   parameters: params,
+                   encoding: JSONEncoding.default,
+                   headers: sGisHeaders2).responseJSON { [weak self] response in
+            guard let self = self, self.isCregisPaymentPolling else { return }
+            if self.mCregisResponseIsPaid(response.value) {
+                if let json = response.value as? [String: Any],
+                   let data = json["data"] as? [String: Any] {
+                    self.cregisPaidResponseData = data
+                }
+                self.mCompleteCregisPayment()
+            } else {
+                self.mQueryCregisOrder()
+            }
+        }
+    }
+
+    private func mQueryCregisOrder() {
+        guard isCregisPaymentPolling else { return }
+        let params: [String: Any] = [
+            "transactionId": cregisTransactionID,
+            "payment_slag": "cregis-payment",
+            "cregis_id": cregisOrderID
+        ]
+
+        AF.request(mCregisQueryOrder,
+                   method: .post,
+                   parameters: params,
+                   encoding: JSONEncoding.default,
+                   headers: sGisHeaders2).responseJSON { [weak self] response in
+            guard let self = self, self.isCregisPaymentPolling else { return }
+            if self.mCregisResponseIsPaid(response.value) {
+                if let json = response.value as? [String: Any],
+                   let data = json["data"] as? [String: Any] {
+                    self.cregisPaidResponseData = data
+                }
+                self.mCompleteCregisPayment()
+            } else {
+                self.mScheduleNextCregisPoll()
+            }
+        }
+    }
+
+    private func mCregisResponseIsPaid(_ value: Any?) -> Bool {
+        guard let json = value as? [String: Any],
+              json["code"] as? Int == 200,
+              let data = json["data"] as? [String: Any] else { return false }
+        let status = ((data["payment_status"] as? String) ?? (data["status"] as? String) ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        if ["paid", "completed", "succeeded", "success"].contains(status) { return true }
+        return (data["payment_success"] as? Bool == true)
+            || (data["is_paid"] as? Bool == true)
+            || (data["can_complete_sale"] as? Bool == true)
+    }
+
+    private func mScheduleNextCregisPoll() {
+        cregisPollingWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.mPollCregisPaymentStatus() }
+        cregisPollingWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
+    }
+
+    private func mStopCregisPaymentPolling() {
+        isCregisPaymentPolling = false
+        cregisPollingWorkItem?.cancel()
+        cregisPollingWorkItem = nil
+    }
+
+    private func mCompleteCregisPayment() {
+        guard isCregisPaymentPolling else { return }
+        mStopCregisPaymentPolling()
+
+        let amountText = mCreditFillAmount.text ?? ""
+        let amountValue = Double(amountText.replacingOccurrences(of: ",", with: "")) ?? 0
+
+        // Build a merged dictionary: payment method config → generateQR response → paid response
+        // Later sources override earlier ones so the most specific data wins.
+        var merged: [String: Any] = [:]
+        if let methodData = mSelectedPaypalMethodData as? [String: Any] {
+            merged.merge(methodData) { _, new in new }
+        }
+        merged.merge(cregisGenerateResponseData) { _, new in new }
+        merged.merge(cregisPaidResponseData) { _, new in new }
+
+        let logo = "\(merged["PayMethod_logo"] ?? merged["logo"] ?? "")"
+        let paymentMethodRef = "\(merged["PaymentMethod"] ?? mPaymentID)"
+        let cryptoCurrency = "\(merged["cryptoCurrency"] ?? merged["cryptocurrency"] ?? merged["crypto_currency"] ?? "")"
+        let network = "\(merged["network"] ?? "")"
+        let blockchain = "\(merged["blockchain"] ?? "")"
+        let tokenName = "\(merged["token_name"] ?? "")"
+        let receiveCurrency = "\(merged["receive_currency"] ?? "")"
+        let receiveAmount = "\(merged["receive_amount"] ?? amountText)"
+
+        let payment = NSMutableDictionary()
+        payment.setValue("Cregis", forKey: "name")
+        payment.setValue(logo, forKey: "logo")
+        payment.setValue("", forKey: "card_name")
+        payment.setValue("", forKey: "card_number")
+        payment.setValue(mPaymentMethod, forKey: "payment_method_id")
+        payment.setValue(amountValue, forKey: "amount")
+        payment.setValue("Credit_Card", forKey: "Paymentmethod_type")
+        payment.setValue("cregis-payment", forKey: "payment_slag")
+        payment.setValue(paymentMethodRef, forKey: "PaymentMethod")
+        payment.setValue(cregisTransactionID, forKey: "client_reference_id")
+        payment.setValue(cregisTransactionID, forKey: "transID")
+        payment.setValue(cregisOrderID, forKey: "cregis_id")
+        payment.setValue(true, forKey: "payment")
+        payment.setValue(cryptoCurrency, forKey: "cryptoCurrency")
+        payment.setValue(cryptoCurrency, forKey: "cryptocurrency")
+        payment.setValue(cryptoCurrency, forKey: "crypto_currency")
+        payment.setValue(network, forKey: "network")
+        payment.setValue(blockchain, forKey: "blockchain")
+        payment.setValue(tokenName, forKey: "token_name")
+        payment.setValue(receiveCurrency, forKey: "receive_currency")
+        payment.setValue(receiveAmount, forKey: "receive_amount")
+
+        print("========== CREGIS PAYMENT DICT ==========")
+        print(payment)
+        print("==========================================")
+
+        mCreditCardMethod.add(payment)
+
+        var amounts = [Double]()
+        for item in mCreditCardMethod {
+            if let data = item as? NSDictionary {
+                amounts.append(Double("\(data.value(forKey: "amount") ?? "0")".replacingOccurrences(of: ",", with: "")) ?? 0)
+            }
+        }
+        mSubmittedCreditCard.text = "\(amounts.reduce(0, +))"
+        recheckBalanceDue()
+        mCreditCardPaymentView.isHidden = true
+        mCreditFillAmount.text = ""
+        CommonClass.showSnackBar(message: "Cregis payment successful")
+    }
+
+    deinit {
+        mStopCregisPaymentPolling()
+    }
     
+}
+
+// MARK: - Cregis Payment WebView for Custom Order Checkout
+
+private final class CregisCheckoutWebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
+    private let checkoutURL: URL
+    private lazy var webView: WKWebView = {
+        let configuration = WKWebViewConfiguration()
+        let view = WKWebView(frame: .zero, configuration: configuration)
+        view.navigationDelegate = self
+        view.uiDelegate = self
+        view.allowsBackForwardNavigationGestures = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    init(url: URL) {
+        checkoutURL = url
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Cregis Payment"
+        view.backgroundColor = .systemBackground
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .close,
+            target: self,
+            action: #selector(closePayment)
+        )
+        view.addSubview(webView)
+        NSLayoutConstraint.activate([
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        webView.load(URLRequest(url: checkoutURL))
+    }
+
+    @objc private func closePayment() {
+        dismiss(animated: true)
+    }
+
+    func webView(_ webView: WKWebView,
+                 createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction,
+                 windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
+            webView.load(URLRequest(url: url))
+        }
+        return nil
+    }
 }
 
 extension UIColor {
