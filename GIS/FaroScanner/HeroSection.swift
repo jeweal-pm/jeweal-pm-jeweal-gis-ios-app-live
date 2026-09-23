@@ -12,7 +12,8 @@ import SwiftUI
 struct HeroSection: View {
 
     var showLogo: Bool
-    var showContent: Bool
+    var showTitle: Bool
+    var showDescription: Bool
 
     var body: some View {
 
@@ -36,23 +37,22 @@ struct HeroSection: View {
                     )
                 )
                 .padding(.top,16)
-                .opacity(showContent ? 1 : 0)
+                .opacity(showTitle ? 1 : 0)
                 .offset(
-                    y:showContent ? 0 : 30
+                    y: showTitle ? 0 : 30
                 )
 
-            Text("""
-Use Quick Search for instant results, or tell faro AI about
-your ideal jewelry to receive personalized recommendations.
-""")
-                .font(.system(size:14))
+            Text("Use Quick Search for instant results, or tell faro AI about\nyour ideal jewelry to receive personalized recommendations.")
+                .font(.system(size: 13))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal,24)
+                .lineLimit(2)
+                .minimumScaleFactor(0.82)
+                .padding(.horizontal, 12)
                 .padding(.top,20)
-                .opacity(showContent ? 1 : 0)
+                .opacity(showDescription ? 1 : 0)
                 .offset(
-                    y:showContent ? 0 : 15
+                    y: showDescription ? 0 : 15
                 )
 
         }

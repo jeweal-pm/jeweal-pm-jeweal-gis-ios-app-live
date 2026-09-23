@@ -1044,7 +1044,7 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
 
     private func fetchSalesPersonsAndShowPicker() {
         // Backend needs to expose these fields.
-        let query = "{salespersons{id name image country phone}}"
+        let query = "{salespersons(location: \"634f7bf72572146aa404d2c5\"){id name image country phone}}"
         let params: [String: Any] = ["query": query]
 
         print("========== SALES PERSON GRAPHQL ==========")

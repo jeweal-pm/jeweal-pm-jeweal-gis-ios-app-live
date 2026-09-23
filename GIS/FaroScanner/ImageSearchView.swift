@@ -40,7 +40,7 @@ struct ImageSearchView: View {
             let gridSpacing: CGFloat = 2
             let cellWidth = max(0, (libraryWidth - (gridSpacing * 2)) / 3)
             let gridHeight = (cellWidth * 3) + (gridSpacing * 2)
-            let libraryContentHeight = 68 + 14 + gridHeight + 16
+            let libraryHeight = max(0, geometry.size.height - cameraHeight)
 
             ZStack(alignment: .top) {
 
@@ -111,95 +111,48 @@ struct ImageSearchView: View {
                 )
 
                 // =================================================
-                // LIBRARY SCROLL LAYER
+                // FIXED LIBRARY FRAME
                 // =================================================
                 //
-                // The ScrollView starts at the top of the screen,
-                // but its first item is transparent and has the same
-                // height as the camera. This keeps the original
-                // layout unchanged at rest.
+                // The white Library panel must never move over the camera.
+                // Only the thumbnail area beneath its fixed header can
+                // scroll, and it remains clipped inside this white frame.
                 //
-                // When the user scrolls upward, the white Library
-                // section moves over the camera instead of being
-                // trapped below it. The scroll position is therefore
-                // retained naturally by SwiftUI.
-                //
-                ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
 
-                    // Reserve the camera area. The shutter is deliberately
-                    // outside this ScrollView so it never rides up the page
-                    // when the Library is scrolled.
-                    Color.clear
+                    HStack {
+                        Text("Library")
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundColor(.black)
+
+                        Spacer()
+
+                        Button {
+                            openPhotoLibrary()
+                        } label: {
+                            Text("View all")
+                                .font(.system(size: 15, weight: .regular))
+                                .foregroundColor(Color.gray.opacity(0.55))
+                                .frame(minWidth: 72, minHeight: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
                     .frame(
                         width: geometry.size.width,
-                        height: cameraHeight
+                        height: 68,
+                        alignment: .center
                     )
+                    .background(Color.white)
+                    .zIndex(1)
 
-                    VStack(spacing: 0) {
-
-                        // =================================================
-                        // LIBRARY HEADER
-                        // =================================================
-
-                        HStack {
-
-                            Text("Library")
-                                .font(
-                                    .system(
-                                        size: 17,
-                                        weight: .regular
-                                    )
-                                )
-                                .foregroundColor(.black)
-
-                            Spacer()
-
-                            Button {
-
-                                openPhotoLibrary()
-
-                            } label: {
-
-                                Text("View all")
-                                    .font(
-                                        .system(
-                                            size: 15,
-                                            weight: .regular
-                                        )
-                                    )
-                                    .foregroundColor(
-                                        Color.gray.opacity(0.55)
-                                    )
-                                    .frame(
-                                        minWidth: 72,
-                                        minHeight: 44
-                                    )
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .contentShape(Rectangle())
-                            .zIndex(100)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
-                        .frame(
-                            width: geometry.size.width,
-                            height: 68,
-                            alignment: .center
-                        )
-                        .background(Color.white)
-                        .zIndex(100)
-
-                        // =================================================
-                        // RECENT PHOTOS
-                        // =================================================
-
+                    ScrollView(.vertical, showsIndicators: false) {
                         RecentLibraryView { image in
-
                             camera.stopCamera()
-
                             onImageSelected(image)
-
                             dismiss()
                         }
                         .padding(.horizontal, 16)
@@ -208,27 +161,22 @@ struct ImageSearchView: View {
                             height: gridHeight,
                             alignment: .top
                         )
-                        .background(Color.white)
-                        .clipped()
 
                         Color.white
-                            .frame(
-                                width: geometry.size.width,
-                                height: 16
-                            )
+                            .frame(height: 16)
                     }
-                    .frame(
-                        width: geometry.size.width,
-                        height: libraryContentHeight,
-                        alignment: .top
-                    )
+                    .frame(height: max(0, libraryHeight - 68))
+                    .background(Color.white)
+                    .clipped()
                 }
                 .frame(
                     width: geometry.size.width,
-                    height: geometry.size.height,
+                    height: libraryHeight,
                     alignment: .top
                 )
-                .clipped()
+                .background(Color.white)
+                .offset(y: cameraHeight)
+                .zIndex(1000)
 
                 // Keep the shutter anchored to the camera, independent of
                 // the library scroll offset.

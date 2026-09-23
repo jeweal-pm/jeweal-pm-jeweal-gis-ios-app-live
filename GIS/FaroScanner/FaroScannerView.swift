@@ -384,8 +384,12 @@ struct FaroScannerView: View {
     @FocusState private var imageSearchFocused: Bool
 
     @State private var showLogo = false
-    @State private var showContent = false
+    @State private var showTitle = false
+    @State private var showDescription = false
     @State private var showSearch = false
+    @State private var hasPlayedEntrance = false
+    @State private var entranceWhiteOverlayOpacity = 1.0
+    @State private var showFaroVariantTwo = false
 
     @State private var showSend = false
     @State private var showMic = true
@@ -492,6 +496,29 @@ struct FaroScannerView: View {
             .isEmpty
 
     }
+
+    private var searchCardHeight: CGFloat {
+        if voiceInput.isListening {
+            return 104
+        }
+
+        if selectedImage != nil {
+            return imagePreviewExpanded ? 192 : 104
+        }
+
+        return searchExpanded ? 132 : 104
+    }
+
+    // Figma handoff: spring mass 1, stiffness 100, damping 15.
+    // These values settle in roughly 800 ms.
+    private var faroEntranceSpring: Animation {
+        .interpolatingSpring(
+            mass: 1,
+            stiffness: 100,
+            damping: 15,
+            initialVelocity: 0
+        )
+    }
     
     var body: some View {
 
@@ -514,67 +541,81 @@ struct FaroScannerView: View {
             // HOME LAYER
             //----------------------------------
 
-            VStack(spacing:0){
+            VStack(spacing: 0) {
 
                 FaroHeader {
-
                     closeScannerToHome()
-
                 }
                 .padding(.bottom, 8)
-                
-                
+
                 Spacer()
-                    .frame(height: showDiscovery ? 12 : 72)
+                    .frame(height: 72)
 
-                HeroSection(
-                    showLogo: showLogo,
-                    showContent: showContent
-                )
-//                .frame(height: showDiscovery ? 0 : nil)
-//                .opacity(showDiscovery ? 0 : 1)
-                .scaleEffect(showDiscovery ? 0.96 : 1)
-                .opacity(showDiscovery ? 0.15 : 1)
-                .offset(y: showDiscovery ? -24 : 0)
-//                .offset(y: showDiscovery ? -50 : 0)
-                .frame(height: showDiscovery ? 0 : nil)
-                .clipped()
-                .allowsHitTesting(!showDiscovery)
+                ZStack(alignment: .top) {
+                    // Discovery is the only scrollable layer. Its contents
+                    // travel behind the pinned search card rather than
+                    // shifting the white card itself upward.
+                    if showDiscovery {
+                        DiscoveryView(
+                            searchText: $searchText,
+                            selectedPrompt: $selectedPrompt,
+                            faroMode: $faroMode,
+                            onSearch: { text in
+                                performSearch(text, inStockOnly: inStockOnly)
+                            },
+                            onClose: {
+                                closeDiscovery()
+                            }
+                        )
+                        .padding(.top, 196 + 12 + searchCardHeight)
+                        .transition(
+                            .move(edge: .top)
+                            .combined(with: .opacity)
+                        )
+                        .zIndex(0)
+                    }
 
-                // This is intentionally mounted in both modes so that the
-                // existing TextField keeps its text and keyboard focus.
-                SearchCard()
-                    
-
-                if showDiscovery {
-                    DiscoveryView(
-                        searchText: $searchText,
-                        selectedPrompt: $selectedPrompt,
-                        faroMode: $faroMode,
-                        onSearch: { text in
-                            performSearch(
-                                text,
-                                inStockOnly: inStockOnly
+                    VStack(spacing: 0) {
+                        // Hero may slide away, but its reserved slot never
+                        // changes height. This keeps the white frame fixed.
+                        ZStack(alignment: .top) {
+                    HeroSection(
+                        showLogo: showLogo,
+                        showTitle: showTitle,
+                        showDescription: showDescription
                             )
-                        },
-                        onClose: {
-                            closeDiscovery()
+                            .scaleEffect(showDiscovery ? 0.96 : 1)
+                            .opacity(showDiscovery ? 0 : 1)
+                            .offset(y: showDiscovery ? -120 : 0)
+                            .allowsHitTesting(!showDiscovery)
                         }
-                    )
-                    .transition(
-                        .move(edge: .top)
-                        .combined(with: .opacity)
-                    )
-                    .zIndex(20)
-                    .allowsHitTesting(showDiscovery)
-                }
+                        .frame(height: 196, alignment: .top)
+                        .clipped()
 
+                        // This is intentionally mounted in both modes so the
+                        // text field keeps its existing text and focus.
+                        SearchCard()
+                    }
+                    .zIndex(1)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .frame(maxWidth: .infinity,
                    maxHeight: .infinity,
                    alignment: .top)
+            // Figma's Variant 1 → Variant 2 transition. This only affects
+            // the initial Faro entrance; later Discovery interactions keep
+            // their current visibility without replaying it.
+            .opacity(showFaroVariantTwo ? 1 : 0)
             .zIndex(0)
 
+            // Faro opens beneath a real white foreground. The foreground
+            // fades from 100% to 0%, revealing each staged element smoothly.
+            Color.white
+                .ignoresSafeArea()
+                .opacity(entranceWhiteOverlayOpacity)
+                .allowsHitTesting(false)
+                .zIndex(100)
 
         }
 //        .onChange(of: selectedImage) { image in
@@ -622,38 +663,7 @@ struct FaroScannerView: View {
 //
 //        }
         .onAppear {
-
-            withAnimation(.easeOut(duration:0.45)){
-
-                showLogo = true
-
-            }
-
-            withAnimation(
-                .spring(
-                    response:0.65,
-                    dampingFraction:0.82
-                )
-                .delay(0.15)
-            ){
-
-                showContent = true
-
-            }
-
-            withAnimation(
-                .spring(
-                    response:0.7,
-                    dampingFraction:0.82
-                )
-                .delay(0.35)
-            ){
-
-                showSearch = true
-
-            }
-
-
+            playEntranceAnimationIfNeeded()
         }
         .onChange(of: searchText) { value in
 
@@ -835,16 +845,7 @@ struct FaroScannerView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(
-                height:
-                    voiceInput.isListening
-                    ? 104
-                    : (
-                        selectedImage != nil
-                        ? (imagePreviewExpanded ? 192 : 104)
-                        : (searchExpanded ? 132 : 104)
-                    )
-            )
+            .frame(height: searchCardHeight)
             .animation(
                 .spring(
                     response: 0.48,
@@ -860,7 +861,7 @@ struct FaroScannerView: View {
                 value:searchExpanded
             )
             .padding(.horizontal,18)
-            .padding(.top, showDiscovery ? 0 : 12)
+            .padding(.top, 12)
 
             .shadow(
                 color:.black.opacity(0.06),
@@ -2448,6 +2449,64 @@ struct FaroScannerView: View {
 
         onClose()
 
+    }
+
+    /// Runs once for each new Faro screen. Faro deliberately opens as a blank
+    /// white canvas first; only after the presentation settles do its elements
+    /// enter in sequence.
+    private func playEntranceAnimationIfNeeded() {
+        guard !hasPlayedEntrance else { return }
+        hasPlayedEntrance = true
+
+        showLogo = false
+        showTitle = false
+        showDescription = false
+        showSearch = false
+        entranceWhiteOverlayOpacity = 1
+        showFaroVariantTwo = false
+
+        // First interaction: Swap overlay, Ease Out, 300 ms.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                entranceWhiteOverlayOpacity = 0
+            }
+        }
+
+        // Second interaction: after a 1 ms handoff, switch to Variant 2 with
+        // Figma's Slow, 500 ms smart-animate timing. SwiftUI's easeInOut is
+        // the native equivalent for this slow-in / slow-out transition.
+        let variantTwoStart = 0.361
+        DispatchQueue.main.asyncAfter(deadline: .now() + variantTwoStart) {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                showFaroVariantTwo = true
+            }
+        }
+
+        // The Variant 2 elements begin 50 ms apart; none waits for the prior
+        // element's animation to finish.
+        DispatchQueue.main.asyncAfter(deadline: .now() + variantTwoStart) {
+            withAnimation(faroEntranceSpring) {
+                showLogo = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + variantTwoStart + 0.05) {
+            withAnimation(faroEntranceSpring) {
+                showTitle = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + variantTwoStart + 0.10) {
+            withAnimation(faroEntranceSpring) {
+                showDescription = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + variantTwoStart + 0.15) {
+            withAnimation(faroEntranceSpring) {
+                showSearch = true
+            }
+        }
     }
 
     private func closeDiscovery() {
