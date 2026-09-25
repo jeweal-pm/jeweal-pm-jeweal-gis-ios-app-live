@@ -337,7 +337,10 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                             self.mFirstName.text = "\(mData.value(forKey: "first_name") ?? "")" + " \(mData.value(forKey: "last_name") ?? "")"
                             self.mBackgroundImage.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "flash_image") ?? "")")
                             
-                            self.mBrandImage.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "brand_logo") ?? "" )")
+                            let brandLogoURL = "\(mData.value(forKey: "brand_logo") ?? "")"
+                            // Keep the active company's logo available to Home as well.
+                            UserDefaults.standard.set(brandLogoURL, forKey: "brand_logo")
+                            self.mBrandImage.downlaodImageFromUrl(urlString: brandLogoURL)
 //                            self.mProfilePicture.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "myProfile") ?? "")")
                             let profileURL = "\(mData.value(forKey: "myProfile") ?? "")"
 
@@ -389,7 +392,6 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
     
     
 }
-
 
 
 

@@ -1043,8 +1043,15 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
     }
 
     private func fetchSalesPersonsAndShowPicker() {
-        // Backend needs to expose these fields.
-        let query = "{salespersons(location: \"634f7bf72572146aa404d2c5\"){id name image country phone}}"
+        let locationID = UserDefaults.standard.string(forKey: "location")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !locationID.isEmpty else {
+            CommonClass.showSnackBar(message: "Current store location is unavailable")
+            return
+        }
+
+        // Sales people belong to the active store, not a fixed location.
+        let query = "{salespersons(location: \"\(locationID)\"){id name image country phone}}"
         let params: [String: Any] = ["query": query]
 
         print("========== SALES PERSON GRAPHQL ==========")
@@ -2620,28 +2627,40 @@ class PosCart:UIViewController, UIViewControllerTransitioningDelegate ,GetCustom
             )
         }
 
-        // The restore endpoint must receive only the cart IDs returned by the
-        // latest addItemToCart response. Do not substitute IDs from Inventory
-        // or a previous linked-cart context.
+        // Prefer the IDs returned by addItemToCart.  Some API versions omit
+        // those IDs, so retain the linked_cart_id from Inventory as a fallback
+        // instead of silently leaving the page with a reserved item still held.
         let addItemToCartResponseIDs = UserDefaults.standard.stringArray(
             forKey: connectedOrderRestoreCartIDsKey
         ) ?? []
+        let fallbackLinkedCartIDs = (UserDefaults.standard.stringArray(forKey: "reserve_linked_cart_ids") ?? [])
+            + [UserDefaults.standard.string(forKey: "reserve_linked_cart_id") ?? ""]
+            + [linkedCartContext?.linkedCartId ?? ""]
         var seenCartIds = Set<String>()
-        let resolvedLinkedCartIds = addItemToCartResponseIDs.compactMap { rawID -> String? in
+        let validFallbackLinkedCartIDs = fallbackLinkedCartIDs.filter {
+            !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        // Restore the original reserve cart. An addItemToCart response may
+        // contain the active POS cart ID instead, which causes the server to
+        // return “Cart not found or previous cart status not saved”.
+        let sourceCartIDs = validFallbackLinkedCartIDs.isEmpty ? addItemToCartResponseIDs : validFallbackLinkedCartIDs
+        let resolvedLinkedCartIds = sourceCartIDs.compactMap { rawID -> String? in
             let id = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !id.isEmpty, seenCartIds.insert(id).inserted else { return nil }
             return id
         }
-        let hasConnectedOrderReserve = !resolvedLinkedCartIds.isEmpty
+        let popupRequested = "\(UserDefaults.standard.object(forKey: "reserve_show_popup") ?? "0")" == "1"
+        let hasConnectedOrderReserve = popupRequested || !resolvedLinkedCartIds.isEmpty
         print("mBack connected reserve cart IDs = \(resolvedLinkedCartIds)")
         print("mBack hasConnectedOrderReserve = \(hasConnectedOrderReserve)")
-        // A stale linked-cart context must not block the user when this POS
-        // page has no items. Ask for confirmation only after the user has
-        // actually added a cart item in the current page.
-        let hasCartItems = mCartData.count > 0
-        let shouldShowLeaveConfirmation = hasCartItems && hasConnectedOrderReserve
 
-        if shouldShowLeaveConfirmation {
+        if hasConnectedOrderReserve {
+            guard !resolvedLinkedCartIds.isEmpty else {
+                // Do not leave or clear the active cart when a connected reserve
+                // is known but its restore ID is missing.
+                CommonClass.showSnackBar(message: "Unable to restore linked cart. Please try again.")
+                return
+            }
             // IMPORTANT: Do not pop or clear the cart here.
             // The popup must be shown first.
             sshowReserveConfirmation(

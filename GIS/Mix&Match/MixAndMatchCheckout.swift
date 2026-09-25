@@ -252,6 +252,12 @@
             
             var mChequePaymentId = ""
             var mCreditCardPaymentId = ""
+            private var mCregisPaymentMethod = ""
+            private var mCregisSlug = ""
+            private var mCregisOrderID = ""
+            private var mCregisTransactionID = ""
+            private var mCregisOrderData: [String: Any] = [:]
+            private var mCregisPollWorkItem: DispatchWorkItem?
             let mDatePicker:UIDatePicker = UIDatePicker()
             var mChequeData = NSMutableDictionary()
             var mFinalPaymentMethod = NSMutableDictionary()
@@ -442,6 +448,43 @@
             refreshCashPage()
         }
 
+    private func mStartCregisPayment() {
+        guard let amount = Double((mCreditFillAmount.text ?? "").replacingOccurrences(of: ",", with: "")), amount > 0,
+              !mCregisPaymentMethod.isEmpty else { CommonClass.showSnackBar(message: "Please fill valid payment details"); return }
+        let customerID = UserDefaults.standard.string(forKey: "CUSTOMERID") ?? ""
+        let params: [String: Any] = ["payment_id": mCregisPaymentMethod, "amount": amount, "customerId": customerID, "payment_slag": "cregis-payment"]
+        print("========== MIX MATCH CREGIS REQUEST =========="); print("PARAMS =", params)
+        AF.request(mGenerateCregisQRCode, method: .post, parameters: params, encoding: JSONEncoding.default, headers: sGisHeaders2).responseJSON { [weak self] response in
+            guard let self, let json = response.value as? [String: Any], json["code"] as? Int == 200, let data = json["data"] as? [String: Any] else { CommonClass.showSnackBar(message: (response.value as? [String: Any])?["message"] as? String ?? "Unable to start Cregis payment"); return }
+            self.mCregisTransactionID = data["client_reference_id"] as? String ?? ""
+            self.mCregisOrderID = (data["cregis_id"] as? String) ?? (data["charges_id"] as? String) ?? ""
+            guard let urlString = ["checkout_url", "open_url", "sessionUrl", "approvalLink"].compactMap({ data[$0] as? String }).first, let url = URL(string: urlString), !self.mCregisOrderID.isEmpty else { CommonClass.showSnackBar(message: "Invalid Cregis payment session"); return }
+            let web = CregisPaymentWebViewController(url: url)
+            self.present(UINavigationController(rootViewController: web), animated: true)
+            self.mPollCregisPayment()
+        }
+    }
+
+    private func mPollCregisPayment() {
+        let params: [String: Any] = ["transactionId": mCregisTransactionID, "cregis_id": mCregisOrderID, "payment_slag": "cregis-payment"]
+        AF.request(mCregisQueryOrder, method: .post, parameters: params, encoding: JSONEncoding.default, headers: sGisHeaders2).responseJSON { [weak self] response in
+            guard let self, let json = response.value as? [String: Any], let data = json["data"] as? [String: Any] else { return }
+            self.mCregisOrderData = data
+            let status = "\(data["payment_status"] ?? data["status"] ?? "")".lowercased()
+            if ["paid", "completed", "success", "succeeded"].contains(status) || data["is_paid"] as? Bool == true || data["can_complete_sale"] as? Bool == true { self.mCompleteCregisPayment(); return }
+            self.mCregisPollWorkItem?.cancel(); let work = DispatchWorkItem { [weak self] in self?.mPollCregisPayment() }; self.mCregisPollWorkItem = work; DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
+        }
+    }
+
+    private func mCompleteCregisPayment() {
+        let paymentInfo = (mCregisOrderData["payment_info"] as? [[String: Any]] ?? []).first { "\($0["receive_currency"] ?? "")".uppercased() == "USDT" && "\($0["blockchain"] ?? "")".uppercased().contains("TRON") } ?? [:]
+        let amount = Double((mCreditFillAmount.text ?? "").replacingOccurrences(of: ",", with: "")) ?? 0
+        let payment: NSMutableDictionary = ["name": "Cregis", "payment_method_id": mCreditCardPaymentId, "PaymentMethod": mCregisPaymentMethod, "amount": amount, "Paymentmethod_type": "Credit_Card", "payment_slag": "cregis-payment", "client_reference_id": mCregisOrderID, "transID": mCregisOrderID, "payment": true, "cryptoCurrency": paymentInfo["receive_currency"] ?? "", "cryptocurrency": paymentInfo["receive_currency"] ?? "", "crypto_currency": paymentInfo["receive_currency"] ?? "", "blockchain": paymentInfo["blockchain"] ?? "", "token_name": paymentInfo["token_name"] ?? "", "receive_currency": paymentInfo["receive_currency"] ?? "", "receive_amount": paymentInfo["receive_amount"] ?? ""]
+        print("========== MIX MATCH CREGIS PAYMENT DICT =========="); print(payment)
+        mCreditCardMethod.add(payment)
+        let total = mCreditCardMethod.compactMap { Double("\(($0 as? NSDictionary)?.value(forKey: "amount") ?? 0)") }.reduce(0, +)
+        mSubmittedCreditCard.text = String(format: "%.2f", total); refreshBalanceDue(); mCreditCardPaymentView.isHidden = true; mCreditFillAmount.text = ""
+    }
         private func storeAmount(_ value: String?) -> Double {
             Double((value ?? "").replacingOccurrences(of: ",", with: "")) ?? 0
         }
@@ -702,6 +745,11 @@
             
             @IBAction func mSubmitCreditAmount(_ sender: UIButton) {
                 sender.showAnimation{}
+
+                if mCregisSlug == "cregis-payment" {
+                    mStartCregisPayment()
+                    return
+                }
               
                 let cardNumber = mCardNumber.text ?? ""
                 if cardNumber == "" || cardNumber.isEmptyOrSpaces() || cardNumber.count < 16 {
@@ -844,6 +892,9 @@
                let name = mData.value(forKey: "name") as? String,
                let id = mData.value(forKey: "id") {
                 mCreditCardPaymentId = "\(id)"
+                mCregisPaymentMethod = "\(mData.value(forKey: "PaymentMethod") ?? "")"
+                let suppliedSlug = "\(mData.value(forKey: "payment_slag") ?? "")".lowercased()
+                mCregisSlug = suppliedSlug.isEmpty && name.lowercased().contains("cregis") ? "cregis-payment" : suppliedSlug
                 self.mCreditBankImage.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "PayMethod_logo") ?? "")")
                 self.mCreditBankName.text = name
                 self.mStripeCardView.isHidden = false

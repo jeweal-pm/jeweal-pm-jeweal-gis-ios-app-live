@@ -405,6 +405,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
     private var isCregisPaymentPolling = false
     private var cregisPollingWorkItem: DispatchWorkItem?
     private var cregisGenerateResponseData: [String: Any] = [:]
+    private var cregisOrderResponseData: [String: Any] = [:]
     private var cregisPaidResponseData: [String: Any] = [:]
     
     var mSelectedPaypalMethodData: NSDictionary?
@@ -604,8 +605,22 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
         mStripPublishKey =
             "\(data["key"] ?? "")"
 
-        mSelectdPaymentMethod =
+        let providedPaymentSlug =
             "\(data["payment_slag"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+        let paymentName =
+            "\(data["name"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+
+        // Cregis configurations currently return an empty payment_slag.
+        // Derive the provider slug from the selected Cregis method so Submit
+        // enters the Cregis checkout flow instead of rejecting the payment.
+        mSelectdPaymentMethod =
+            providedPaymentSlug.isEmpty && paymentName.contains("cregis")
+            ? "cregis-payment"
+            : providedPaymentSlug
 
         if mSelectdPaymentMethod == "paypal-payment" {
 
@@ -5810,6 +5825,9 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             "payment_slag": "cregis-payment"
         ]
 
+        print("========== CREGIS REQUEST ==========")
+        print("URL =", mGenerateCregisQRCode)
+        print("PARAMS =", params)
         CommonClass.showFullLoader(view: view)
         AF.request(mGenerateCregisQRCode,
                    method: .post,
@@ -5818,6 +5836,12 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                    headers: sGisHeaders2).responseJSON { [weak self] response in
             guard let self = self else { return }
             CommonClass.stopLoader()
+
+            print("========== CREGIS GENERATE RESPONSE ==========")
+            print("HTTP STATUS =", response.response?.statusCode ?? 0)
+            print("RESULT =", response.result)
+            print("BODY =", response.value ?? "<empty>")
+            print("===============================================")
 
             guard case .success(let value) = response.result,
                   let json = value as? [String: Any],
@@ -5838,6 +5862,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             self.cregisTransactionID = transactionID
             self.cregisOrderID = orderID
             self.cregisGenerateResponseData = data
+            self.cregisOrderResponseData = [:]
             self.cregisPaidResponseData = [:]
             self.mOpenCregisCheckout(data)
             self.mBeginCregisPaymentPolling()
@@ -5875,12 +5900,21 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             "cregis_id": cregisOrderID
         ]
 
+        print("========== CREGIS STATUS REQUEST ==========")
+        print("URL =", mGetPaymentStatus)
+        print("PARAMS =", params)
+
         AF.request(mGetPaymentStatus,
                    method: .post,
                    parameters: params,
                    encoding: JSONEncoding.default,
                    headers: sGisHeaders2).responseJSON { [weak self] response in
             guard let self = self, self.isCregisPaymentPolling else { return }
+            print("========== CREGIS STATUS RESPONSE ==========")
+            print("HTTP STATUS =", response.response?.statusCode ?? 0)
+            print("RESULT =", response.result)
+            print("BODY =", response.value ?? "<empty>")
+            print("=============================================")
             if self.mCregisResponseIsPaid(response.value) {
                 if let json = response.value as? [String: Any],
                    let data = json["data"] as? [String: Any] {
@@ -5901,12 +5935,25 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             "cregis_id": cregisOrderID
         ]
 
+        print("========== CREGIS QUERY REQUEST ==========")
+        print("URL =", mCregisQueryOrder)
+        print("PARAMS =", params)
+
         AF.request(mCregisQueryOrder,
                    method: .post,
                    parameters: params,
                    encoding: JSONEncoding.default,
                    headers: sGisHeaders2).responseJSON { [weak self] response in
             guard let self = self, self.isCregisPaymentPolling else { return }
+            print("========== CREGIS QUERY RESPONSE ==========")
+            print("HTTP STATUS =", response.response?.statusCode ?? 0)
+            print("RESULT =", response.result)
+            print("BODY =", response.value ?? "<empty>")
+            print("============================================")
+            if let json = response.value as? [String: Any],
+               let data = json["data"] as? [String: Any] {
+                self.cregisOrderResponseData = data
+            }
             if self.mCregisResponseIsPaid(response.value) {
                 if let json = response.value as? [String: Any],
                    let data = json["data"] as? [String: Any] {
@@ -5945,9 +5992,51 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
         cregisPollingWorkItem = nil
     }
 
+    /// Cregis can return the payment details under nested `data`, `order`, or
+    /// `charge` objects. Search the complete response so the completed sale
+    /// always carries the selected cryptocurrency and network metadata.
+    private func mCregisStringValue(_ keys: [String], from dictionary: [String: Any]) -> String {
+        for key in keys {
+            if let value = dictionary[key] {
+                let text = "\(value)".trimmingCharacters(in: .whitespacesAndNewlines)
+                if !text.isEmpty, text != "<null>" { return text }
+            }
+        }
+        for value in dictionary.values {
+            if let nested = value as? [String: Any] {
+                let text = mCregisStringValue(keys, from: nested)
+                if !text.isEmpty { return text }
+            } else if let nestedArray = value as? [[String: Any]] {
+                for nested in nestedArray {
+                    let text = mCregisStringValue(keys, from: nested)
+                    if !text.isEmpty { return text }
+                }
+            }
+        }
+        return ""
+    }
+
+    private func mCregisSelectedPaymentInfo(from dictionary: [String: Any]) -> [String: Any] {
+        let paymentInfo = (dictionary["payment_info"] as? [[String: Any]])
+            ?? (dictionary["payment_info"] as? [NSDictionary])?.map { $0 as? [String: Any] ?? [:] }
+            ?? []
+        return paymentInfo.first {
+            let currency = "\($0["receive_currency"] ?? $0["token_symbol"] ?? "")".uppercased()
+            let chain = "\($0["blockchain"] ?? "")".uppercased()
+            return currency == "USDT" && chain.contains("TRON")
+        } ?? paymentInfo.first ?? [:]
+    }
+
     private func mCompleteCregisPayment() {
         guard isCregisPaymentPolling else { return }
         mStopCregisPaymentPolling()
+
+        print("========== CREGIS PAYMENT CONFIRMED ==========")
+        print("TRANSACTION ID =", cregisTransactionID)
+        print("CREGIS ORDER ID =", cregisOrderID)
+        print("GENERATE DATA =", cregisGenerateResponseData)
+        print("PAID DATA =", cregisPaidResponseData)
+        print("================================================")
 
         let amountText = mCreditFillAmount.text ?? ""
         let amountValue = Double(amountText.replacingOccurrences(of: ",", with: "")) ?? 0
@@ -5959,29 +6048,36 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             merged.merge(methodData) { _, new in new }
         }
         merged.merge(cregisGenerateResponseData) { _, new in new }
+        merged.merge(cregisOrderResponseData) { _, new in new }
         merged.merge(cregisPaidResponseData) { _, new in new }
+        merged.merge(mCregisSelectedPaymentInfo(from: merged)) { _, new in new }
 
         let logo = "\(merged["PayMethod_logo"] ?? merged["logo"] ?? "")"
-        let paymentMethodRef = "\(merged["PaymentMethod"] ?? mPaymentID)"
-        let cryptoCurrency = "\(merged["cryptoCurrency"] ?? merged["cryptocurrency"] ?? merged["crypto_currency"] ?? "")"
-        let network = "\(merged["network"] ?? "")"
-        let blockchain = "\(merged["blockchain"] ?? "")"
-        let tokenName = "\(merged["token_name"] ?? "")"
-        let receiveCurrency = "\(merged["receive_currency"] ?? "")"
-        let receiveAmount = "\(merged["receive_amount"] ?? amountText)"
+        let paymentMethodRef = mPaymentMethod
+        let cryptoCurrency = mCregisStringValue(["cryptoCurrency", "cryptocurrency", "crypto_currency", "currency", "coin"], from: merged)
+        let blockchain = mCregisStringValue(["blockchain", "chain"], from: merged)
+        let tokenName = mCregisStringValue(["token_name", "token", "coin_name"], from: merged)
+        let networkValue = mCregisStringValue(["network", "network_name"], from: merged)
+        let network = networkValue.isEmpty && blockchain == "TRON#Shasta" && tokenName.contains("TRC20#Shasta")
+            ? "TRON#Shasta (TRC20#Shasta)"
+            : networkValue
+        let receiveCurrency = mCregisStringValue(["receive_currency", "settlement_currency", "currency"], from: merged)
+        let receiveAmount = mCregisStringValue(["receive_amount", "settlement_amount", "crypto_amount"], from: merged).isEmpty
+            ? amountText
+            : mCregisStringValue(["receive_amount", "settlement_amount", "crypto_amount"], from: merged)
 
         let payment = NSMutableDictionary()
         payment.setValue("Cregis", forKey: "name")
         payment.setValue(logo, forKey: "logo")
         payment.setValue("", forKey: "card_name")
         payment.setValue("", forKey: "card_number")
-        payment.setValue(mPaymentMethod, forKey: "payment_method_id")
+        payment.setValue(mCreditCardPaymentId, forKey: "payment_method_id")
         payment.setValue(amountValue, forKey: "amount")
         payment.setValue("Credit_Card", forKey: "Paymentmethod_type")
         payment.setValue("cregis-payment", forKey: "payment_slag")
         payment.setValue(paymentMethodRef, forKey: "PaymentMethod")
-        payment.setValue(cregisTransactionID, forKey: "client_reference_id")
-        payment.setValue(cregisTransactionID, forKey: "transID")
+        payment.setValue(cregisOrderID, forKey: "client_reference_id")
+        payment.setValue(cregisOrderID, forKey: "transID")
         payment.setValue(cregisOrderID, forKey: "cregis_id")
         payment.setValue(true, forKey: "payment")
         payment.setValue(cryptoCurrency, forKey: "cryptoCurrency")

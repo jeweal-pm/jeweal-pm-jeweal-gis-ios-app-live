@@ -602,35 +602,52 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
 
                         let linkedCartContext = LinkedCartContext(inventoryItem: inventoryItem)
 
-                        // Backend returns the authoritative cart IDs for this
-                        // addItemToCart request. These exact IDs must be sent
-                        // back to restoreLinkedCartStatus when the user leaves
-                        // the connected-order flow.
+                        // The API has returned `data` as an array, a string and
+                        // a dictionary across environments.  Always retain the
+                        // response cart ID when it is present; if it is omitted,
+                        // keep the selected item's linked_cart_id as a safe
+                        // fallback.  Without this state the POS Back action
+                        // cannot show its confirmation or restore the reserve.
                         let returnedCartIds: [String] = {
-                            let values = response["data"] as? [Any] ?? []
                             var seen = Set<String>()
+                            var cartIds = [String]()
 
-                            // Preserve the API's response order. The same list
-                            // is later passed back to restoreLinkedCartStatus.
-                            return values.compactMap { value in
-                                guard !(value is NSNull) else { return nil }
-                                let id = "\(value)".trimmingCharacters(in: .whitespacesAndNewlines)
-                                guard !id.isEmpty, seen.insert(id).inserted else { return nil }
-                                return id
+                            func append(_ value: Any?) {
+                                guard let value, !(value is NSNull) else { return }
+                                if let string = value as? String {
+                                    let id = string.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    if !id.isEmpty, seen.insert(id).inserted { cartIds.append(id) }
+                                } else if let values = value as? [Any] {
+                                    values.forEach { append($0) }
+                                } else if let dictionary = value as? [String: Any] {
+                                    ["cart_id", "cartId", "cart_ids", "cartIds", "linked_cart_id", "data"].forEach {
+                                        append(dictionary[$0])
+                                    }
+                                } else if let dictionary = value as? NSDictionary {
+                                    ["cart_id", "cartId", "cart_ids", "cartIds", "linked_cart_id", "data"].forEach {
+                                        append(dictionary[$0])
+                                    }
+                                }
                             }
+
+                            append(response["data"])
+                            return cartIds
                         }()
 
-                        if !returnedCartIds.isEmpty {
-                            // `data` is the only source permitted for the
-                            // restore request. Keep a de-duplicated union so
-                            // sequentially adding connected reserves (with
-                            // free stock between them) cannot discard an
-                            // earlier linked cart ID.
+                        // cartStatusRestore restores the original reserve cart,
+                        // so linked_cart_id is the required ID. The add-to-cart
+                        // response can refer to the newly created POS cart and
+                        // must not replace the linked reserve cart ID.
+                        let idsToRestore = linkedCartId.isEmpty ? returnedCartIds : [linkedCartId]
+                        if !idsToRestore.isEmpty {
+                            // Keep a de-duplicated union so sequentially adding
+                            // connected reserves (with free stock between them)
+                            // cannot discard an earlier linked cart ID.
                             let previousIds = UserDefaults.standard.stringArray(
-                                forKey: "reserve_restore_cart_ids"
+                                forKey: "reserve_linked_cart_ids"
                             ) ?? []
                             var seenIds = Set<String>()
-                            let restoreCartIds = (previousIds + returnedCartIds).compactMap { rawID -> String? in
+                            let restoreCartIds = (previousIds + idsToRestore).compactMap { rawID -> String? in
                                 let id = rawID.trimmingCharacters(in: .whitespacesAndNewlines)
                                 guard !id.isEmpty, seenIds.insert(id).inserted else { return nil }
                                 return id
@@ -835,6 +852,61 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
 
                     self.dismiss(animated: true)
                     UserDefaults.standard.setValue("", forKey: "mClearCart")
+
+                    // A bulk selection can contain both free stock and an
+                    // already-reserved stock (for example CL1 + CL2). In that
+                    // case mIndexInv can point at the free item, so checking
+                    // only that row loses the linked reserve context and Back
+                    // leaves without showing its restore confirmation.
+                    let selectedExistingReserveItems = self.mInventoryData.compactMap { value -> NSDictionary? in
+                        guard let item = value as? NSDictionary else { return nil }
+                        let productID = "\(item["_id"] ?? item["id"] ?? "")"
+                        guard self.mProductId.contains(productID) else { return nil }
+
+                        let linkedCartID = "\(item["linked_cart_id"] ?? "")"
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !linkedCartID.isEmpty else { return nil }
+
+                        if let canCreate = item["can_create_new_cart"] as? NSNumber {
+                            return canCreate.boolValue ? nil : item
+                        }
+                        let canCreate = "\(item["can_create_new_cart"] ?? "")".lowercased()
+                        return (canCreate == "0" || canCreate == "false" || canCreate == "no") ? item : nil
+                    }
+
+                    if !selectedExistingReserveItems.isEmpty {
+                        var seenCartIDs = Set<String>()
+                        let linkedCartIDs = selectedExistingReserveItems.compactMap { item -> String? in
+                            let id = "\(item["linked_cart_id"] ?? "")"
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !id.isEmpty, seenCartIDs.insert(id).inserted else { return nil }
+                            return id
+                        }
+
+                        // These are the original reserve carts, not the cart IDs
+                        // returned by bulk addItemToCart. Replace stale IDs from
+                        // earlier attempts with the IDs selected in this cart.
+                        UserDefaults.standard.set("1", forKey: "reserve_show_popup")
+                        UserDefaults.standard.set(linkedCartIDs, forKey: "reserve_restore_cart_ids")
+                        UserDefaults.standard.set(linkedCartIDs, forKey: "reserve_linked_cart_ids")
+                        UserDefaults.standard.set(linkedCartIDs.last, forKey: "reserve_linked_cart_id")
+
+                        if let reserveItem = selectedExistingReserveItems.first {
+                            let reserveContext = LinkedCartContext(inventoryItem: reserveItem)
+                            LinkedCartContextStore.shared.save(
+                                reserveContext,
+                                orderType: "reserve",
+                                customerId: self.mCustomerId
+                            )
+                            LinkedCartContextStore.shared.save(
+                                reserveContext,
+                                orderType: "pos_order",
+                                customerId: self.mCustomerId
+                            )
+                        }
+                        print("SAVE BULK EXISTING RESERVE CART IDS =", linkedCartIDs)
+                    }
+
                     let linkedCartContext: LinkedCartContext?
                     if self.mIndexInv >= 0,
                        let inventoryItem = self.mInventoryData[self.mIndexInv] as? NSDictionary {

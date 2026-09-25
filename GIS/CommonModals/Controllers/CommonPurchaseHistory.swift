@@ -138,29 +138,39 @@ class CommonPurchaseHistory: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     @IBAction func mAddToCart(_ sender: Any) {
-        self.dismiss(animated: true)
         if mOrderType == "repair_order" {
-            
-            let mData = NSMutableArray()
-            for i in [self.mDefaultData[mIndex]] {
+            guard !mSelectedItems.isEmpty else {
+                CommonClass.showSnackBar(message: "Please select at least one item".localizedString)
+                return
+            }
+
+            let selectedCartIDs = Set(mSelectedItems)
+            let selectedItems = mData.compactMap { $0 as? NSDictionary }.filter {
+                selectedCartIDs.contains("\($0.value(forKey: "cart_id") ?? "")")
+            }
+            guard !selectedItems.isEmpty else {
+                CommonClass.showSnackBar(message: "Selected item is no longer available".localizedString)
+                return
+            }
+
+            let repairItems = NSMutableArray()
+            for items in selectedItems {
                 let mItems = NSMutableDictionary()
-                if let items = i as? NSDictionary {
-                    mItems.setValue(1, forKey: "Qty")
-                    mItems.setValue("\(items.value(forKey: "SKU") ?? "")", forKey: "SKU")
-                    mItems.setValue("\(items.value(forKey: "amount") ?? "")", forKey: "amount")
-                    mItems.setValue("\(items.value(forKey: "cart_id") ?? "")", forKey: "cart_id")
-                    mItems.setValue("\(items.value(forKey: "date") ?? "")", forKey: "date")
-                    mItems.setValue("\(items.value(forKey: "image") ?? "")", forKey: "image")
-                    mItems.setValue("\(items.value(forKey: "location") ?? "")", forKey: "location")
-                    mItems.setValue("\(items.value(forKey: "order_id") ?? "")", forKey: "order_id")
-                    mItems.setValue("\(items.value(forKey: "ref_no") ?? "")", forKey: "ref_no")
-                    mItems.setValue("\(items.value(forKey: "stock_id") ?? "")", forKey: "stock_id")
-                    mData.add(mItems)
-                }
+                mItems.setValue(1, forKey: "Qty")
+                mItems.setValue("\(items.value(forKey: "SKU") ?? "")", forKey: "SKU")
+                mItems.setValue("\(items.value(forKey: "amount") ?? "")", forKey: "amount")
+                mItems.setValue("\(items.value(forKey: "cart_id") ?? "")", forKey: "cart_id")
+                mItems.setValue("\(items.value(forKey: "date") ?? "")", forKey: "date")
+                mItems.setValue("\(items.value(forKey: "image") ?? "")", forKey: "image")
+                mItems.setValue("\(items.value(forKey: "location") ?? "")", forKey: "location")
+                mItems.setValue("\(items.value(forKey: "order_id") ?? "")", forKey: "order_id")
+                mItems.setValue("\(items.value(forKey: "ref_no") ?? "")", forKey: "ref_no")
+                mItems.setValue("\(items.value(forKey: "stock_id") ?? "")", forKey: "stock_id")
+                repairItems.add(mItems)
             }
             
             let mParams = [
-                "cart_ids": mData,
+                "cart_ids": repairItems,
                 "customer_id": mCustomerId,
                 "order_type": mOrderType,
                 "sales_person_id": selectedSalesPersonId
@@ -177,12 +187,13 @@ class CommonPurchaseHistory: UIViewController, UITableViewDelegate, UITableViewD
                         self.delegate?.mGetInventoryItems(items: [""])
                         
                     }else{
-                        
+                        CommonClass.showSnackBar(message: "\(response.value(forKey: "message") ?? "Something went wrong")")
                     }
                 }
             }
             
         }else{
+            self.dismiss(animated: true)
             var items = [mOrderId,mCartId]
             if mOrderType == "refund_order" {
                 items.append(mDiscount)

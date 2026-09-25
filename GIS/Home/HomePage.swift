@@ -29,6 +29,8 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     
     @IBOutlet weak var mStoreTableView: UITableView!
     @IBOutlet weak var mOrganizationImage: UIImageView!
+
+    private let brandLogoURLKey = "brand_logo"
     
     @IBOutlet weak var mChooseLanguage: UIButton!
     
@@ -95,16 +97,27 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     private var menuRows: [UIStackView] = []
     private var menuTiles: [UIView] = []
     private weak var diamondMenuTile: UIView?
+    private weak var traceMenuTile: UIView?
 
     /// Keeps the home menu as a two-column grid. When Diamond is unavailable,
     /// the next menu tile moves into its position instead of stretching Inventory.
-    private func updateMenuGrid(showingDiamond: Bool) {
+    private func updateMenuGrid(showingDiamond: Bool, showingTrace: Bool) {
         let diamondTile: UIView
         if let cachedDiamondTile = diamondMenuTile {
             diamondTile = cachedDiamondTile
         } else if let initialDiamondTile = mDIAMONDBUTTON.superview {
             diamondTile = initialDiamondTile
             diamondMenuTile = initialDiamondTile
+        } else {
+            return
+        }
+
+        let traceTile: UIView
+        if let cachedTraceTile = traceMenuTile {
+            traceTile = cachedTraceTile
+        } else if let initialTraceTile = mTRACEBUTTON.superview {
+            traceTile = initialTraceTile
+            traceMenuTile = initialTraceTile
         } else {
             return
         }
@@ -116,7 +129,10 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
             menuTiles = menuRows.flatMap { $0.arrangedSubviews }
         }
 
-        let visibleTiles = menuTiles.filter { showingDiamond || $0 !== diamondTile }
+        let visibleTiles = menuTiles.filter {
+            (showingDiamond || $0 !== diamondTile) &&
+            (showingTrace || $0 !== traceTile)
+        }
 
         for (index, row) in menuRows.enumerated() {
             row.arrangedSubviews.forEach {
@@ -151,7 +167,23 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 
         UserDefaults.standard.set(shouldShowDiamond, forKey: "isMixMatch")
         mDIAMONDBUTTON.isEnabled = shouldShowDiamond
-        updateMenuGrid(showingDiamond: shouldShowDiamond)
+        updateMenuGrid(showingDiamond: shouldShowDiamond, showingTrace: isBlockchainLedgerEnabled)
+    }
+
+    private var isBlockchainLedgerEnabled: Bool {
+        guard UserDefaults.standard.object(forKey: "blockChainLedger") != nil else {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: "blockChainLedger")
+    }
+
+    private func applyBlockchainLedger(_ value: Any?) {
+        let shouldShowTrace = "\(value ?? 0)" == "1"
+        UserDefaults.standard.set(shouldShowTrace, forKey: "blockChainLedger")
+        updateMenuGrid(
+            showingDiamond: UserDefaults.standard.bool(forKey: "isMixMatch"),
+            showingTrace: shouldShowTrace
+        )
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -345,7 +377,9 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                     if let jsonResult = json as? NSDictionary {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
+                            print("mPOSSettings = \(mData)")
                             self.applyProductChoice(mData["productChoice"])
+                            self.applyBlockchainLedger(mData["blockChainLedger"])
 
                             let faroActive = "\(mData["faro_active"] ?? "0")" == "1"
                                 UserDefaults.standard.set(faroActive, forKey: "faro_active")
@@ -1096,12 +1130,14 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         }
         
         mProfilePicture.downlaodImageFromUrl(urlString: UserDefaults.standard.string(forKey: "SALESPERSON_IMAGE") ?? "")
+        applyCompanyLogo()
         
         mGRAPHBUTTON.layer.cornerRadius = 12
         mGRAPHBUTTON.backgroundColor =  #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 0.6)
-        // Graph is an active Home menu item. Keep it tappable just like
-        // Inventory, Catalog, Stock Take, Customer and Trace.
+        // Keep Graph styled exactly like the other Home tiles, but it is not
+        // available to open from this app version.
         mGRAPHBUTTON.isEnabled = true
+        mGRAPHBUTTON.isUserInteractionEnabled = false
         
         // Keep Diamond hidden until POS Settings confirms it is enabled for
         // this store. A stored value prevents a visual flash on later visits.
@@ -1191,6 +1227,43 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                 }
             }
         }
+    }
+
+    /// Home must show the selected company's identity, not the built-in GIS logo.
+    /// The URL is saved after the profile response is received on the Language page.
+    private func applyCompanyLogo() {
+        guard let logoURL = UserDefaults.standard.string(forKey: brandLogoURLKey),
+              !logoURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            loadCompanyLogoFromProfile()
+            return
+        }
+
+        mOrganizationImage.contentMode = .scaleAspectFit
+        mOrganizationImage.downlaodImageFromUrl(urlString: logoURL)
+    }
+
+    /// Existing sessions created before the logo was cached still receive the
+    /// company logo immediately, without requiring the user to log in again.
+    private func loadCompanyLogoFromProfile() {
+        guard Reachability.isConnectedToNetwork() else { return }
+
+        AF.request(mFetchProfileDetails, method: .post, parameters: nil, headers: sGisHeaders2)
+            .responseJSON { [weak self] response in
+                guard let self,
+                      response.error == nil,
+                      let data = response.data,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary,
+                      json.value(forKey: "code") as? Int == 200,
+                      let profile = json.value(forKey: "data") as? NSDictionary,
+                      let logoURL = profile.value(forKey: "brand_logo") as? String,
+                      !logoURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    return
+                }
+
+                UserDefaults.standard.set(logoURL, forKey: self.brandLogoURLKey)
+                self.mOrganizationImage.contentMode = .scaleAspectFit
+                self.mOrganizationImage.downlaodImageFromUrl(urlString: logoURL)
+            }
     }
     
     @IBAction func mMinimize(_ sender: Any) {
@@ -1603,6 +1676,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                                                     if let jsonResult = json as? NSDictionary {
                                                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
                                                             self.applyProductChoice(mData["productChoice"])
+                                                            self.applyBlockchainLedger(mData["blockChainLedger"])
 
                                                             if let mPriceFormat = mData.value(forKey: "price_format") as? NSDictionary {
                                                                 if let mStoreCurrency = mPriceFormat.value(forKey: "currency") as? String {
