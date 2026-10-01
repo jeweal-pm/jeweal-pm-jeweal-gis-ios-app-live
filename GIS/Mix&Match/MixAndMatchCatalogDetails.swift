@@ -546,7 +546,7 @@ class MixAndMatchCatalogDetails: UIViewController , UICollectionViewDelegate , U
                         if let data = mArr[0] as? NSDictionary {
                             self.mPointerName.text = "\(data.value(forKey: "pointer") ?? "0.0")"
                             self.mPointerId = "\(data.value(forKey: "pointer") ?? "0.0")"
-                            self.mPrice.text =  self.mStoreCurrency + " \(data.value(forKey: "price") ?? "0.00")"
+                            self.mPrice.text = "\(data.value(forKey: "price") ?? "0.00")"
                             self.mPointerPrice = "\(data.value(forKey: "price") ?? "0.00")"
                         }
                     }
@@ -573,7 +573,7 @@ class MixAndMatchCatalogDetails: UIViewController , UICollectionViewDelegate , U
             
             
             self.mPointerId =  self.mPointerList[index]
-            self.mPrice.text = self.mStoreCurrency + " " + self.mPointerdPriceList[index]
+            self.mPrice.text = self.mPointerdPriceList[index]
             self.mPointerPrice = self.mPointerdPriceList[index]
             
             
@@ -730,7 +730,7 @@ class MixAndMatchCatalogDetails: UIViewController , UICollectionViewDelegate , U
                                 self.mPStoneName.text = nameLines.joined(separator: "\n")
                                 self.mPStoneWeight.text = weightLines.joined(separator: "\n")
                             }
-                            self.mPrice.text = self.mStoreCurrency + " \(mProductData.value(forKey: "price") ?? "--" )"
+                            self.mPrice.text = "\(mProductData.value(forKey: "price") ?? "--" )"
                             self.mPointerPrice = "\(mProductData.value(forKey: "price") ?? "--" )"
                             
                             self.mPointerList = [String]()
@@ -908,7 +908,7 @@ class MixAndMatchCatalogDetails: UIViewController , UICollectionViewDelegate , U
                                                             if let data = mArr[0] as? NSDictionary {
                                                                 self.mPointerName.text = "\(data.value(forKey: "pointer") ?? "")"
                                                                 self.mPointerId = "\(data.value(forKey: "pointer") ?? "")"
-                                                                self.mPrice.text = self.mStoreCurrency + " \(data.value(forKey: "price") ?? "0.00")"
+                                                                self.mPrice.text = "\(data.value(forKey: "price") ?? "0.00")"
                                                                 self.mPointerPrice = "\(data.value(forKey: "price") ?? "0.00")"
                                                             }
                                                         }
@@ -940,7 +940,7 @@ class MixAndMatchCatalogDetails: UIViewController , UICollectionViewDelegate , U
                                                     if let data = mArr[0] as? NSDictionary {
                                                         self.mPointerName.text = "\(data.value(forKey: "pointer") ?? "0.0")"
                                                         self.mPointerId = "\(data.value(forKey: "pointer") ?? "0.0")"
-                                                        self.mPrice.text = self.mStoreCurrency + " \(data.value(forKey: "price") ?? "0.00")"
+                                                        self.mPrice.text = "\(data.value(forKey: "price") ?? "0.00")"
                                                         self.mPointerPrice = "\(data.value(forKey: "price") ?? "0.00")"
                                                         self.mPointerView.isHidden = false
                                                     }

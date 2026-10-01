@@ -144,6 +144,7 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
     @IBOutlet weak var mClarityLABEL: UILabel!
     
     var isLoadingMore = false
+    var totalResult = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -353,8 +354,14 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
     
     
     @IBAction func mShowMore(_ sender: Any) {
+        guard !isLoadingMore else { return }
         
+        guard (mData.count - 1) < totalResult else {
+            CommonClass.showSnackBar(message: "All records loaded.")
+            return
+        }
         
+        isLoadingMore = true
         CommonClass.showFullLoader(view: self.view)
         mCompareId = [String]()
         self.mComparedData = NSMutableArray()
@@ -1181,6 +1188,8 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
 
         guard scrollView == mDiamondTable2 else { return }
+        
+        guard (mData.count - 1) < totalResult else { return }
 
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
@@ -1257,7 +1266,8 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
                 
                 if let mDataItems = response.value(forKey: "data") as? NSArray {
                     
-                    if let count = response.value(forKey: "totalResult") {
+                    if let count = response.value(forKey: "totalResult") as? Int {
+                        self.totalResult = count
                         self.mResultsCount.text =  "(\(count))"
                     }else{
                         self.mResultsCount.text =  "(0)"
@@ -1280,6 +1290,12 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
                              self.mData.add(i)
                          }
                     }
+                    
+                    // Trim excess items beyond totalResult (mData[0] is a dummy header)
+                    let maxAllowed = self.totalResult + 1
+                    while self.mData.count > maxAllowed {
+                        self.mData.removeLastObject()
+                    }
                     self.mDiamondTable.delegate = self
                     self.mDiamondTable.dataSource = self
                     self.mDiamondTable.reloadData()
@@ -1289,6 +1305,10 @@ class MixAndMatchDiamond: UIViewController , UITableViewDelegate , UITableViewDa
                     self.mDiamondTable2.delegate = self
                     self.mDiamondTable2.dataSource = self
                     self.mDiamondTable2.reloadData()
+                    
+                    // Hide "Show More" when all records are loaded
+                    let allLoaded = (self.mData.count - 1) >= self.totalResult
+                    self.mShowMoreLABEL.superview?.isHidden = allLoaded
                     
                 }
                 

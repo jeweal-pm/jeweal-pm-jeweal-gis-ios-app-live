@@ -139,7 +139,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HTI-FX-81H">
                                                 <rect key="frame" x="355" y="2.5" width="35" height="35"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="DYT-Ym-Ua4">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="DYT-Ym-Ua4">
                                                         <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                         <constraints>
@@ -3572,7 +3572,7 @@
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dKi-hn-wr4">
                                                                 <rect key="frame" x="239" y="0.0" width="35" height="40"/>
                                                                 <subviews>
-                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="lnp-yU-uKf">
+                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="lnp-yU-uKf">
                                                                         <rect key="frame" x="7.5" y="10" width="20" height="20"/>
                                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                                         <constraints>
@@ -6741,7 +6741,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aap-1V-Pav">
                                                 <rect key="frame" x="331" y="2.5" width="35" height="35"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="Yd4-kH-1DR">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="Yd4-kH-1DR">
                                                         <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                         <constraints>
@@ -23358,7 +23358,7 @@
         <image name="dring1" width="327" height="327"/>
         <image name="edit_profile_ic" width="20" height="24"/>
         <image name="email" width="17" height="17"/>
-        <image name="funnelgreen" width="18" height="19"/>
+        <image name="stocktake_ic_filter" width="24" height="24"/>
         <image name="gislogo_ic" width="234" height="172"/>
         <image name="graph_ic" width="72" height="72"/>
         <image name="home_ic_green" width="32" height="32"/>

@@ -613,6 +613,7 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             "\(data["name"] ?? "")"
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .lowercased()
+        let displayedPaymentName = paymentDisplayName(for: data)
 
         // Cregis configurations currently return an empty payment_slag.
         // Derive the provider slug from the selected Cregis method so Submit
@@ -631,12 +632,11 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
                 "\(data["environment"] ?? "sandbox")"
                     .lowercased()
 
-            mCreditBankName.text = "PayPal"
-
-        } else {
-
-            mCreditBankName.text = "Debit or Credit Card"
         }
+
+        // Show the provider selected by the user (for example, Cregis),
+        // rather than a generic debit/credit-card label.
+        mCreditBankName.text = displayedPaymentName
 
         print("========== PAYMENT SELECT ==========")
         print("NAME =", data["name"] ?? "")
@@ -675,6 +675,21 @@ class CustomOrderCheckout: UIViewController, UITextFieldDelegate , UITableViewDe
             .trimmingCharacters(in: .whitespaces)
 
         mCreditFillAmount.becomeFirstResponder()
+    }
+
+    private func paymentDisplayName(for data: NSDictionary) -> String {
+        let configuredName = "\(data["name"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if !configuredName.isEmpty {
+            return configuredName
+        }
+
+        let slug = "\(data["payment_slag"] ?? "")".lowercased()
+        if slug == "paypal-payment" {
+            let environment = "\(data["environment"] ?? "")".lowercased()
+            return environment == "sandbox" ? "PayPal Sandbox" : "PayPal"
+        }
+        return "Debit or Credit Card"
     }
     
 //    func selectPayment(data: NSDictionary) {

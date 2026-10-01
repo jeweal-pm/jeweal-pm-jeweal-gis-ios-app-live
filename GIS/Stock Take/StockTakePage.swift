@@ -826,7 +826,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             scanButton.addTarget(self, action: #selector(referenceSearchScanTapped), for: .touchUpInside)
             bar.addSubview(scanButton)
 
-            // Filter is outside the search capsule and uses stocktake_ic_filter.
+            // Filter is outside the search capsule and uses the shared filter-list icon.
             let filterButton = UIButton(type: .system)
             filterButton.translatesAutoresizingMaskIntoConstraints = false
             filterButton.isUserInteractionEnabled = true
@@ -886,7 +886,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 scanButton.heightAnchor.constraint(equalToConstant: 28),
 
                 // Filter remains outside the capsule.
-                filterButton.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
+                // Match the search capsule's 16pt leading inset on the right edge.
+                filterButton.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
                 filterButton.centerYAnchor.constraint(equalTo: container.centerYAnchor),
                 filterButton.widthAnchor.constraint(equalToConstant: 28),
                 filterButton.heightAnchor.constraint(equalToConstant: 28)
@@ -2998,7 +2999,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 
                 DispatchQueue.main.async {
                     self.isSpeechRecongnitionOn = false
-                    self.sMicImageView.image = UIImage(systemName: "mic.fill")
+                    self.sMicImageView.image = UIImage(named: "stocktake_ic_mic")
                     if let text = value , !text.isEmpty{
                         self.mSearchStock.text = text
                         self.mSearchStock.becomeFirstResponder()
@@ -3007,7 +3008,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
             
         } else {
-            self.sMicImageView.image = UIImage(systemName: "mic.fill")
+            self.sMicImageView.image = UIImage(named: "stocktake_ic_mic")
             self.isSpeechRecongnitionOn = false
             speechRecongniger.stopRecognition()
         }

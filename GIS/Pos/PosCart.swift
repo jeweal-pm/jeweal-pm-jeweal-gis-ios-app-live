@@ -79,8 +79,16 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
     private let handleView = UIView()
     private let titleLabel = UILabel()
     private let searchField = UITextField()
+    private let micButton = UIButton(type: .system)
+    private let filterButton = UIButton(type: .system)
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var dismissPanGesture: UIPanGestureRecognizer!
+    private let speechRecognizer = SpeechRecognizer(localeIdentifier: "en-US")
+    private var isSpeechRecognitionOn = false
+    private var speechResetWorkItem: DispatchWorkItem?
+    private var selectedNameInitials = Set<String>()
+    private var selectedCountries = Set<String>()
+    private weak var salesPersonFilterView: POSSalesPersonFilterView?
 
     init(rows: [POSSalesPersonRow], onSelect: @escaping (POSSalesPersonRow) -> Void, onProfileTap: @escaping (POSSalesPersonRow) -> Void) {
         self.rows = rows
@@ -118,6 +126,7 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
             action: #selector(handleDismissPan(_:))
         )
         dismissPanGesture.delegate = self
+        dismissPanGesture.cancelsTouchesInView = false
         card.addGestureRecognizer(dismissPanGesture)
 
         handleView.translatesAutoresizingMaskIntoConstraints = false
@@ -144,22 +153,23 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
         searchField.leftView = makeSearchIcon()
         searchField.leftViewMode = .always
         searchField.clearButtonMode = .whileEditing
+        searchField.isUserInteractionEnabled = true
         searchField.delegate = self
         searchField.addTarget(self, action: #selector(searchChanged(_:)), for: .editingChanged)
         card.addSubview(searchField)
 
-        let micButton = UIButton(type: .system)
         micButton.translatesAutoresizingMaskIntoConstraints = false
-        micButton.setImage(UIImage(systemName: "mic.fill"), for: .normal)
-        micButton.tintColor = UIColor.systemTeal
-        micButton.isUserInteractionEnabled = false
+        micButton.setImage(UIImage(named: "stocktake_ic_mic")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        micButton.tintColor = UIColor(hex: "#868686")
+        micButton.accessibilityLabel = "Voice Search"
+        micButton.addTarget(self, action: #selector(micTapped), for: .touchUpInside)
         card.addSubview(micButton)
 
-        let filterButton = UIButton(type: .system)
         filterButton.translatesAutoresizingMaskIntoConstraints = false
-        filterButton.setImage(UIImage(systemName: "line.3.horizontal.decrease"), for: .normal)
-        filterButton.tintColor = UIColor.systemTeal
-        filterButton.isUserInteractionEnabled = false
+        filterButton.setImage(UIImage(named: "stocktake_ic_filter")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        filterButton.tintColor = UIColor.label
+        filterButton.accessibilityLabel = "Filter Sales Persons"
+        filterButton.addTarget(self, action: #selector(filterTapped), for: .touchUpInside)
         card.addSubview(filterButton)
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -235,11 +245,18 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
 
     @objc private func searchChanged(_ sender: UITextField) {
         let query = (sender.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let rowsMatchingFilters = rows.filter { row in
+            let firstLetter = String(row.name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(1)).uppercased()
+            let matchesName = selectedNameInitials.isEmpty || selectedNameInitials.contains(firstLetter)
+            let country = row.country.trimmingCharacters(in: .whitespacesAndNewlines)
+            let matchesCountry = selectedCountries.isEmpty || selectedCountries.contains(country)
+            return matchesName && matchesCountry
+        }
 
         if query.isEmpty {
-            filteredRows = rows
+            filteredRows = rowsMatchingFilters
         } else {
-            filteredRows = rows.filter {
+            filteredRows = rowsMatchingFilters.filter {
                 $0.name.localizedCaseInsensitiveContains(query) ||
                 $0.country.localizedCaseInsensitiveContains(query) ||
                 $0.phone.localizedCaseInsensitiveContains(query)
@@ -247,6 +264,94 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
         }
 
         tableView.reloadData()
+    }
+
+    @objc private func micTapped() {
+        if isSpeechRecognitionOn {
+            stopSpeechRecognition()
+            return
+        }
+
+        isSpeechRecognitionOn = true
+        micButton.setImage(UIImage(systemName: "mic.slash.fill"), for: .normal)
+        micButton.tintColor = .systemRed
+
+        // The shared recognizer ends an inactive recording automatically. Restore
+        // the normal icon as well when no spoken result is returned.
+        let resetWorkItem = DispatchWorkItem { [weak self] in
+            self?.stopSpeechRecognition()
+        }
+        speechResetWorkItem = resetWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: resetWorkItem)
+
+        speechRecognizer.startRecognition { [weak self] value in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                // The shared recognizer has already stopped itself before it
+                // invokes this completion handler.
+                self.stopSpeechRecognition(stopRecognizer: false)
+
+                guard let text = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !text.isEmpty else { return }
+
+                self.searchField.text = text
+                self.searchChanged(self.searchField)
+                self.searchField.becomeFirstResponder()
+            }
+        }
+    }
+
+    private func stopSpeechRecognition(stopRecognizer: Bool = true) {
+        guard isSpeechRecognitionOn else { return }
+        isSpeechRecognitionOn = false
+        speechResetWorkItem?.cancel()
+        speechResetWorkItem = nil
+        if stopRecognizer {
+            speechRecognizer.stopRecognition()
+        }
+        micButton.setImage(UIImage(named: "stocktake_ic_mic")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        micButton.tintColor = UIColor(hex: "#868686")
+    }
+
+    @objc private func filterTapped() {
+        searchField.resignFirstResponder()
+
+        guard salesPersonFilterView == nil else { return }
+
+        let initials = Array(
+            Set(rows.map {
+                String($0.name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(1)).uppercased()
+            }.filter { !$0.isEmpty })
+        ).sorted()
+        let countries = Array(
+            Set(rows.map { $0.country.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty })
+        ).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+
+        let filterView = POSSalesPersonFilterView(
+            initials: initials,
+            countries: countries,
+            selectedInitials: selectedNameInitials,
+            selectedCountries: selectedCountries
+        ) { [weak self] initials, countries in
+            guard let self = self else { return }
+            self.selectedNameInitials = initials
+            self.selectedCountries = countries
+            self.searchChanged(self.searchField)
+            self.salesPersonFilterView = nil
+        }
+
+        guard let host = window else { return }
+        filterView.translatesAutoresizingMaskIntoConstraints = false
+        host.addSubview(filterView)
+        NSLayoutConstraint.activate([
+            filterView.leadingAnchor.constraint(equalTo: host.leadingAnchor),
+            filterView.trailingAnchor.constraint(equalTo: host.trailingAnchor),
+            filterView.topAnchor.constraint(equalTo: host.topAnchor),
+            filterView.bottomAnchor.constraint(equalTo: host.bottomAnchor)
+        ])
+        salesPersonFilterView = filterView
+        filterView.showAnimated()
     }
 
     func dismissPicker() {
@@ -314,6 +419,19 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive touch: UITouch) -> Bool {
+        // Text entry and the two search controls should never be intercepted by
+        // the sheet-dismiss gesture.
+        if let touchedView = touch.view,
+           touchedView === searchField || touchedView.isDescendant(of: searchField) ||
+           touchedView === micButton || touchedView.isDescendant(of: micButton) ||
+           touchedView === filterButton || touchedView.isDescendant(of: filterButton) {
+            return false
+        }
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return false
     }
@@ -344,6 +462,282 @@ final class POSSalesPersonPickerView: UIView, UITableViewDataSource, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         onSelect(filteredRows[indexPath.row])
+    }
+}
+
+/// Customer-style filter sheet tailored to the fields available for Sales Persons.
+final class POSSalesPersonFilterView: UIView {
+
+    private let dimView = UIControl()
+    private let card = UIView()
+    private let initials: [String]
+    private let countries: [String]
+    private var selectedInitials: Set<String>
+    private var selectedCountries: Set<String>
+    private var initialButtons: [String: UIButton] = [:]
+    private var countryButtons: [String: UIButton] = [:]
+    private let onApply: (Set<String>, Set<String>) -> Void
+
+    init(
+        initials: [String],
+        countries: [String],
+        selectedInitials: Set<String>,
+        selectedCountries: Set<String>,
+        onApply: @escaping (Set<String>, Set<String>) -> Void
+    ) {
+        self.initials = initials
+        self.countries = countries
+        self.selectedInitials = selectedInitials
+        self.selectedCountries = selectedCountries
+        self.onApply = onApply
+        super.init(frame: .zero)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .clear
+
+        dimView.translatesAutoresizingMaskIntoConstraints = false
+        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.25)
+        dimView.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
+        addSubview(dimView)
+
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 28
+        card.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        card.clipsToBounds = true
+        addSubview(card)
+
+        let handle = UIView()
+        handle.translatesAutoresizingMaskIntoConstraints = false
+        handle.backgroundColor = UIColor.systemGray4
+        handle.layer.cornerRadius = 3
+        card.addSubview(handle)
+
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = "Filter"
+        title.font = .systemFont(ofSize: 22, weight: .bold)
+        title.textAlignment = .center
+        card.addSubview(title)
+
+        let clearButton = UIButton(type: .system)
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        clearButton.setTitle("Clear All", for: .normal)
+        clearButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        clearButton.addTarget(self, action: #selector(clearAll), for: .touchUpInside)
+        card.addSubview(clearButton)
+
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
+        card.addSubview(scrollView)
+
+        let content = UIStackView()
+        content.translatesAutoresizingMaskIntoConstraints = false
+        content.axis = .vertical
+        content.spacing = 16
+        scrollView.addSubview(content)
+        content.addArrangedSubview(makeSection(title: "Name", values: initials, type: .initial))
+        content.addArrangedSubview(makeSection(title: "Location", values: countries, type: .country))
+
+        let applyButton = UIButton(type: .system)
+        applyButton.translatesAutoresizingMaskIntoConstraints = false
+        applyButton.setTitle("Apply Filters", for: .normal)
+        applyButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
+        applyButton.setTitleColor(.white, for: .normal)
+        applyButton.backgroundColor = UIColor(hex: "#5AC8C6")
+        applyButton.layer.cornerRadius = 14
+        applyButton.addTarget(self, action: #selector(applyFilters), for: .touchUpInside)
+        card.addSubview(applyButton)
+
+        NSLayoutConstraint.activate([
+            dimView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            dimView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            dimView.topAnchor.constraint(equalTo: topAnchor),
+            dimView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            card.leadingAnchor.constraint(equalTo: leadingAnchor),
+            card.trailingAnchor.constraint(equalTo: trailingAnchor),
+            card.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 60),
+            card.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            handle.topAnchor.constraint(equalTo: card.topAnchor, constant: 10),
+            handle.centerXAnchor.constraint(equalTo: card.centerXAnchor),
+            handle.widthAnchor.constraint(equalToConstant: 58),
+            handle.heightAnchor.constraint(equalToConstant: 5),
+
+            title.topAnchor.constraint(equalTo: handle.bottomAnchor, constant: 20),
+            title.centerXAnchor.constraint(equalTo: card.centerXAnchor),
+            title.heightAnchor.constraint(equalToConstant: 28),
+
+            clearButton.centerYAnchor.constraint(equalTo: title.centerYAnchor),
+            clearButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+
+            applyButton.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 18),
+            applyButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -18),
+            applyButton.bottomAnchor.constraint(equalTo: card.safeAreaLayoutGuide.bottomAnchor, constant: -14),
+            applyButton.heightAnchor.constraint(equalToConstant: 54),
+
+            scrollView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 24),
+            scrollView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 18),
+            scrollView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -18),
+            scrollView.bottomAnchor.constraint(equalTo: applyButton.topAnchor, constant: -18),
+
+            content.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            content.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            content.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            content.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            content.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+        ])
+    }
+
+    private enum FilterType { case initial, country }
+
+    private func makeSection(title: String, values: [String], type: FilterType) -> UIView {
+        let section = UIView()
+        section.backgroundColor = UIColor(hex: "#EEF9F9")
+        section.layer.cornerRadius = 14
+
+        let heading = UILabel()
+        heading.translatesAutoresizingMaskIntoConstraints = false
+        heading.text = title
+        heading.font = .systemFont(ofSize: 18, weight: .bold)
+        heading.textColor = UIColor(hex: "#303030")
+        section.addSubview(heading)
+
+        let selectAll = UIButton(type: .system)
+        selectAll.translatesAutoresizingMaskIntoConstraints = false
+        selectAll.setTitle("Select All", for: .normal)
+        selectAll.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        selectAll.tag = type == .initial ? 0 : 1
+        selectAll.addTarget(self, action: #selector(selectAllTapped(_:)), for: .touchUpInside)
+        section.addSubview(selectAll)
+
+        let divider = UIView()
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.backgroundColor = UIColor(hex: "#C5DFE4")
+        section.addSubview(divider)
+
+        let rows = UIStackView()
+        rows.translatesAutoresizingMaskIntoConstraints = false
+        rows.axis = .vertical
+        rows.spacing = 10
+        section.addSubview(rows)
+
+        for group in stride(from: 0, to: values.count, by: 4) {
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = 10
+            row.distribution = .fillEqually
+            for value in values[group..<min(group + 4, values.count)] {
+                row.addArrangedSubview(makeChip(value: value, type: type))
+            }
+            while row.arrangedSubviews.count < 4 {
+                let spacer = UIView()
+                spacer.isHidden = true
+                row.addArrangedSubview(spacer)
+            }
+            rows.addArrangedSubview(row)
+        }
+
+        NSLayoutConstraint.activate([
+            heading.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 16),
+            heading.topAnchor.constraint(equalTo: section.topAnchor, constant: 14),
+
+            selectAll.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -16),
+            selectAll.centerYAnchor.constraint(equalTo: heading.centerYAnchor),
+
+            divider.leadingAnchor.constraint(equalTo: section.leadingAnchor),
+            divider.trailingAnchor.constraint(equalTo: section.trailingAnchor),
+            divider.topAnchor.constraint(equalTo: heading.bottomAnchor, constant: 14),
+            divider.heightAnchor.constraint(equalToConstant: 1),
+
+            rows.leadingAnchor.constraint(equalTo: section.leadingAnchor, constant: 16),
+            rows.trailingAnchor.constraint(equalTo: section.trailingAnchor, constant: -16),
+            rows.topAnchor.constraint(equalTo: divider.bottomAnchor, constant: 14),
+            rows.bottomAnchor.constraint(equalTo: section.bottomAnchor, constant: -16)
+        ])
+        return section
+    }
+
+    private func makeChip(value: String, type: FilterType) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(value, for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.layer.cornerRadius = 10
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.accessibilityIdentifier = type == .initial ? "initial" : "country"
+        button.addTarget(self, action: #selector(chipTapped(_:)), for: .touchUpInside)
+        if type == .initial { initialButtons[value] = button } else { countryButtons[value] = button }
+        updateChip(button, selected: type == .initial ? selectedInitials.contains(value) : selectedCountries.contains(value))
+        return button
+    }
+
+    @objc private func chipTapped(_ sender: UIButton) {
+        guard let value = sender.currentTitle else { return }
+        if sender.accessibilityIdentifier == "initial" {
+            toggle(value, in: &selectedInitials)
+            updateChip(sender, selected: selectedInitials.contains(value))
+        } else {
+            toggle(value, in: &selectedCountries)
+            updateChip(sender, selected: selectedCountries.contains(value))
+        }
+    }
+
+    @objc private func selectAllTapped(_ sender: UIButton) {
+        if sender.tag == 0 {
+            selectedInitials = selectedInitials.count == initials.count ? [] : Set(initials)
+            initialButtons.forEach { updateChip($0.value, selected: selectedInitials.contains($0.key)) }
+        } else {
+            selectedCountries = selectedCountries.count == countries.count ? [] : Set(countries)
+            countryButtons.forEach { updateChip($0.value, selected: selectedCountries.contains($0.key)) }
+        }
+    }
+
+    @objc private func clearAll() {
+        selectedInitials.removeAll()
+        selectedCountries.removeAll()
+        initialButtons.values.forEach { updateChip($0, selected: false) }
+        countryButtons.values.forEach { updateChip($0, selected: false) }
+    }
+
+    @objc private func applyFilters() {
+        onApply(selectedInitials, selectedCountries)
+        dismissSheet()
+    }
+
+    @objc private func dismissSheet() {
+        UIView.animate(withDuration: 0.20, animations: {
+            self.card.transform = CGAffineTransform(translationX: 0, y: self.card.bounds.height)
+            self.dimView.alpha = 0
+        }, completion: { _ in
+            self.removeFromSuperview()
+        })
+    }
+
+    func showAnimated() {
+        layoutIfNeeded()
+        card.transform = CGAffineTransform(translationX: 0, y: card.bounds.height)
+        dimView.alpha = 0
+        UIView.animate(withDuration: 0.24) {
+            self.card.transform = .identity
+            self.dimView.alpha = 1
+        }
+    }
+
+    private func toggle(_ value: String, in selection: inout Set<String>) {
+        if selection.contains(value) { selection.remove(value) } else { selection.insert(value) }
+    }
+
+    private func updateChip(_ button: UIButton, selected: Bool) {
+        button.backgroundColor = selected ? UIColor(hex: "#5AC8C6") : UIColor(hex: "#CDEEEE")
     }
 }
 

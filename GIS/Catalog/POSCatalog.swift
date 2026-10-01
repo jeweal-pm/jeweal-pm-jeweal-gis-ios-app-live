@@ -363,7 +363,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 
                 DispatchQueue.main.async {
                     self.isSpeechRecongnitionOn = false
-                    self.sMicImage.image = UIImage(systemName: "mic.fill")
+                    self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
                     if let text = value , !text.isEmpty{
                         self.mSearchField.text = text
                         self.mSearchField.becomeFirstResponder()
@@ -372,7 +372,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             }
             
         } else {
-            self.sMicImage.image = UIImage(systemName: "mic.fill")
+            self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
             self.isSpeechRecongnitionOn = false
             speechRecongniger.stopRecognition()
         }

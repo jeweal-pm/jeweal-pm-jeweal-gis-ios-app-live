@@ -1208,3 +1208,23 @@ extension UINavigationController {
         }
     }
 }
+
+// MARK: - UIImage average color
+extension UIImage {
+    /// Returns the average color of the image by scaling it down to 1x1 pixel.
+    var averageColor: UIColor? {
+        guard let cgImage = self.cgImage else { return nil }
+        let size = CGSize(width: 1, height: 1)
+        UIGraphicsBeginImageContextWithOptions(size, true, 0)
+        defer { UIGraphicsEndImageContext() }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return nil }
+        ctx.interpolationQuality = .medium
+        ctx.draw(cgImage, in: CGRect(origin: .zero, size: size))
+        guard let data = ctx.makeImage()?.dataProvider?.data,
+              let ptr = CFDataGetBytePtr(data) else { return nil }
+        return UIColor(red: CGFloat(ptr[0]) / 255,
+                       green: CGFloat(ptr[1]) / 255,
+                       blue: CGFloat(ptr[2]) / 255,
+                       alpha: 1)
+    }
+}

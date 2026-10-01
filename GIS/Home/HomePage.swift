@@ -98,6 +98,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     private var menuTiles: [UIView] = []
     private weak var diamondMenuTile: UIView?
     private weak var traceMenuTile: UIView?
+    private let wallpaperImageView = UIImageView()
 
     /// Keeps the home menu as a two-column grid. When Diamond is unavailable,
     /// the next menu tile moves into its position instead of stretching Inventory.
@@ -374,10 +375,16 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                 
             }else{
                 if let jsonData = response.data {
+                    // --- DEBUG: Log raw JSON response ---
+                    if let rawJSON = String(data: jsonData, encoding: .utf8) {
+                        print("🟢 [POS Settings] RAW JSON Response:\n\(rawJSON)")
+                    }
+                    // --- END DEBUG ---
                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                     if let jsonResult = json as? NSDictionary {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
-                            print("mPOSSettings = \(mData)")
+                            print("🟢 [POS Settings] All Keys: \(mData.allKeys)")
+                            print("🟢 [POS Settings] Full Data: \(mData)")
                             self.applyProductChoice(mData["productChoice"])
                             self.applyBlockchainLedger(mData["blockChainLedger"])
 
@@ -1152,7 +1159,43 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         mStoreTableView.dataSource = self
         mStoreTableView.reloadData()
         
-        self.view.backgroundColor = UIColor(named: "themeBackground")
+        // Use saved wallpaper color if available, otherwise fallback
+        if UserDefaults.standard.object(forKey: "wallpaper_r") != nil {
+            let r = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_r"))
+            let g = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_g"))
+            let b = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_b"))
+            self.view.backgroundColor = UIColor(red: r, green: g, blue: b, alpha: 1)
+        } else {
+            self.view.backgroundColor = UIColor(named: "themeBackground")
+        }
+        
+        // Load wallpaper from backend (saved by LanguageController)
+        wallpaperImageView.contentMode = .scaleToFill
+        wallpaperImageView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.insertSubview(wallpaperImageView, at: 0)
+        NSLayoutConstraint.activate([
+            wallpaperImageView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            wallpaperImageView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            wallpaperImageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            wallpaperImageView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
+        ])
+        if let flashURL = UserDefaults.standard.string(forKey: "flash_image"), !flashURL.isEmpty {
+            let cleanURL = flashURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let url = URL(string: cleanURL),
+               let scheme = url.scheme?.lowercased(),
+               scheme == "http" || scheme == "https" {
+                wallpaperImageView.sd_setImage(
+                    with: url,
+                    placeholderImage: UIImage(named: "placeholder"),
+                    options: [.retryFailed, .continueInBackground]
+                ) { [weak self] image, error, _, _ in
+                    guard let self = self, error == nil, let image = image else { return }
+                    if let avgColor = image.averageColor {
+                        self.view.backgroundColor = avgColor
+                    }
+                }
+            }
+        }
         
         if UserDefaults.standard.string(forKey: "LANG") == "EN" {
             AppLanguage.shared.set(index: .english)

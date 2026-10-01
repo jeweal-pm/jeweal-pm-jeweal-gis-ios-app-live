@@ -139,7 +139,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4bT-vJ-bnl">
                                                 <rect key="frame" x="312" y="2.5" width="35" height="35"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="rJl-VF-hSP">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="rJl-VF-hSP">
                                                         <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                         <constraints>
@@ -10949,7 +10949,7 @@
         <image name="exclamationmark.circle.fill" catalog="system" width="128" height="123"/>
         <image name="forward_ic" width="11.5" height="20"/>
         <image name="forward_ic1" width="11.5" height="20"/>
-        <image name="funnelgreen" width="18" height="19"/>
+        <image name="stocktake_ic_filter" width="24" height="24"/>
         <image name="heart" catalog="system" width="128" height="107"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="minus" catalog="system" width="128" height="26"/>

@@ -59,6 +59,23 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         mLanguageName.text = "Language".localizedString
         mBackgroundImage.contentMode = .scaleToFill
         
+        // Pin background image to the superview edges (not safe area)
+        // so the wallpaper covers the status bar and home indicator areas.
+        if let superview = mBackgroundImage.superview {
+            mBackgroundImage.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.deactivate(mBackgroundImage.constraints)
+            // Remove existing constraints referencing mBackgroundImage from superview
+            for constraint in superview.constraints where constraint.firstItem === mBackgroundImage || constraint.secondItem === mBackgroundImage {
+                superview.removeConstraint(constraint)
+            }
+            NSLayoutConstraint.activate([
+                mBackgroundImage.topAnchor.constraint(equalTo: superview.topAnchor),
+                mBackgroundImage.bottomAnchor.constraint(equalTo: superview.bottomAnchor),
+                mBackgroundImage.leadingAnchor.constraint(equalTo: superview.leadingAnchor),
+                mBackgroundImage.trailingAnchor.constraint(equalTo: superview.trailingAnchor)
+            ])
+        }
+        
         //Updateing Headers
         updateHeader()
         
@@ -166,7 +183,15 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         }
         
         
-        self.view.backgroundColor = UIColor(named: "themeBackground")
+        // Use saved wallpaper color if available, otherwise fallback
+        if UserDefaults.standard.object(forKey: "wallpaper_r") != nil {
+            let r = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_r"))
+            let g = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_g"))
+            let b = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_b"))
+            self.view.backgroundColor = UIColor(red: r, green: g, blue: b, alpha: 1)
+        } else {
+            self.view.backgroundColor = UIColor(named: "themeBackground")
+        }
         
         //swipe down language to close
         let swipeDownGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
@@ -330,12 +355,43 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                         return
                     }
                     
+                    // --- DEBUG: Log raw profile response ---
+                    if let rawJSON = String(data: jsonData, encoding: .utf8) {
+                        print("🟡 [Profile] RAW JSON Response:\n\(rawJSON)")
+                    }
+                    // --- END DEBUG ---
+                    
                     if jsonResult.value(forKey: "code") as? Int == 200 {
                         
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
+                            print("🟡 [Profile] All Keys: \(mData.allKeys)")
                             
                             self.mFirstName.text = "\(mData.value(forKey: "first_name") ?? "")" + " \(mData.value(forKey: "last_name") ?? "")"
-                            self.mBackgroundImage.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "flash_image") ?? "")")
+                            let flashImageURL = "\(mData.value(forKey: "flash_image") ?? "")"
+                            UserDefaults.standard.set(flashImageURL, forKey: "flash_image")
+                            
+                            // Load wallpaper and extract its average color for safe-area edges
+                            let cleanURL = flashImageURL.trimmingCharacters(in: .whitespacesAndNewlines)
+                            if let url = URL(string: cleanURL),
+                               let scheme = url.scheme?.lowercased(),
+                               scheme == "http" || scheme == "https" {
+                                self.mBackgroundImage.sd_setImage(
+                                    with: url,
+                                    placeholderImage: UIImage(named: "placeholder"),
+                                    options: [.retryFailed, .continueInBackground]
+                                ) { [weak self] image, error, _, _ in
+                                    guard let self = self, error == nil, let image = image else { return }
+                                    if let avgColor = image.averageColor {
+                                        self.view.backgroundColor = avgColor
+                                        // Save RGB so other screens can use it
+                                        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+                                        avgColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+                                        UserDefaults.standard.set(Double(r), forKey: "wallpaper_r")
+                                        UserDefaults.standard.set(Double(g), forKey: "wallpaper_g")
+                                        UserDefaults.standard.set(Double(b), forKey: "wallpaper_b")
+                                    }
+                                }
+                            }
                             
                             let brandLogoURL = "\(mData.value(forKey: "brand_logo") ?? "")"
                             // Keep the active company's logo available to Home as well.

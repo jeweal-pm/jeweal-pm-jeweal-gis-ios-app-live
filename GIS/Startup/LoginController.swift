@@ -646,8 +646,11 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         print("mGetOrganization urlPath \(urlPath)")
         print("mGetOrganization params \(params)")
         AF.request(urlPath, method: .post, parameters: params).responseJSON { response in
+            var keepsLoadingForAutomaticSelection = false
             defer {
-                CommonClass.stopLoader()
+                if !keepsLoadingForAutomaticSelection {
+                    CommonClass.stopLoader()
+                }
             }
             print("mGetOrganization response.response?.statusCode \(response.response?.statusCode ?? 0)")
             print("mGetOrganization response.value \(response.value ?? "")")
@@ -662,6 +665,16 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                 if code == 200 {
                     if let mData = jsonResult["data"] as? [String: Any],
                        let orgData = mData["org_data"] as? NSArray {
+                        // A user with one organization has no organization
+                        // choice to make. Continue directly to its store list.
+                        if orgData.count == 1,
+                           let onlyOrganization = orgData.firstObject as? NSDictionary {
+                            print("mGetOrganization -> selecting the only available organization")
+                            keepsLoadingForAutomaticSelection = true
+                            self.selectOrganization(onlyOrganization)
+                            return
+                        }
+
                         self.mKey = "org"
                         self.configureOrganizationSheetHeader()
                         self.mStoreData = orgData
@@ -741,7 +754,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                     print("jsonResult code = \(String(describing: jsonResult.value(forKey: "code")))")
                     if jsonResult.value(forKey: "code") as? Int == 200 {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
-                            
+
                             let mToken = "\(mData.value(forKey: "login_token") ?? "")"
                             UserDefaults.standard.set(mToken, forKey: "token")
                             
@@ -941,49 +954,72 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         let urlPath = mFetchStores
         
         if Reachability.isConnectedToNetwork() == true {
+            CommonClass.showFullLoader(view: self.view)
             print("mFetchStoresLocations urlPath = \(urlPath)")
             AF.request(urlPath, method:.post, parameters: ["":""],headers: sFetchStoreHeader).responseJSON
             { response in
                 print("mFetchStoresLocations response = \(response)")
                 if(response.error != nil){
-                    
+                    CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     
                     
                     
                 }else{
                     guard let jsonData = response.data else {
+                        CommonClass.stopLoader()
                         CommonClass.showSnackBar(message: "OOP's something went wrong!")
                         return
                     }
                     
+                    // --- DEBUG: Log raw store response ---
+                    if let rawJSON = String(data: jsonData, encoding: .utf8) {
+                        print("🔵 [Stores] RAW JSON Response:\n\(rawJSON)")
+                    }
+                    // --- END DEBUG ---
+                    
                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                     
                     guard let jsonResult = json as? NSDictionary else {
+                        CommonClass.stopLoader()
                         CommonClass.showSnackBar(message: "OOP's something went wrong!")
                         return
                     }
                     if jsonResult.value(forKey: "code") as? Int == 200 {
                         if let mStoreData = jsonResult.value(forKey: "data") as? NSArray {
                             if mStoreData.count == 0 {
+                                CommonClass.stopLoader()
                                 CommonClass.showSnackBar(message: "No Stores available!")
                                 
                                 return
                             }
                             UserDefaults.standard.set(jsonResult, forKey: "storeData")
+
+                            // A single voucher has no user choice to make. Select it
+                            // immediately and continue through the same authentication
+                            // path used when the user taps a store row.
+                            if mStoreData.count == 1,
+                               let onlyStore = mStoreData.firstObject as? NSDictionary {
+                                print("mFetchStoresLocations -> selecting the only available store")
+                                self.selectStore(onlyStore)
+                                return
+                            }
+
                             self.mKey = "store"
                             self.configureStoreSheetHeader()
                             self.mStoreData = mStoreData
                             self.mStoreTableView.delegate = self
                             self.mStoreTableView.dataSource = self
                             self.mStoreTableView.reloadData()
+                            CommonClass.stopLoader()
                             self.mStoreContentView.isHidden = false
                         }else{
+                            CommonClass.stopLoader()
                             CommonClass.showSnackBar(message: "No Stores available!")
                             return
                         }
                     } else if jsonResult.value(forKey: "code") as? Int == 400 {
-                        
+                        CommonClass.stopLoader()
                         CommonClass.showSnackBar(message: "No Stores available!")
                     }
                     
@@ -1030,6 +1066,9 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
             print("mGeneratePOSToken urlPath = \(urlPath)")
             AF.request(urlPath, method:.post, parameters: params,headers: sGenPosHeader).responseJSON
             { response in
+                defer {
+                    CommonClass.stopLoader()
+                }
                 print("mGeneratePOSToken response = \(response)")
                 if(response.error != nil){
                     
@@ -1040,6 +1079,12 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                         CommonClass.showSnackBar(message: "OOP's something went wrong!")
                         return
                     }
+                    
+                    // --- DEBUG: Log raw POS token response ---
+                    if let rawJSON = String(data: jsonData, encoding: .utf8) {
+                        print("🟣 [POS Token] RAW JSON Response:\n\(rawJSON)")
+                    }
+                    // --- END DEBUG ---
                     
                     let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                     
@@ -1137,53 +1182,60 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         print("mSelectOrgStore mKey = \(mKey)")
         print("Organization =", mData)
         if mKey == "org" {
-//            if let orgId = mData.value(forKey: "organization_id") as? String{
-//                mOrgId = orgId
-//                mLoginWithPassword(org_id: orgId)
-//                UserDefaults.standard.set(orgId, forKey: "organization_id")
-//            }
-            if let orgId = mData["organization_id"] as? String {
-
-                mOrgId = orgId
-
-                UserDefaults.standard.set(orgId, forKey: "organization_id")
-                UserDefaults.standard.set(mData["domain"], forKey: "website_url")
-
-                mLoginWithPassword(org_id: orgId)
-            }
+            selectOrganization(mData)
         }else if mKey == "store"{
-            
-            if let location = mData.value(forKey: "location_id") as? String,
-               let locationName = mData.value(forKey: "location_name") as? String {
-                
-                mCurrency = "\(mData.value(forKey: "currency") ?? "")"
-                mLocationId = "\(mData.value(forKey: "location_id") ?? "")"
-                mVoucherId = "\(mData.value(forKey: "voucher_id") ?? "")"
-                
-                UserDefaults.standard.setValue("\(mCurrency)", forKey: "posCurrency")
-                UserDefaults.standard.setValue("\(mLocationId)", forKey: "posLocation")
-                UserDefaults.standard.setValue("\(mVoucherId)", forKey: "posVoucher")
-                UserDefaults.standard.setValue("\(location)", forKey: "location")
-                UserDefaults.standard.setValue("\(locationName)", forKey: "locationName")
-                
-                // Require the normal login PIN after selecting the Store.
-                if self.mRequiresOrganizationStorePin {
-                    // Organization switcher: require PIN or Face ID after Store selection.
-                    let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-                    guard let pinController = storyBoard.instantiateViewController(
-                        withIdentifier: "LoginWithPin"
-                    ) as? LoginWithPin else {
-                        CommonClass.showSnackBar(message: "Unable to open PIN screen.")
-                        return
-                    }
+            selectStore(mData)
+        }
+    }
 
-                    pinController.mRequiresOrganizationStorePin = true
-                    self.navigationController?.pushViewController(pinController, animated: true)
-                } else {
-                    // Normal Email + Password login: enter directly after Store selection.
-                    self.mGeneratePOSToken()
-                }
+    /// Continues login for the selected organization. Used for both a manual
+    /// selection and the automatic single-organization path.
+    private func selectOrganization(_ organization: NSDictionary) {
+        guard let orgId = organization["organization_id"] as? String,
+              !orgId.isEmpty else {
+            CommonClass.showSnackBar(message: "Unable to select organization!")
+            return
+        }
+
+        mOrgId = orgId
+        UserDefaults.standard.set(orgId, forKey: "organization_id")
+        UserDefaults.standard.set(organization["domain"], forKey: "website_url")
+        mLoginWithPassword(org_id: orgId)
+    }
+
+    /// Saves the selected store and continues login. Both the manual store row
+    /// and the single-store shortcut use this method to keep their behavior equal.
+    private func selectStore(_ store: NSDictionary) {
+        guard let location = store.value(forKey: "location_id") as? String,
+              let locationName = store.value(forKey: "location_name") as? String else {
+            CommonClass.showSnackBar(message: "Unable to select store!")
+            return
+        }
+
+        mCurrency = "\(store.value(forKey: "currency") ?? "")"
+        mLocationId = "\(store.value(forKey: "location_id") ?? "")"
+        mVoucherId = "\(store.value(forKey: "voucher_id") ?? "")"
+
+        UserDefaults.standard.setValue(mCurrency, forKey: "posCurrency")
+        UserDefaults.standard.setValue(mLocationId, forKey: "posLocation")
+        UserDefaults.standard.setValue(mVoucherId, forKey: "posVoucher")
+        UserDefaults.standard.setValue(location, forKey: "location")
+        UserDefaults.standard.setValue(locationName, forKey: "locationName")
+
+        if mRequiresOrganizationStorePin {
+            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+            guard let pinController = storyBoard.instantiateViewController(
+                withIdentifier: "LoginWithPin"
+            ) as? LoginWithPin else {
+                CommonClass.showSnackBar(message: "Unable to open PIN screen.")
+                return
             }
+
+            pinController.mRequiresOrganizationStorePin = true
+            navigationController?.pushViewController(pinController, animated: true)
+        } else {
+            CommonClass.showFullLoader(view: view)
+            mGeneratePOSToken()
         }
     }
     

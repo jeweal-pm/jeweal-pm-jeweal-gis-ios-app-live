@@ -599,7 +599,7 @@
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1Ge-Ai-5J7">
                                                                         <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                                                                         <subviews>
-                                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="filterIcon" translatesAutoresizingMaskIntoConstraints="NO" id="VZM-Nr-VmR">
+                                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="VZM-Nr-VmR">
                                                                                 <rect key="frame" x="6" y="8" width="18" height="18"/>
                                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                 <color key="tintColor" name="themeExtraLightText"/>

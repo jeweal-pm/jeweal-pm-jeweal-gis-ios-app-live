@@ -430,7 +430,7 @@ class QuickViewSearch: UIViewController, UITableViewDelegate , UITableViewDataSo
                 
                 DispatchQueue.main.async {
                     self.isSpeechRecongnitionOn = false
-                    self.sMicImage.image = UIImage(systemName: "mic.fill")
+                    self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
                     if let text = value , !text.isEmpty{
                         self.mProductSearch.text = text
                         self.mSearchProductByKeys(value: text)
@@ -440,7 +440,7 @@ class QuickViewSearch: UIViewController, UITableViewDelegate , UITableViewDataSo
             }
             
         } else {
-            self.sMicImage.image = UIImage(systemName: "mic.fill")
+            self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
             self.isSpeechRecongnitionOn = false
             speechRecongniger.stopRecognition()
         }

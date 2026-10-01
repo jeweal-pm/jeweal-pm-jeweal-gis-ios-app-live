@@ -1999,6 +1999,7 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
             "\(data["name"] ?? "")"
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .lowercased()
+        let displayedPaymentName = paymentDisplayName(for: data)
 
         // Cregis configurations currently return an empty payment_slag.
         // Keep the API-supplied slug when present, but derive the known
@@ -2017,12 +2018,11 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
                 "\(data["environment"] ?? "sandbox")"
                     .lowercased()
 
-            mCreditBankName.text = "PayPal"
-
-        } else {
-
-            mCreditBankName.text = "Debit or Credit Card"
         }
+
+        // Keep the selected provider visible during amount entry. For example,
+        // selecting Cregis must show “Cregis”, rather than the generic card label.
+        mCreditBankName.text = displayedPaymentName
 
         print("========== PAYMENT SELECT ==========")
         print("NAME =", data["name"] ?? "")
@@ -2060,6 +2060,21 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
             .trimmingCharacters(in: .whitespaces)
 
         mCreditFillAmount.becomeFirstResponder()
+    }
+
+    private func paymentDisplayName(for data: NSDictionary) -> String {
+        let configuredName = "\(data["name"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if !configuredName.isEmpty {
+            return configuredName
+        }
+
+        let slug = "\(data["payment_slag"] ?? "")".lowercased()
+        if slug == "paypal-payment" {
+            let environment = "\(data["environment"] ?? "")".lowercased()
+            return environment == "sandbox" ? "PayPal Sandbox" : "PayPal"
+        }
+        return "Debit or Credit Card"
     }
     
     
@@ -2976,8 +2991,6 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
             return UICollectionViewCell()
         }
 
-        let slug = "\(mData.value(forKey: "payment_slag") ?? "")"
-
 //        if slug == "stripe-payment" {
 //
 //            cells.mName.text = "Debit or Credit Card"
@@ -2991,30 +3004,7 @@ class POSCheckout: UIViewController, UITextFieldDelegate , UITableViewDelegate ,
 //            cells.mName.text =
 //                "\(mData.value(forKey: "name") ?? "")"
 //        }
-        if slug == "stripe-payment" {
-
-            cells.mName.text = "Debit or Credit Card"
-
-        } else if slug == "paypal-payment" {
-
-            let env = "\(mData["environment"] ?? "")".lowercased()
-
-            if env == "sandbox" {
-
-                cells.mName.text = "PayPal Sandbox"
-
-            } else {
-
-                cells.mName.text = "PayPal"
-
-            }
-
-        } else {
-
-            cells.mName.text =
-                "\(mData["name"] ?? "")"
-
-        }
+        cells.mName.text = paymentDisplayName(for: mData)
 
         cells.mImage.downlaodImageFromUrl(
             urlString: "\(mData.value(forKey: "PayMethod_logo") ?? "")"

@@ -65,6 +65,58 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
     var mProductType = ""
     var mCustomerId = ""
 
+    private var selectedSalesPersonId: String {
+        let primary = UserDefaults.standard.string(forKey: "SALESPERSONID") ?? ""
+        if !primary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return primary
+        }
+        return UserDefaults.standard.string(forKey: "sales_person_id") ?? ""
+    }
+
+    /// Database revisions have used both camelCase and snake_case keys for a
+    /// MixMatch variant. Read either format so the cart payload always reflects
+    /// the option that the user selected.
+    private func hydrateVariantFields(from data: NSDictionary) {
+        func value(_ keys: [String]) -> String {
+            for key in keys {
+                let text = "\(data.value(forKey: key) ?? "")"
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if !text.isEmpty && text != "<null>" && text != "--" {
+                    return text
+                }
+            }
+            return ""
+        }
+
+        if mProductId.isEmpty { mProductId = value(["product_id", "productId"]) }
+        if mMetalId.isEmpty { mMetalId = value(["metalId", "metal_id", "metal"]) }
+        if mStoneId.isEmpty { mStoneId = value(["stoneId", "stone_id", "stone"]) }
+        if mSizeId.isEmpty { mSizeId = value(["sizeId", "size_id", "size"]) }
+        if mPointerId.isEmpty { mPointerId = value(["pointerId", "pointer_id", "pointer"]) }
+        if mMetalNames.isEmpty { mMetalNames = value(["metalName", "metal_name"]) }
+        if mSizeNames.isEmpty { mSizeNames = value(["sizeName", "size_name"]) }
+        if mProductType.isEmpty { mProductType = value(["type", "product_type", "productType"]) }
+        if mJewelPrice.isEmpty || mJewelPrice == "0.00" || mJewelPrice == "0" {
+            var raw = value(["pointerPriceId", "retailprice_Inc", "price", "formatted_price"])
+            // Strip any currency symbols so we always store a raw number
+            let currencySymbol = UserDefaults.standard.string(forKey: "currencySymbol") ?? "$"
+            raw = raw
+                .replacingOccurrences(of: currencySymbol, with: "")
+                .replacingOccurrences(of: "฿", with: "")
+                .replacingOccurrences(of: "$", with: "")
+                .replacingOccurrences(of: ",", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            mJewelPrice = raw
+        }
+    }
+
+    private func hydrateVariantFieldsFromAvailableSources() {
+        hydrateVariantFields(from: mJewelryData)
+        if let catalogData = UserDefaults.standard.object(forKey: "CATALOGDATA") as? NSDictionary {
+            hydrateVariantFields(from: catalogData)
+        }
+    }
+
     @IBOutlet weak var mDView: UIView!
     @IBOutlet weak var mJView: UIView!
     
@@ -177,20 +229,7 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
         self.mPointerSize.text = "\(mJewelryData.value(forKey: "pointer") ?? "--")"
         self.mProductId =  "\(mJewelryData.value(forKey: "product_id") ?? "")"
         
-        if let mData =  UserDefaults.standard.object(forKey: "CATALOGDATA") as? NSDictionary {
-            self.mMetalNames = "\(mData.value(forKey: "metalName") ?? "")"
-            self.mSizeNames = "\(mData.value(forKey: "sizeName") ?? "")"
-            self.mJewelrySize.text = "\(mData.value(forKey: "sizeName") ?? "--")"
-            self.mPointerSize.text = "\(mData.value(forKey: "pointerId") ?? "--")"
-            self.mJewelryPrice.text = "\(mData.value(forKey: "pointerPriceId") ?? "0.00")"
-            self.mMetalId = "\(mData.value(forKey: "metalId") ?? "")"
-            self.mSizeId = "\(mData.value(forKey: "sizeId") ?? "")"
-            self.mStoneId = "\(mData.value(forKey: "stoneId") ?? "")"
-            self.mShapeId = "\(mData.value(forKey: "shapeId") ?? "")"
-            self.mPointerId = "\(mData.value(forKey: "pointerId") ?? "")"
-            self.mProductType = "\(mData.value(forKey: "type") ?? "")"
-            self.mJewelPrice = "\(mData.value(forKey: "pointerPriceId") ?? "0.00")"
-        }
+        hydrateVariantFieldsFromAvailableSources()
         
         mEngraveText.text = mEngravingData.value(forKey: "engravingText") as? String
         mFontName.text = mEngravingData.value(forKey: "engravingFont") as? String
@@ -318,6 +357,10 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
     
     @IBAction func mAddToCart(_ sender: Any) {
 
+        // Re-read the selected variant immediately before constructing the
+        // request, so this payload cannot be built from stale blank fields.
+        hydrateVariantFieldsFromAvailableSources()
+
         print("========== ADD TO CART VARIANT CHECK ==========")
         print("JEWELRY SKU =", mJewelryData.value(forKey: "SKU") ?? "")
         print("JEWELRY _id =", mJewelryData.value(forKey: "_id") ?? "")
@@ -329,12 +372,23 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
         print("PRODUCT TYPE =", mProductType)
         print("================================================")
 
+        // Strip currency symbol from price so the server receives a raw number
+        let rawPrice: String = {
+            let cleaned = mJewelPrice
+                .replacingOccurrences(of: UserDefaults.standard.string(forKey: "currencySymbol") ?? "$", with: "")
+                .replacingOccurrences(of: "฿", with: "")
+                .replacingOccurrences(of: "$", with: "")
+                .replacingOccurrences(of: ",", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return cleaned.isEmpty ? "0" : cleaned
+        }()
+
         let mItems: [String: Any] = [
             "metal": mMetalId,
             "stone": mStoneId,
             "size": mSizeId,
             "pointer": mPointerId,
-            "price": mJewelPrice,
+            "price": rawPrice,
             "metal_name": mMetalNames,
             "size_name": mSizeNames
         ]
@@ -354,7 +408,7 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
             "remark": "",
             "custom_design": mCustomDesign,
             "order_type": "mix_and_match",
-            "saleperson_id": "",
+            "sales_person_id": selectedSalesPersonId,
             "customer_id": mCustomerId,
             "product_type": mProductType,
             "cartId": self.mEditStatus
@@ -369,6 +423,7 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
         print("size =", mSizeId)
         print("pointer =", mPointerId)
         print("product_type =", mProductType)
+        print("price (raw) =", rawPrice)
         
         mGetData(
             url: mAddToCartMixAndMatch,
@@ -381,27 +436,53 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
             print("RESPONSE =", response)
             print("=======================================")
 
-            if status {
-                if let code = response.value(forKey: "code") as? Int,
-                   code == 200 {
-
+            guard status else {
+                DispatchQueue.main.async {
                     CommonClass.showSnackBar(
-                        message: "Item added successfully to cart!"
+                        message: "Network error. Please try again."
                     )
+                }
+                return
+            }
 
-                    let storyBoard = UIStoryboard(
-                        name: "mixNMatch",
-                        bundle: nil
-                    )
+            let code = response.value(forKey: "code") as? Int ?? 0
 
-                    if let cart = storyBoard.instantiateViewController(
-                        withIdentifier: "MixMatchCart"
-                    ) as? MixMatchCart {
-
-                        cart.mKey = "1"
-                        self.navigationController?
-                            .pushViewController(cart, animated: true)
+            guard code == 200 else {
+                DispatchQueue.main.async {
+                    if let error = response.value(forKey: "error") as? String,
+                       error == "Authorization has been expired" {
+                        CommonClass.sessionExpired(
+                            isExpired: true,
+                            navigation: self.navigationController
+                        )
+                        return
                     }
+
+                    let message = (response.value(forKey: "message") as? String)
+                        ?? (response.value(forKey: "error") as? String)
+                        ?? "Failed to add item to cart (code \(code))."
+                    CommonClass.showSnackBar(message: message)
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                CommonClass.showSnackBar(
+                    message: "Item added successfully to cart!"
+                )
+
+                let storyBoard = UIStoryboard(
+                    name: "mixNMatch",
+                    bundle: nil
+                )
+
+                if let cart = storyBoard.instantiateViewController(
+                    withIdentifier: "MixMatchCart"
+                ) as? MixMatchCart {
+
+                    cart.mKey = "1"
+                    self.navigationController?
+                        .pushViewController(cart, animated: true)
                 }
             }
         }
@@ -544,21 +625,7 @@ class MixAndMatchComplete: UIViewController,EngravingDelegate, UIViewControllerT
         self.mPointerSize.text = "\(mJewelryData.value(forKey: "pointer") ?? "--")"
         self.mProductId =  "\(mJewelryData.value(forKey: "product_id") ?? "")"
         
-        if let mData =  UserDefaults.standard.object(forKey: "CATALOGDATA") as? NSDictionary {
-            self.mMetalNames = "\(mData.value(forKey: "metalName") ?? "")"
-            self.mSizeNames = "\(mData.value(forKey: "sizeName") ?? "")"
-            self.mJewelrySize.text = "\(mData.value(forKey: "sizeName") ?? "--")"
-            self.mPointerSize.text = "\(mData.value(forKey: "pointerId") ?? "--")"
-            self.mJewelryPrice.text = "\(mData.value(forKey: "pointerPriceId") ?? "0.00")"
-            self.mMetalId = "\(mData.value(forKey: "metalId") ?? "")"
-            self.mSizeId = "\(mData.value(forKey: "sizeId") ?? "")"
-            self.mStoneId = "\(mData.value(forKey: "stoneId") ?? "")"
-            self.mShapeId = "\(mData.value(forKey: "shapeId") ?? "")"
-            self.mPointerId = "\(mData.value(forKey: "pointerId") ?? "")"
-            self.mProductType = "\(mData.value(forKey: "type") ?? "")"
-            self.mJewelPrice = "\(mData.value(forKey: "pointerPriceId") ?? "0.00")"
-
-        }
+        hydrateVariantFieldsFromAvailableSources()
         self.mDiamondPrice.text = "\(mDiamondData.value(forKey: "TagPrice") ?? "--")"
         mSetPrice()
        

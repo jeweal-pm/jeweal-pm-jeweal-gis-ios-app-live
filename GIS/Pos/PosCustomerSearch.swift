@@ -623,7 +623,7 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
                 
                 DispatchQueue.main.async {
                     self.isSpeechRecongnitionOn = false
-                    self.sMicImage.image = UIImage(systemName: "mic.fill")
+                    self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
                     if let text = value , !text.isEmpty{
                         self.mSearchField.text = text
                         self.searchCustomer(key: text)
@@ -633,7 +633,7 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
             }
             
         } else {
-            self.sMicImage.image = UIImage(systemName: "mic.fill")
+            self.sMicImage.image = UIImage(named: "stocktake_ic_mic")
             self.isSpeechRecongnitionOn = false
             speechRecongniger.stopRecognition()
         }

@@ -1726,7 +1726,7 @@
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KzC-YX-JKP">
                                                                 <rect key="frame" x="215" y="2.5" width="35" height="35"/>
                                                                 <subviews>
-                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="wvj-Xe-8v7">
+                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="wvj-Xe-8v7">
                                                                         <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                                         <constraints>
@@ -5858,7 +5858,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CNC-TC-WCM">
                                                 <rect key="frame" x="291" y="2.5" width="35" height="35"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mic.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="JC9-Zj-UGv">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_mic" translatesAutoresizingMaskIntoConstraints="NO" id="JC9-Zj-UGv">
                                                         <rect key="frame" x="7.5" y="4.5" width="20" height="25"/>
                                                         <color key="tintColor" name="themeColor"/>
                                                         <constraints>
@@ -5892,7 +5892,7 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7vW-7T-r1v">
                                                 <rect key="frame" x="331" y="2.5" width="35" height="35"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="funnelgreen" translatesAutoresizingMaskIntoConstraints="NO" id="7sR-ND-Mhw">
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="7sR-ND-Mhw">
                                                         <rect key="frame" x="7.5" y="7.5" width="20" height="20"/>
                                                         <color key="tintColor" systemColor="systemBlueColor"/>
                                                         <constraints>
@@ -8222,7 +8222,7 @@
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="X0B-la-Jls">
                                                                         <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                                                                         <subviews>
-                                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="filterIcon" translatesAutoresizingMaskIntoConstraints="NO" id="Scm-Cl-DBN">
+                                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="stocktake_ic_filter" translatesAutoresizingMaskIntoConstraints="NO" id="Scm-Cl-DBN">
                                                                                 <rect key="frame" x="6" y="8" width="18" height="18"/>
                                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                 <color key="tintColor" name="themeExtraLightText"/>
@@ -9226,14 +9226,14 @@
         <image name="exclamationmark.circle.fill" catalog="system" width="128" height="123"/>
         <image name="filterIcon" width="16" height="16"/>
         <image name="forward_ic" width="11.5" height="20"/>
-        <image name="funnelgreen" width="18" height="19"/>
+        <image name="stocktake_ic_filter" width="24" height="24"/>
         <image name="giftCardIconGreen" width="48" height="48"/>
         <image name="greencrown" width="43" height="61"/>
         <image name="heart" catalog="system" width="128" height="107"/>
         <image name="home_ic_green" width="32" height="32"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="mail_ic" width="29.5" height="22"/>
-        <image name="mic.fill" catalog="system" width="110" height="128"/>
+        <image name="stocktake_ic_mic" width="24" height="24"/>
         <image name="minus" catalog="system" width="128" height="26"/>
         <image name="optionmenu" width="64" height="64"/>
         <image name="order_success_ic" width="112" height="112"/>
