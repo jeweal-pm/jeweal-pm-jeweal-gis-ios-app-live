@@ -293,16 +293,23 @@ import UIKit
 
     // MARK: - UIControl
 
+    /// Tracks the initial touch location so we can detect gesture direction.
+    private var initialTouchLocation: CGPoint = .zero
+    /// Whether we have committed to a horizontal drag and disabled the parent scroll view.
+    private var didDisableParentScroll: Bool = false
+
     open override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         let touchLocation: CGPoint = touch.location(in: self)
-        let insetExpansion: CGFloat = -30.0
+        let insetExpansion: CGFloat = -15.0
         let isTouchingLeftHandle: Bool = leftHandle.frame.insetBy(dx: insetExpansion, dy: insetExpansion).contains(touchLocation)
         let isTouchingRightHandle: Bool = rightHandle.frame.insetBy(dx: insetExpansion, dy: insetExpansion).contains(touchLocation)
 
         guard isTouchingLeftHandle || isTouchingRightHandle else { return false }
 
+        initialTouchLocation = touchLocation
+        didDisableParentScroll = false
 
-        // the touch was inside one of the handles so we're definitely going to start movign one of them. But the handles might be quite close to each other, so now we need to find out which handle the touch was closest too, and activate that one.
+        // the touch was inside one of the handles so we're definitely going to start moving one of them. But the handles might be quite close to each other, so now we need to find out which handle the touch was closest to, and activate that one.
         let distanceFromLeftHandle: CGFloat = touchLocation.distance(to: leftHandle.frame.center)
         let distanceFromRightHandle: CGFloat = touchLocation.distance(to: rightHandle.frame.center)
 
@@ -325,6 +332,23 @@ import UIKit
         guard handleTracking != .none else { return false }
 
         let location: CGPoint = touch.location(in: self)
+
+        // Only disable the parent scroll view once we confirm the drag is primarily horizontal.
+        if !didDisableParentScroll {
+            let dx = abs(location.x - initialTouchLocation.x)
+            let dy = abs(location.y - initialTouchLocation.y)
+            if dx > 4 {
+                // Horizontal intent confirmed – lock the slider
+                setParentScrollViewScrolling(enabled: false)
+                didDisableParentScroll = true
+            } else if dy > 4 {
+                // Vertical intent – cancel slider tracking so scrolling works
+                let handle: CALayer = (handleTracking == .left) ? leftHandle : rightHandle
+                animate(handle: handle, selected: false)
+                handleTracking = .none
+                return false
+            }
+        }
 
         // find out the percentage along the line we are in x coordinate terms (subtracting half the frames width to account for moving the middle of the handle, not the left hand side)
         let percentage: CGFloat = (location.x - sliderLine.frame.minX - handleDiameter / 2.0) / (sliderLine.frame.maxX - sliderLine.frame.minX)
@@ -357,7 +381,24 @@ import UIKit
         animate(handle: handle, selected: false)
         handleTracking = .none
 
+        // Re-enable parent scroll view scrolling
+        if didDisableParentScroll {
+            setParentScrollViewScrolling(enabled: true)
+            didDisableParentScroll = false
+        }
+
         delegate?.didEndTouches(in: self)
+    }
+
+    open override func cancelTracking(with event: UIEvent?) {
+        super.cancelTracking(with: event)
+        handleTracking = .none
+
+        // Re-enable parent scroll view scrolling
+        if didDisableParentScroll {
+            setParentScrollViewScrolling(enabled: true)
+            didDisableParentScroll = false
+        }
     }
 
 
@@ -384,6 +425,19 @@ import UIKit
 
 
     // MARK: - private methods
+
+    /// Finds the nearest parent UIScrollView and enables/disables its scrolling.
+    /// This prevents the scroll view from intercepting horizontal drags meant for the slider handles.
+    private func setParentScrollViewScrolling(enabled: Bool) {
+        var view: UIView? = superview
+        while let current = view {
+            if let scrollView = current as? UIScrollView {
+                scrollView.isScrollEnabled = enabled
+                return
+            }
+            view = current.superview
+        }
+    }
 
     private func setup() {
         isAccessibilityElement = false

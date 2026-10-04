@@ -78,6 +78,10 @@ class CommonFilters: UIViewController,  UICollectionViewDelegate, UICollectionVi
     
     var mType = ""
     var hideLocation: Bool? = false
+    // The filter API can legitimately return 0/0 when an organisation has
+    // no priced products. A range slider with identical bounds cannot move,
+    // so provide a usable manual-price range in that case.
+    private let fallbackPriceRangeMaximum: CGFloat = 100_000
     
     
     @IBOutlet weak var mFilterLABEL: UILabel!
@@ -107,6 +111,51 @@ class CommonFilters: UIViewController,  UICollectionViewDelegate, UICollectionVi
     
     @IBOutlet weak var mMinPriceSymbol: UILabel!
     @IBOutlet weak var mMaxPriceSymbol: UILabel!
+
+    private func priceValue(from value: Any?) -> CGFloat? {
+        if let number = value as? NSNumber {
+            let result = number.doubleValue
+            return result.isFinite ? CGFloat(result) : nil
+        }
+
+        let text = String(describing: value ?? "")
+            .replacingOccurrences(of: ",", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard let number = Double(text), number.isFinite else { return nil }
+        return CGFloat(number)
+    }
+
+    private func configurePriceRange(min rawMin: Any?, max rawMax: Any?) {
+        let rangeMin = Swift.max(0, priceValue(from: rawMin) ?? 0)
+        let apiMax = priceValue(from: rawMax) ?? fallbackPriceRangeMaximum
+        let rangeMax = apiMax > rangeMin
+            ? apiMax
+            : Swift.max(rangeMin + 1, fallbackPriceRangeMaximum)
+
+        let savedMin = priceValue(from: mMinPrices)
+        let savedMax = priceValue(from: mMaxPrices)
+        // Earlier builds stored 0–100,000 when the range could not be read.
+        // Replace that legacy fallback with the actual API maximum once it is available.
+        let hasLegacyFallbackSelection = savedMin == rangeMin
+            && savedMax == fallbackPriceRangeMaximum
+            && rangeMax > fallbackPriceRangeMaximum
+        let selectedMin = Swift.min(Swift.max(savedMin ?? rangeMin, rangeMin), rangeMax)
+        let selectedMax = hasLegacyFallbackSelection
+            ? rangeMax
+            : Swift.min(Swift.max(savedMax ?? rangeMax, selectedMin), rangeMax)
+
+        mPriceRange.minValue = rangeMin
+        mPriceRange.maxValue = rangeMax
+        mPriceRange.selectedMinValue = selectedMin
+        mPriceRange.selectedMaxValue = selectedMax
+        mPriceRange.setNeedsLayout()
+        mPriceRange.layoutIfNeeded()
+
+        mMinPriceText.text = "\(Int(selectedMin))"
+        mMaxPriceText.text = "\(Int(selectedMax))"
+        print("FILTER_PRICE_RANGE apiMin=\(Int(rangeMin)) apiMax=\(Int(rangeMax)) selectedMin=\(Int(selectedMin)) selectedMax=\(Int(selectedMax))")
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         
@@ -148,6 +197,7 @@ class CommonFilters: UIViewController,  UICollectionViewDelegate, UICollectionVi
         super.viewDidLoad()
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
+
         
         mItemCollectionView.delegate = self
         mItemCollectionView.dataSource = self
@@ -747,6 +797,13 @@ class CommonFilters: UIViewController,  UICollectionViewDelegate, UICollectionVi
         let urlPath =  mGetInventoryFilter
         
         let params:[String: Any] = ["type": mType, "hideLocation": hideLocation ?? false]
+
+        // Temporary Postman diagnostics. This logs the same header values used by
+        // the request below, each time the Filter API is called.
+//        print("FILTER_POSTMAN_ENDPOINT=\(urlPath)")
+//        print("FILTER_POSTMAN_PAYLOAD=\(params)")
+//        print("FILTER_POSTMAN_AUTHORIZATION=\(sGisHeaders2["Authorization"] ?? "")")
+//        print("FILTER_POSTMAN_POS_AUTHORIZATION=\(sGisHeaders2["pos-authorization"] ?? "")")
         
         guard Reachability.isConnectedToNetwork() == true else{
             CommonClass.showSnackBar(message: "No Internet Connection")
@@ -773,21 +830,13 @@ class CommonFilters: UIViewController,  UICollectionViewDelegate, UICollectionVi
                 if jsonResult.value(forKey: "code") as? Int == 200 {
                     
                     if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
-                        
+                        print("mData = \(mData)")
                         if let mPriceData = mData.value(forKey: "Price") as? NSDictionary {
-                            let min = mPriceData.value(forKey: "min") ?? "0"
-                            let max = mPriceData.value(forKey: "max") ?? "100000"
-                            if self.mMinPriceText.text?.isEmpty == true {
-                                self.mMinPriceText.text = "\(min)"
-                            }
-                            if self.mMaxPriceText.text?.isEmpty == true {
-                                self.mMaxPriceText.text = "\(max)"
-                            }
-                            
-                            self.mPriceRange.selectedMinValue = CGFloat(Float("\(min)") ?? 0.0)
-                            self.mPriceRange.selectedMaxValue = CGFloat(Float("\(max)") ?? 10000.0)
-                            self.mPriceRange.maxValue = CGFloat(Float("\(max)") ?? 10000.0)
-                            self.mPriceRange.minValue = CGFloat(Float("\(mPriceData.value(forKey: "min") ?? "1000")") ?? 1000.0)
+                            print("mPriceData = \(mPriceData)")
+                            self.configurePriceRange(
+                                min: mPriceData.value(forKey: "min"),
+                                max: mPriceData.value(forKey: "max")
+                            )
                         }
                         
                         if let mItems = mData.value(forKey: "item_name") as? NSArray, mItems.count > 0 {
