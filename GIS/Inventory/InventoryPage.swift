@@ -327,9 +327,18 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     @IBOutlet weak var mShowMoreInventory: UIView!
     
     var mTYPE = "S"
+    private var multiPDFExportButton: UIButton?
+    private var inventorySelectionBar: UIView?
+    private var selectedItemCountLabel: UILabel?
+    private var selectedItemsShareButton: UIButton?
+    private var selectedItemsReserveButton: UIButton?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        installMultiPDFExportButton()
+        installInventorySelectionBar()
+        updateMultiPDFExportButtonVisibility()
+        updateInventorySelectionActionBar()
         mMyInventoryTableView.isHidden = true
         mSummaryTableView.isHidden = false
         mTotalSummaryView.isHidden = false
@@ -363,6 +372,209 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         
         
         
+    }
+
+    private func installMultiPDFExportButton() {
+        guard multiPDFExportButton == nil else { return }
+
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = UIColor(named: "themeText") ?? .darkGray
+        button.setImage(
+            UIImage(systemName: "square.and.arrow.up")?.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+            ),
+            for: .normal
+        )
+        button.accessibilityLabel = "Export selected inventory PDFs"
+        button.addTarget(self, action: #selector(exportSelectedInventoryPDFs), for: .touchUpInside)
+        // Inventory uses a custom header rather than UINavigationBar. The search
+        // view is not connected in every storyboard variant, so use the header
+        // containing the inline search field as the stable placement anchor.
+        guard let headerView = mFilterSearchView?.superview else { return }
+        headerView.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -67),
+            button.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            button.widthAnchor.constraint(equalToConstant: 32),
+            button.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        multiPDFExportButton = button
+    }
+
+    private func updateMultiPDFExportButtonVisibility() {
+        // The approved My Inventory design puts PDF sharing beside Reserve in
+        // the selection bar, rather than in the page header.
+        multiPDFExportButton?.isHidden = true
+    }
+
+    private func installInventorySelectionBar() {
+        guard inventorySelectionBar == nil else { return }
+
+        mReserveButton.isHidden = true
+
+        let bar = UIView()
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        bar.backgroundColor = .systemBackground
+        bar.layer.shadowColor = UIColor.black.cgColor
+        bar.layer.shadowOpacity = 0.1
+        bar.layer.shadowOffset = CGSize(width: 0, height: -2)
+        bar.layer.shadowRadius = 4
+        mReserveButtonView.addSubview(bar)
+
+        let selectedLabel = UILabel()
+        selectedLabel.translatesAutoresizingMaskIntoConstraints = false
+        selectedLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        selectedLabel.textColor = UIColor(named: "themeText") ?? .label
+        bar.addSubview(selectedLabel)
+
+        let shareButton = UIButton(type: .system)
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
+        // Use the approved uploaded asset rather than a system symbol.
+        shareButton.tintColor = .clear
+        shareButton.backgroundColor = UIColor(white: 0.97, alpha: 1)
+        shareButton.layer.cornerRadius = 8
+        shareButton.setImage(
+            UIImage(named: "inventory_share_export")?.withRenderingMode(.alwaysOriginal),
+            for: .normal
+        )
+        shareButton.contentHorizontalAlignment = .center
+        shareButton.contentVerticalAlignment = .center
+        shareButton.imageView?.contentMode = .scaleAspectFit
+        shareButton.accessibilityLabel = "Share selected inventory PDFs"
+        shareButton.addTarget(self, action: #selector(exportSelectedInventoryPDFs), for: .touchUpInside)
+        bar.addSubview(shareButton)
+
+        let reserveButton = UIButton(type: .system)
+        reserveButton.translatesAutoresizingMaskIntoConstraints = false
+        reserveButton.backgroundColor = UIColor(red: 1.0, green: 0.733, blue: 0.337, alpha: 1)
+        reserveButton.setTitle("Reserve".localizedString, for: .normal)
+        reserveButton.setTitleColor(.white, for: .normal)
+        reserveButton.titleLabel?.font = UIFont(name: "SegoeUI-Semibold", size: 16) ?? .systemFont(ofSize: 16, weight: .semibold)
+        reserveButton.layer.cornerRadius = 8
+        reserveButton.addTarget(self, action: #selector(mSubmitReserveItems(_:)), for: .touchUpInside)
+        bar.addSubview(reserveButton)
+
+        NSLayoutConstraint.activate([
+            bar.leadingAnchor.constraint(equalTo: mReserveButtonView.leadingAnchor),
+            bar.trailingAnchor.constraint(equalTo: mReserveButtonView.trailingAnchor),
+            bar.topAnchor.constraint(equalTo: mReserveButtonView.topAnchor),
+            bar.bottomAnchor.constraint(equalTo: mReserveButtonView.bottomAnchor),
+
+            selectedLabel.leadingAnchor.constraint(equalTo: bar.leadingAnchor, constant: 24),
+            selectedLabel.centerYAnchor.constraint(equalTo: bar.centerYAnchor),
+
+            reserveButton.trailingAnchor.constraint(equalTo: bar.trailingAnchor, constant: -24),
+            reserveButton.centerYAnchor.constraint(equalTo: bar.centerYAnchor),
+            reserveButton.widthAnchor.constraint(equalToConstant: 120),
+            reserveButton.heightAnchor.constraint(equalToConstant: 40),
+
+            shareButton.trailingAnchor.constraint(equalTo: reserveButton.leadingAnchor, constant: -12),
+            shareButton.centerYAnchor.constraint(equalTo: reserveButton.centerYAnchor),
+            shareButton.widthAnchor.constraint(equalToConstant: 40),
+            shareButton.heightAnchor.constraint(equalToConstant: 40),
+
+            selectedLabel.trailingAnchor.constraint(lessThanOrEqualTo: shareButton.leadingAnchor, constant: -16)
+        ])
+
+        inventorySelectionBar = bar
+        selectedItemCountLabel = selectedLabel
+        selectedItemsShareButton = shareButton
+        selectedItemsReserveButton = reserveButton
+    }
+
+    private func updateInventorySelectionActionBar() {
+        let selectedCount = mSelectedInventoryIndex.count
+        let shouldShow = mTYPE == "I" && selectedCount > 0
+        mHeight.constant = shouldShow ? 90 : 0
+        mReserveButtonView.isHidden = !shouldShow
+        inventorySelectionBar?.isHidden = !shouldShow
+        selectedItemCountLabel?.text = "\(selectedCount) Item\(selectedCount == 1 ? "" : "s") selected"
+        selectedItemsShareButton?.isEnabled = shouldShow
+        selectedItemsReserveButton?.isEnabled = shouldShow
+    }
+
+    @objc private func exportSelectedInventoryPDFs() {
+        let selectedProductIDs = mSelectedInventoryIndex
+            .sorted { $0.row < $1.row }
+            .compactMap { indexPath -> String? in
+                guard indexPath.row >= 0,
+                      indexPath.row < mInventoryData.count,
+                      let item = mInventoryData[indexPath.row] as? NSDictionary else {
+                    return nil
+                }
+
+                let keys = ["po_product_id", "product_id", "parentproduct_id", "_id"]
+                return keys
+                    .compactMap { key -> String? in
+                        let value = "\(item[key] ?? "")"
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                        return value.isEmpty ? nil : value
+                    }
+                    .first
+            }
+
+        let productIDs = Array(NSOrderedSet(array: selectedProductIDs))
+            .compactMap { $0 as? String }
+
+        guard !productIDs.isEmpty else {
+            CommonClass.showSnackBar(message: "Please select inventory items to export.")
+            return
+        }
+
+        let websiteURL = (UserDefaults.standard.string(forKey: "website_url") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let params: [String: Any] = [
+            "product_id": productIDs,
+            "type": "inventory",
+            "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+        ]
+
+        CommonClass.showFullLoader(view: view)
+        mGetData(
+            url: BaseUrl + "Mobile/catalog/getProductDetailPdf",
+            headers: sGisHeaders,
+            params: params
+        ) { [weak self] response, status in
+            guard let self else { return }
+            CommonClass.stopLoader()
+
+            guard status,
+                  "\(response.value(forKey: "code") ?? "")" == "200",
+                  let url = self.productPDFURL(from: response) else {
+                CommonClass.showSnackBar(
+                    message: "\(response.value(forKey: "message") ?? "Unable to create product PDFs")"
+                )
+                return
+            }
+
+            DispatchQueue.main.async {
+                let shareSheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                if let popover = shareSheet.popoverPresentationController {
+                    popover.sourceView = self.multiPDFExportButton
+                    popover.sourceRect = self.multiPDFExportButton?.bounds ?? .zero
+                }
+                self.present(shareSheet, animated: true)
+            }
+        }
+    }
+
+    private func productPDFURL(from response: NSDictionary) -> URL? {
+        let topLevelURL = "\(response["url"] ?? response["pdf_url"] ?? response["link"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: topLevelURL), !topLevelURL.isEmpty { return url }
+
+        if let data = response["data"] as? NSDictionary {
+            let dataURL = "\(data["url"] ?? data["pdf_url"] ?? data["link"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: dataURL)
+        }
+
+        if let data = response["data"] as? String {
+            return URL(string: data.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+
+        return nil
     }
     
     @objc
@@ -496,6 +708,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     @IBAction func mSummary(_ sender: Any) {
         
         mTYPE = "S"
+        updateMultiPDFExportButtonVisibility()
+        updateInventorySelectionActionBar()
         if !SiriID.isEmpty {
             mSearchFIELD.text = SiriID
             mGetInventorySummaryData(key: SiriID)
@@ -538,6 +752,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         }
         
         mTYPE = "I"
+        updateMultiPDFExportButtonVisibility()
+        updateInventorySelectionActionBar()
         mMyInventoryTableView.delegate = self
         mMyInventoryTableView.dataSource = self
         mMyInventoryTableView.reloadData()
@@ -771,17 +987,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                     cells.mDesignView.isHidden = true
                 }
                 
-                if mSelectedInventoryIndex.count == 0 {
-                    mHeight.constant = 0
-                    mReserveButton.isHidden = true
-                    mReserveButtonView.isHidden = true
-                }else {
-                    mHeight.constant = 90
-                    mReserveButton.isHidden = false
-                    mReserveButtonView.isHidden = false
-                    mReserveButtonView.layer.cornerRadius = 10
-                    mReserveButtonView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
-                }
+                updateInventorySelectionActionBar()
                 
                 cells.mStockName.text = "\(mData.value(forKey: "SKU") ?? "--")"
                 cells.mStockId.text = "\(mData.value(forKey: "stock_id") ?? "--")"
@@ -1207,6 +1413,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                     
                     self.mStoneDataArray.add(mData)
                     self.mMyInventoryTableView.reloadData()
+                    self.updateMultiPDFExportButtonVisibility()
+                    self.updateInventorySelectionActionBar()
                 }
             }
         }else if tableView == mSummaryTableView {
@@ -2209,6 +2417,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                         self.mSelectedInventoryIndex = [IndexPath]()
                         self.mSelectedInventoryData = [String]()
                         self.mMyInventoryTableView.reloadData()
+                        self.updateMultiPDFExportButtonVisibility()
+                        self.updateInventorySelectionActionBar()
                         self.mGetInventoryData(key : "")
                         self.mReserveLabel.textColor =  #colorLiteral(red: 0.6745098039, green: 0.6588235294, blue: 0.6588235294, alpha: 1)
                         self.mReserveIcon.image = UIImage(named: "calendaricon")

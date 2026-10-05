@@ -58,6 +58,12 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         
         mLanguageName.text = "Language".localizedString
         mBackgroundImage.contentMode = .scaleToFill
+        // Never show the previous account's cached wallpaper while the current
+        // profile is loading. A neutral white surface prevents a stale colour
+        // flash before the current wallpaper's blue tone is available.
+        view.backgroundColor = .white
+        mBackgroundImage.backgroundColor = .white
+        mBackgroundImage.image = nil
         
         // Pin background image to the superview edges (not safe area)
         // so the wallpaper covers the status bar and home indicator areas.
@@ -183,15 +189,9 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         }
         
         
-        // Use saved wallpaper color if available, otherwise fallback
-        if UserDefaults.standard.object(forKey: "wallpaper_r") != nil {
-            let r = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_r"))
-            let g = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_g"))
-            let b = CGFloat(UserDefaults.standard.double(forKey: "wallpaper_b"))
-            self.view.backgroundColor = UIColor(red: r, green: g, blue: b, alpha: 1)
-        } else {
-            self.view.backgroundColor = UIColor(named: "themeBackground")
-        }
+        // The previous session may belong to another store. Keep this screen
+        // white until this session's wallpaper has loaded and saved its colour.
+        self.view.backgroundColor = .white
         
         //swipe down language to close
         let swipeDownGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
@@ -377,7 +377,7 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                                scheme == "http" || scheme == "https" {
                                 self.mBackgroundImage.sd_setImage(
                                     with: url,
-                                    placeholderImage: UIImage(named: "placeholder"),
+                                    placeholderImage: nil,
                                     options: [.retryFailed, .continueInBackground]
                                 ) { [weak self] image, error, _, _ in
                                     guard let self = self, error == nil, let image = image else { return }
@@ -448,7 +448,6 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
     
     
 }
-
 
 
 

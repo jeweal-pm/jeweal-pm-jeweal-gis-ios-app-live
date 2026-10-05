@@ -291,7 +291,10 @@ class UnscannedStock: UIViewController , UITableViewDelegate, UITableViewDataSou
                 cells.mSno.text = "#\(indexPath.row + 1)"
                 cells.mStockName.text = "\(mData.value(forKey: "SKU") ?? "")"
                 cells.mStockId.text = "\(mData.value(forKey: "stock_id") ?? "")"
-                cells.mQuantity.text = "\(mData.value(forKey: "po_QTY") ?? "") Pcs"
+                cells.configureQuantityAndWeight(from: mData)
+                cells.mQuantity.font = UIFont(name: "SegoeUI", size: 11) ?? .systemFont(ofSize: 11)
+                cells.mQuantity.adjustsFontSizeToFitWidth = true
+                cells.mQuantity.minimumScaleFactor = 0.75
                 cell = cells
                 
                 cells.mView.backgroundColor = (indexPath.row % 2 == 0) ? UIColor(named: "themeBackground") : #colorLiteral(red: 0.9568627451, green: 0.9568627451, blue: 0.9568627451, alpha: 1)

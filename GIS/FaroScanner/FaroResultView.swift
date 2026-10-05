@@ -1362,6 +1362,7 @@ private struct FaroConfirmOrderView: View {
     @State private var selectedIndexes: Set<Int> = []
     @State private var editingIndex: Int?
     @State private var swipedIndex: Int?
+    @State private var isExporting = false
 
     private let pageBackground = Color(red: 249/255, green: 249/255, blue: 251/255)
     private let teal = Color(red: 82/255, green: 203/255, blue: 196/255)
@@ -1450,6 +1451,17 @@ private struct FaroConfirmOrderView: View {
                     .foregroundColor(teal)
             }
             .buttonStyle(.plain)
+
+            Button {
+                exportOrderPDF()
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 18, weight: .regular))
+                    .foregroundColor(products.isEmpty ? Color.gray.opacity(0.4) : .black)
+                    .frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+            .disabled(products.isEmpty || isExporting)
         }
         .padding(.horizontal, 22)
         .frame(height: 56)
@@ -1576,6 +1588,102 @@ private struct FaroConfirmOrderView: View {
         )
 
         swipedIndex = nil
+    }
+
+    // MARK: - Export Order PDF
+
+    private func exportOrderPDF() {
+        let productIDs: [String] = products.compactMap { product in
+            let id = "\(product["product_id"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return id.isEmpty ? nil : id
+        }
+
+        let uniqueIDs = Array(NSOrderedSet(array: productIDs))
+            .compactMap { $0 as? String }
+
+        guard !uniqueIDs.isEmpty else { return }
+
+        isExporting = true
+
+        let websiteURL = (UserDefaults.standard.string(forKey: "website_url") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let params: [String: Any] = [
+            "product_id": uniqueIDs,
+            "type": "catalog",
+            "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+        ]
+
+        mGetData(
+            url: BaseUrl + "Mobile/catalog/getProductDetailPdf",
+            headers: sGisHeaders,
+            params: params
+        ) { response, status in
+            DispatchQueue.main.async {
+                isExporting = false
+
+                guard status,
+                      "\(response["code"] ?? "")" == "200" else {
+                    CommonClass.showSnackBar(
+                        message: "\(response["message"] ?? "Unable to create PDF")"
+                    )
+                    return
+                }
+
+                // Parse PDF URL from response
+                let urlString: String? = {
+                    for key in ["url", "pdf_url", "link"] {
+                        let val = "\(response[key] ?? "")"
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !val.isEmpty { return val }
+                    }
+                    if let data = response["data"] as? NSDictionary {
+                        for key in ["url", "pdf_url", "link"] {
+                            let val = "\(data[key] ?? "")"
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            if !val.isEmpty { return val }
+                        }
+                    }
+                    if let data = response["data"] as? String,
+                       !data.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        return data.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                    return nil
+                }()
+
+                guard let urlString, let pdfURL = URL(string: urlString) else {
+                    CommonClass.showSnackBar(message: "Unable to create PDF")
+                    return
+                }
+
+                // Present share sheet
+                guard let windowScene = UIApplication.shared.connectedScenes
+                    .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+                      let rootVC = windowScene.windows.first?.rootViewController else {
+                    UIApplication.shared.open(pdfURL)
+                    return
+                }
+                var topVC = rootVC
+                while let presented = topVC.presentedViewController {
+                    topVC = presented
+                }
+                let shareSheet = UIActivityViewController(
+                    activityItems: [pdfURL],
+                    applicationActivities: nil
+                )
+                if let popover = shareSheet.popoverPresentationController {
+                    popover.sourceView = topVC.view
+                    popover.sourceRect = CGRect(
+                        x: topVC.view.bounds.maxX - 60,
+                        y: 56,
+                        width: 1,
+                        height: 1
+                    )
+                }
+                topVC.present(shareSheet, animated: true)
+            }
+        }
     }
 
     @ViewBuilder

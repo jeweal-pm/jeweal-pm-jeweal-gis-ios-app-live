@@ -147,6 +147,7 @@
 		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
 		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
 		ABA58CF7435AE3189D1EEF65 /* Pods_GIS_GISUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */; };
+		C50065133073B35900BB2A42 /* WishlistExportOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */; };
 		C52C9AFD30494E9000F1D6F3 /* SoldStock.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */; };
 		C553B6153013259F0000A8E4 /* ZebraScannerFramework.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */; };
 		C553B6163013259F0000A8E4 /* ZebraScannerFramework.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -520,6 +521,7 @@
 		84BAA4532742C3AC00FD8F37 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localization.strings; sourceTree = "<group>"; };
 		AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GIS_GISUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE64CB0C4C725143D10E4C85 /* Pods-GIS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GIS.release.xcconfig"; path = "Target Support Files/Pods-GIS/Pods-GIS.release.xcconfig"; sourceTree = "<group>"; };
+		C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishlistExportOptionsController.swift; sourceTree = "<group>"; };
 		C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoldStock.swift; sourceTree = "<group>"; };
 		C553B6143013259E0000A8E4 /* ZebraScannerFramework.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZebraScannerFramework.xcframework; path = ../123RFID_iOS_ReleasePackage_1.2.0/FrameworkScannerAndRfidSDK/BarcodeFramework/ZebraScannerFramework.xcframework; sourceTree = "<group>"; };
 		C553B618301325A60000A8E4 /* ZebraRfidSdkFramework.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZebraRfidSdkFramework.xcframework; path = ../123RFID_iOS_ReleasePackage_1.2.0/FrameworkScannerAndRfidSDK/RFIDFramework/ZebraRfidSdkFramework.xcframework; sourceTree = "<group>"; };
@@ -1008,6 +1010,7 @@
 				74B836E629D5A87500077D2B /* DepositController.swift */,
 				74B836E829D5B59700077D2B /* AddDepositController.swift */,
 				52A5DFAA2A6A53F70054192C /* OpenDepositReceive.swift */,
+				C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */,
 			);
 			path = More;
 			sourceTree = "<group>";
@@ -1746,6 +1749,7 @@
 				742C106C2934AFCE004D7CE8 /* DeviceProtocol.swift in Sources */,
 				74A39BCC2851C6880038C0DC /* TrackStocks.swift in Sources */,
 				74D69F95290FA96C008AA4C6 /* DiamondProductDetails.swift in Sources */,
+				C50065133073B35900BB2A42 /* WishlistExportOptionsController.swift in Sources */,
 				C553B66230261DC10000A8E4 /* FaroMapper.swift in Sources */,
 				C553B644302460C50000A8E4 /* DiscoveryView.swift in Sources */,
 				D913FADA256E377C00E9B0B8 /* PrintItem.swift in Sources */,

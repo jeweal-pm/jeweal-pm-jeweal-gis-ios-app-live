@@ -34,12 +34,12 @@ class WishlistCell: UITableViewCell {
 }
 
 
-class WishListController: UIViewController , UICollectionViewDelegate , UICollectionViewDataSource ,UICollectionViewDelegateFlowLayout,GetCustomerDataDelegate, UIViewControllerTransitioningDelegate {
+class WishListController: UIViewController , UICollectionViewDelegate , UICollectionViewDataSource ,UICollectionViewDelegateFlowLayout,GetCustomerDataDelegate, UIViewControllerTransitioningDelegate, WishlistExportDelegate {
 
-    
+
     @IBOutlet weak var mCatalogCollectionView: UICollectionView!
     var mCatalogData = NSMutableArray()
-    
+
     var mSearchCustomerData = NSArray()
     @IBOutlet weak var mNoData: UILabel!
 
@@ -47,8 +47,11 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
     @IBOutlet weak var mSearchField: UITextField!
      var mWishListData = NSMutableArray()
     var mKey = ""
-    
+
     @IBOutlet weak var mHeadingLABEL: UILabel!
+
+    // MARK: - Export state
+    private var headerShareButton: UIButton?
     
     override func viewWillAppear(_ animated: Bool) {
         mHeadingLABEL.text = "Wishlist".localizedString
@@ -60,7 +63,8 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
         super.viewDidLoad()
         self.mCatalogCollectionView.dataSource = self
         self.mCatalogCollectionView.delegate = self
-        
+        installHeaderShareButton()
+
        mGetWish(value: "")
     }
     
@@ -87,8 +91,6 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
     
     
     @IBAction func mSearchEdit(_ sender: UITextField) {
-        
-        
         if sender.text == "" {
             mCatalogData = NSMutableArray(array: mSearchCustomerData)
             mCatalogCollectionView.reloadData()
@@ -184,6 +186,7 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
                     cells.mPrice.text = "\(mData.value(forKey: "price") ?? "0.00")"
                     cells.mProductImage.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "main_image") ?? "")")
                 }
+
                 cell = cells
             }
         }
@@ -214,16 +217,7 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
-        let storyBoard: UIStoryboard = UIStoryboard(name: "catalog", bundle: nil)
-        if let mProfile = storyBoard.instantiateViewController(withIdentifier: "POSAddToCartNew") as? POSAddToCart {
-            if let catalogData = mCatalogData[indexPath.row] as? NSDictionary {
-                mProfile.mData = catalogData
-                mProfile.mType = "\(mProfile.mData.value(forKey: "type") ?? "")"
-            }
-            mProfile.mCustomerId = mCustomerId
-            self.navigationController?.pushViewController(mProfile, animated:true)
-        }
+        // No item-level selection — export sends all items
     }
     
  
@@ -320,7 +314,7 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
                         return
                     }
                     self.mCatalogData = NSMutableArray()
-                    
+
                     if jsonResult.value(forKey: "code") as? Int == 200 {
                         if let data = jsonResult.value(forKey: "data") as? NSArray,
                            data.count > 0 {
@@ -340,6 +334,7 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
                         self.mNoData.text = "No Data Found!".localizedString
                         self.mCatalogCollectionView.reloadData()
                     }
+                    self.updateHeaderShareButton()
                 }
             }
             
@@ -348,6 +343,195 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
             self.mNoData.text = "No Data Found!".localizedString
             CommonClass.showSnackBar(message: "No Internet Connection")
         }
+    }
+
+    // MARK: - Header Share Button
+
+    private func installHeaderShareButton() {
+        // mHeadingLABEL → stackView → labelContainer → headerView
+        guard let stackView = mHeadingLABEL.superview,
+              let labelContainer = stackView.superview,
+              let headerView = labelContainer.superview else { return }
+
+        let shareBtn = UIButton(type: .system)
+        shareBtn.translatesAutoresizingMaskIntoConstraints = false
+        shareBtn.setImage(
+            UIImage(systemName: "square.and.arrow.up")?.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+            ),
+            for: .normal
+        )
+        shareBtn.tintColor = UIColor(named: "themeExtraLightText") ?? .lightGray
+        shareBtn.isEnabled = false
+        shareBtn.addTarget(self, action: #selector(headerShareTapped), for: .touchUpInside)
+        headerView.addSubview(shareBtn)
+
+        NSLayoutConstraint.activate([
+            shareBtn.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
+            shareBtn.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            shareBtn.widthAnchor.constraint(equalToConstant: 25),
+            shareBtn.heightAnchor.constraint(equalToConstant: 25)
+        ])
+
+        headerShareButton = shareBtn
+    }
+
+    private func updateHeaderShareButton() {
+        let hasItems = mCatalogData.count > 0
+        headerShareButton?.isEnabled = hasItems
+        headerShareButton?.tintColor = hasItems
+            ? (UIColor(named: "themeText") ?? .darkGray)
+            : (UIColor(named: "themeExtraLightText") ?? .lightGray)
+    }
+
+    @objc private func headerShareTapped() {
+        showExportOptionsModal()
+    }
+
+    // MARK: - Export Options Modal
+
+    @objc private func showExportOptionsModal() {
+        let exportVC = WishlistExportOptionsController()
+        exportVC.delegate = self
+        exportVC.modalPresentationStyle = .overCurrentContext
+        exportVC.modalTransitionStyle = .crossDissolve
+        present(exportVC, animated: true)
+    }
+
+    // MARK: - WishlistExportDelegate
+
+    func didSelectExportType(_ type: String) {
+        // Export ALL items currently displayed
+        let allProductIDs = (0..<mCatalogData.count)
+            .compactMap { index -> String? in
+                guard let item = mCatalogData[index] as? NSDictionary else { return nil }
+                let keys = ["product_id", "po_product_id", "parentproduct_id", "_id"]
+                return keys
+                    .compactMap { key -> String? in
+                        let value = "\(item.value(forKey: key) ?? "")"
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+                        return value.isEmpty ? nil : value
+                    }
+                    .first
+            }
+
+        let productIDs = Array(NSOrderedSet(array: allProductIDs))
+            .compactMap { $0 as? String }
+
+        guard !productIDs.isEmpty else {
+            CommonClass.showSnackBar(message: "Please select items to export.")
+            return
+        }
+
+        let websiteURL = (UserDefaults.standard.string(forKey: "website_url") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if type == "catalog" {
+            // Catalog template — same as POSCatalog share
+            let params: [String: Any] = [
+                "Item_id": "All",//productIDs,
+                "type": "catalog",
+                "category_id": "Item",
+                "customer_id": mCustomerId,
+                "shippingInfo": [
+                    "billing_address": [:],
+                    "shipping_address": [:]
+                ],
+                "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+            ]
+
+            CommonClass.showFullLoader(view: view)
+            mGetData(
+                url: mGetCatalogPdf,
+                headers: sGisHeaders,
+                params: params
+            ) { [weak self] response, status in
+                guard let self else { return }
+                CommonClass.stopLoader()
+
+                guard status,
+                      "\(response.value(forKey: "code") ?? "")" == "200",
+                      let pdfURL = self.wishlistPDFURL(from: response) else {
+                    CommonClass.showSnackBar(
+                        message: "\(response.value(forKey: "message") ?? "Unable to create PDF")"
+                    )
+                    return
+                }
+
+                DispatchQueue.main.async {
+//                    UIApplication.shared.open(pdfURL)
+                    self.sharePDF(url: pdfURL)
+                }
+            }
+        } else {
+            // Detail template — uses getProductDetailPdf API
+            let params: [String: Any] = [
+                "product_id": productIDs,
+                "type": "catalog",
+                "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+            ]
+
+            CommonClass.showFullLoader(view: view)
+            mGetData(
+                url: BaseUrl + "Mobile/catalog/getProductDetailPdf",
+                headers: sGisHeaders,
+                params: params
+            ) { [weak self] response, status in
+                guard let self else { return }
+                CommonClass.stopLoader()
+
+                guard status,
+                      "\(response.value(forKey: "code") ?? "")" == "200",
+                      let pdfURL = self.wishlistPDFURL(from: response) else {
+                    CommonClass.showSnackBar(
+                        message: "\(response.value(forKey: "message") ?? "Unable to create PDF")"
+                    )
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self.sharePDF(url: pdfURL)
+                }
+            }
+        }
+    }
+
+    private func sharePDF(url: URL) {
+        let shareSheet = UIActivityViewController(
+            activityItems: [url],
+            applicationActivities: nil
+        )
+        if let popover = shareSheet.popoverPresentationController {
+            popover.sourceView = headerShareButton ?? view
+            popover.sourceRect = headerShareButton?.bounds ?? .zero
+        }
+        present(shareSheet, animated: true)
+    }
+
+    private func wishlistPDFURL(from response: NSDictionary) -> URL? {
+        let topLevelURL = "\(response["url"] ?? response["pdf_url"] ?? response["link"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: topLevelURL), !topLevelURL.isEmpty { return url }
+
+        if let data = response["data"] as? NSDictionary {
+            let dataURL = "\(data["url"] ?? data["pdf_url"] ?? data["link"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !dataURL.isEmpty { return URL(string: dataURL) }
+        }
+
+        if let data = response["data"] as? String {
+            let trimmed = data.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty { return URL(string: trimmed) }
+        }
+
+        if let data = response["data"] as? NSArray,
+           let first = data.firstObject as? NSDictionary {
+            let arrURL = "\(first["url"] ?? first["pdf_url"] ?? first["link"] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !arrURL.isEmpty { return URL(string: arrURL) }
+        }
+
+        return nil
     }
 
 }

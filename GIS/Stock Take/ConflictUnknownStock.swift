@@ -537,8 +537,13 @@ class ConflictUnknownStock: UIViewController, UITableViewDelegate, UITableViewDa
 
         cells.mSno.text = "#\(indexPath.row + 1)"
         cells.mSno.font = UIFont(name: "SegoeUI", size: 12.0)
-        cells.mQuantity.text = "1 Pcs"
-        cells.mQuantity.font = UIFont(name:"SegoeUI-Semibold", size: 12.0)//UIFont(name: "segoe_regular", size: 12)
+        let conflictWeight = isConflictScreen && indexPath.row < mConflictDisplayData.count
+            ? (mConflictDisplayData[indexPath.row]["weight"] ?? "0")
+            : "0"
+        cells.mQuantity.text = "1 pcs   \(conflictWeight) g"
+        cells.mQuantity.font = UIFont(name:"SegoeUI-Semibold", size: 11.0) ?? .systemFont(ofSize: 11, weight: .semibold)
+        cells.mQuantity.adjustsFontSizeToFitWidth = true
+        cells.mQuantity.minimumScaleFactor = 0.75
 
         // Conflict screen:
         //   - normal conflict/RFID item = conflict icon

@@ -549,12 +549,30 @@ struct FaroScannerView: View {
                 .padding(.bottom, 8)
 
                 Spacer()
-                    .frame(height: 72)
+                    .frame(height: showDiscovery ? 0 : 72)
 
-                ZStack(alignment: .top) {
-                    // Discovery is the only scrollable layer. Its contents
-                    // travel behind the pinned search card rather than
-                    // shifting the white card itself upward.
+                VStack(spacing: 0) {
+                    // Hero collapses to zero height when Discovery is open
+                    // so the search card and prompt chips sit near the top.
+                    if !showDiscovery {
+                        ZStack(alignment: .top) {
+                            HeroSection(
+                                showLogo: showLogo,
+                                showTitle: showTitle,
+                                showDescription: showDescription
+                            )
+                        }
+                        .frame(height: 196, alignment: .top)
+                        .clipped()
+                    }
+
+                    // This is intentionally mounted in both modes so the
+                    // text field keeps its existing text and focus.
+                    SearchCard()
+
+                    // Discovery prompt chips appear directly below the
+                    // search card, inside the same VStack so they are
+                    // naturally top-aligned without any ZStack tricks.
                     if showDiscovery {
                         DiscoveryView(
                             searchText: $searchText,
@@ -567,36 +585,11 @@ struct FaroScannerView: View {
                                 closeDiscovery()
                             }
                         )
-                        .padding(.top, 196 + 12 + searchCardHeight)
                         .transition(
                             .move(edge: .top)
                             .combined(with: .opacity)
                         )
-                        .zIndex(0)
                     }
-
-                    VStack(spacing: 0) {
-                        // Hero may slide away, but its reserved slot never
-                        // changes height. This keeps the white frame fixed.
-                        ZStack(alignment: .top) {
-                    HeroSection(
-                        showLogo: showLogo,
-                        showTitle: showTitle,
-                        showDescription: showDescription
-                            )
-                            .scaleEffect(showDiscovery ? 0.96 : 1)
-                            .opacity(showDiscovery ? 0 : 1)
-                            .offset(y: showDiscovery ? -120 : 0)
-                            .allowsHitTesting(!showDiscovery)
-                        }
-                        .frame(height: 196, alignment: .top)
-                        .clipped()
-
-                        // This is intentionally mounted in both modes so the
-                        // text field keeps its existing text and focus.
-                        SearchCard()
-                    }
-                    .zIndex(1)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }

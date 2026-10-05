@@ -414,23 +414,55 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
 
         let websiteURL = (UserDefaults.standard.string(forKey: "website_url") ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let params: [String: Any] = [
-            "product_id": productId,
-            "website_url": websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
-        ]
-
+        let exportType = mType.lowercased() == "catalog" ? "catalog" : "inventory"
         showProductLoading()
+        requestProductPDF(
+            productId: productId,
+            exportType: exportType,
+            websiteURL: websiteURL.isEmpty ? "ios.gis247.net" : websiteURL
+        )
+    }
+
+    private func requestProductPDF(
+        productId: String,
+        exportType: String,
+        websiteURL: String,
+        usingLegacyProductID: Bool = false
+    ) {
+        let params: [String: Any] = [
+            "product_id": usingLegacyProductID ? productId : [productId],
+            "type": exportType,
+            "website_url": websiteURL
+        ]
+        print("shareProductDetail params = \(params)")
         mGetData(
             url: BaseUrl + "Mobile/catalog/getProductDetailPdf",
             headers: sGisHeaders,
             params: params
         ) { [weak self] response, status in
             guard let self else { return }
+
+            // UAT may still run the pre-multiple-PDF contract, which accepts a
+            // single product ID string. Keep Product Detail sharing functional
+            // while preferring the new array payload whenever it is available.
+            if !usingLegacyProductID,
+               "\(response.value(forKey: "code") ?? "")" == "400",
+               "\(response.value(forKey: "message") ?? "")" == "product_id is required" {
+                self.requestProductPDF(
+                    productId: productId,
+                    exportType: exportType,
+                    websiteURL: websiteURL,
+                    usingLegacyProductID: true
+                )
+                return
+            }
+
             self.stopProductLoading()
 
             let pdfURLString = self.pdfURLString(from: response)
             print("========== PRODUCT PDF RESPONSE ==========")
-            print("Share product_id =", productId)
+            print("Share product_id =", [productId])
+            print("Share type =", exportType)
             print("Share PDF URL =", pdfURLString)
             print("==========================================")
 

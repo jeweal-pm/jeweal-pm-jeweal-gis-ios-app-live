@@ -7,6 +7,27 @@
 
 import UIKit
 
+func stockTakeQuantityAndWeightText(from item: NSDictionary) -> String {
+    return "\(stockTakeQuantityText(from: item))   \(stockTakeWeightText(from: item))"
+}
+
+func stockTakeQuantityText(from item: NSDictionary) -> String {
+    let quantity = "\(item["po_QTY"] ?? item["qty"] ?? item["quantity"] ?? "0")"
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+    return "\(quantity.isEmpty ? "0" : quantity) pcs"
+}
+
+func stockTakeWeightText(from item: NSDictionary) -> String {
+    let weightKeys = ["weight", "weight_g", "weight_gram", "grams", "gram", "total_weight", "gross_weight", "net_weight"]
+    let weight = weightKeys
+        .compactMap { key -> String? in
+            let value = "\(item[key] ?? "")".trimmingCharacters(in: .whitespacesAndNewlines)
+            return value.isEmpty ? nil : value
+        }
+        .first ?? "0"
+    return "\(weight) g"
+}
+
 class TotalStockCell: UITableViewCell {
     
     
@@ -15,6 +36,8 @@ class TotalStockCell: UITableViewCell {
     @IBOutlet weak var mStockName: UILabel!
     @IBOutlet weak var mStockId: UILabel!
     @IBOutlet weak var mQuantity: UILabel!
+
+    private let mWeight = UILabel()
     
     @IBOutlet weak var isDesignView: UIView!
     let manualAddIcon = UIImageView()
@@ -43,6 +66,34 @@ class TotalStockCell: UITableViewCell {
                 constant: -12
             )
         ])
+
+        installWeightColumn()
+    }
+
+    private func installWeightColumn() {
+        guard let quantityColumn = mQuantity.superview?.superview,
+              let rowStack = quantityColumn.superview as? UIStackView,
+              let quantityIndex = rowStack.arrangedSubviews.firstIndex(of: quantityColumn) else {
+            return
+        }
+
+        mWeight.translatesAutoresizingMaskIntoConstraints = false
+        mWeight.font = UIFont(name: "SegoeUI", size: 11) ?? .systemFont(ofSize: 11)
+        mWeight.textColor = mQuantity.textColor
+        mWeight.textAlignment = .right
+        mWeight.lineBreakMode = .byClipping
+        mWeight.adjustsFontSizeToFitWidth = true
+        mWeight.minimumScaleFactor = 0.75
+
+        rowStack.insertArrangedSubview(mWeight, at: quantityIndex + 1)
+        NSLayoutConstraint.activate([
+            mWeight.widthAnchor.constraint(equalToConstant: 46)
+        ])
+    }
+
+    func configureQuantityAndWeight(from item: NSDictionary) {
+        mQuantity.text = stockTakeQuantityText(from: item)
+        mWeight.text = stockTakeWeightText(from: item)
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -372,7 +423,10 @@ class TotalStock: UIViewController,UITableViewDelegate,UITableViewDataSource, UI
             cells.mSno.text = "#\(indexPath.row + 1)"
             cells.mStockName.text = "\(mData.value(forKey: "SKU") ?? "")"
             cells.mStockId.text = "\(mData.value(forKey: "stock_id") ?? "")"
-            cells.mQuantity.text = "\(mData.value(forKey: "po_QTY") ?? "") Pcs"
+            cells.configureQuantityAndWeight(from: mData)
+            cells.mQuantity.font = UIFont(name: "SegoeUI", size: 11) ?? .systemFont(ofSize: 11)
+            cells.mQuantity.adjustsFontSizeToFitWidth = true
+            cells.mQuantity.minimumScaleFactor = 0.75
 
             // A typed/manual search is recorded with scan_source = "manual".
             // Normalize the value because older API/local data may differ only

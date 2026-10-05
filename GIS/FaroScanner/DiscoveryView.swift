@@ -78,7 +78,6 @@ struct DiscoveryView: View {
     //-----------------------------------------
 
     var body: some View {
-//        GeometryReader { geo in
 
             ScrollView(showsIndicators: false) {
 
@@ -88,12 +87,6 @@ struct DiscoveryView: View {
                 ) {
                     Spacer()
                         .frame(height: 16)
-
-//                            if let currentPrompt = selectedPrompt {
-//
-//                                promptAnswerView(currentPrompt)
-//
-//                            } else {
 
                                 PromptChipSection(
                                     prompts: prompts,
@@ -114,7 +107,7 @@ struct DiscoveryView: View {
                                     ),
                                     value: selectedPrompt
                                 )
-                            
+
                             if let currentPrompt = selectedPrompt {
                                 Spacer().frame(height: 16)
                                 promptAnswerView(currentPrompt)
@@ -128,31 +121,8 @@ struct DiscoveryView: View {
                                     )
 
                             }
-//                            }
-
-//                        }
-
-//                    }
-                    
-//                    if let currentPrompt = selectedPrompt {
-//                        promptAnswerView(currentPrompt)
-//                    } else {
-//
-//                        PromptChipSection(
-//                            prompts: prompts,
-//                            answers: selectedAnswers,
-//                            selected: $selectedPrompt
-//                        )
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//
-//                    }
-
 
                 }
-//                .frame(
-//                    minHeight: geo.size.height,
-//                    alignment: .top
-//                )
                 .padding(.horizontal, 18)
                 .padding(.top, 16)
                 .padding(.bottom, 16)
@@ -201,8 +171,6 @@ struct DiscoveryView: View {
                 selectedAnswers.removeAll()
 
             }
-
-//        }
 
     }
 

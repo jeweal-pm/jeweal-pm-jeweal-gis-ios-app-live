@@ -279,7 +279,7 @@ class ItemSearchPage: UIViewController ,  UITableViewDelegate , UITableViewDataS
         mBottomView.layer.cornerRadius = 10
         mBottomView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
         mBottomView.dropShadow()
-        
+
         mBottomReserveView.layer.cornerRadius = 10
         mBottomReserveView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
         mBottomReserveView.dropShadow()

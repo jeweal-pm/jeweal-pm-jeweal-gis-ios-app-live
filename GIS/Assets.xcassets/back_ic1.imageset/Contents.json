@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "back_ic.png",
+      "filename" : "chevron_left_light.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "back_ic@2x.png",
+      "filename" : "chevron_left_light@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "back_ic@3x.png",
+      "filename" : "chevron_left_light@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

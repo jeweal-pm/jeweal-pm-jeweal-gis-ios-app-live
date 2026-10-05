@@ -6154,7 +6154,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                         [
                             "SKU": "\($0.value(forKey: "SKU") ?? "")",
                             "stock_id": "\($0.value(forKey: "stock_id") ?? "")",
-                            "scan_source": "\($0.value(forKey: "scan_source") ?? "")"
+                            "scan_source": "\($0.value(forKey: "scan_source") ?? "")",
+                            "weight": "\($0.value(forKey: "weight") ?? $0.value(forKey: "gross_weight") ?? $0.value(forKey: "net_weight") ?? 0)"
                         ]
                     }
             }
