@@ -583,6 +583,8 @@ class ExpandableSearchBar: UIView, UITextViewDelegate {
                 self.idleContainer.isHidden = false
                 self.expandedContainer.isHidden = true
                 self.filledContainer.isHidden = true
+                self.idleLabel.text = self.config.idlePlaceholder
+                self.idleLabel.textColor = self.placeholderColor
 
             case .focused, .typing:
                 self.idleContainer.isHidden = true
@@ -598,15 +600,17 @@ class ExpandableSearchBar: UIView, UITextViewDelegate {
                 self.updateExpandedHeight()
 
             case .filled:
+                // A completed search uses the same compact pill as the
+                // reference design. The previous separate filled container
+                // left an X and filter outside the field, unlike the approved
+                // one-row layout.
                 self.heightConstraint.constant = self.config.collapsedHeight
                 self.onExpandedHeightChange?(self.config.collapsedHeight)
-                self.idleContainer.isHidden = true
+                self.idleContainer.isHidden = false
                 self.expandedContainer.isHidden = true
-                self.filledContainer.isHidden = false
-                self.filledLabel.text = self.searchText
-                self.filterButtonFilled.isHidden = !self.config.showFilter
-                self.micButtonFilled.isHidden = !self.config.showMic
-                self.scanButtonFilled.isHidden = !self.config.showScan
+                self.filledContainer.isHidden = true
+                self.idleLabel.text = self.searchText
+                self.idleLabel.textColor = self.textColor
             }
             self.superview?.layoutIfNeeded()
         }
@@ -675,9 +679,17 @@ class ExpandableSearchBar: UIView, UITextViewDelegate {
     // MARK: - Actions
     @objc private func idleTapped() {
         keepsExpandedAfterClear = false
-        searchTextView.text = ""
-        placeholderLabel.isHidden = false
-        clearButtonExpanded.isHidden = true
+        if searchState == .filled {
+            // Re-open a completed query for editing without discarding it.
+            searchTextView.text = searchText
+            searchTextView.selectedRange = NSRange(location: searchText.count, length: 0)
+            placeholderLabel.isHidden = true
+            clearButtonExpanded.isHidden = false
+        } else {
+            searchTextView.text = ""
+            placeholderLabel.isHidden = false
+            clearButtonExpanded.isHidden = true
+        }
         updateState(.focused)
         searchTextView.becomeFirstResponder()
     }
