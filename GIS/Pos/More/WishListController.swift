@@ -356,12 +356,10 @@ class WishListController: UIViewController , UICollectionViewDelegate , UICollec
         let shareBtn = UIButton(type: .system)
         shareBtn.translatesAutoresizingMaskIntoConstraints = false
         shareBtn.setImage(
-            UIImage(systemName: "square.and.arrow.up")?.withConfiguration(
-                UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
-            ),
+            UIImage(named: "inventory_share_export")?.withRenderingMode(.alwaysTemplate),
             for: .normal
         )
-        shareBtn.tintColor = UIColor(named: "themeExtraLightText") ?? .lightGray
+        shareBtn.tintColor = UIColor(red: 106/255, green: 106/255, blue: 106/255, alpha: 1)
         shareBtn.isEnabled = false
         shareBtn.addTarget(self, action: #selector(headerShareTapped), for: .touchUpInside)
         headerView.addSubview(shareBtn)

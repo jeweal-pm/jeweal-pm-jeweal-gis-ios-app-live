@@ -58,9 +58,10 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         
         mLanguageName.text = "Language".localizedString
         mBackgroundImage.contentMode = .scaleToFill
-        // Never show the previous account's cached wallpaper while the current
-        // profile is loading. A neutral white surface prevents a stale colour
-        // flash before the current wallpaper's blue tone is available.
+        // Always start with white — the actual wallpaper color will be set
+        // after the profile API responds with flash_image. This avoids a
+        // visible flash from a stale cached color to white when flash_image
+        // is empty.
         view.backgroundColor = .white
         mBackgroundImage.backgroundColor = .white
         mBackgroundImage.image = nil
@@ -189,9 +190,8 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         }
         
         
-        // The previous session may belong to another store. Keep this screen
-        // white until this session's wallpaper has loaded and saved its colour.
-        self.view.backgroundColor = .white
+        // Background color is set by the profile API callback (flash_image).
+        // No need to re-apply a cached color here.
         
         //swipe down language to close
         let swipeDownGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeGesture(_:)))
@@ -369,7 +369,7 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                             self.mFirstName.text = "\(mData.value(forKey: "first_name") ?? "")" + " \(mData.value(forKey: "last_name") ?? "")"
                             let flashImageURL = "\(mData.value(forKey: "flash_image") ?? "")"
                             UserDefaults.standard.set(flashImageURL, forKey: "flash_image")
-                            
+                            print("🎨 [LanguageController] flash_image = \(flashImageURL)")
                             // Load wallpaper and extract its average color for safe-area edges
                             let cleanURL = flashImageURL.trimmingCharacters(in: .whitespacesAndNewlines)
                             if let url = URL(string: cleanURL),
@@ -380,17 +380,37 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                                     placeholderImage: nil,
                                     options: [.retryFailed, .continueInBackground]
                                 ) { [weak self] image, error, _, _ in
-                                    guard let self = self, error == nil, let image = image else { return }
+                                    guard let self = self, error == nil, let image = image else {
+                                        print("🎨 [LanguageController] Wallpaper load FAILED — error: \(String(describing: error))")
+                                        return
+                                    }
+                                    print("🎨 [LanguageController] Wallpaper loaded — size: \(image.size)")
                                     if let avgColor = image.averageColor {
-                                        self.view.backgroundColor = avgColor
-                                        // Save RGB so other screens can use it
                                         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
                                         avgColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+                                        print("🎨 [LanguageController] averageColor RGB = r:\(r) g:\(g) b:\(b)")
+                                        print("🎨 [LanguageController] averageColor 0-255 = r:\(Int(r*255)) g:\(Int(g*255)) b:\(Int(b*255))")
+                                        print("🎨 [LanguageController] averageColor UIColor = \(avgColor)")
+                                        self.view.backgroundColor = avgColor
+                                        self.mBackgroundImage.backgroundColor = avgColor
+                                        // Save RGB so other screens can use it
                                         UserDefaults.standard.set(Double(r), forKey: "wallpaper_r")
                                         UserDefaults.standard.set(Double(g), forKey: "wallpaper_g")
                                         UserDefaults.standard.set(Double(b), forKey: "wallpaper_b")
+                                    } else {
+                                        print("🎨 [LanguageController] averageColor returned NIL")
                                     }
                                 }
+                            } else {
+                                // flash_image is empty or invalid — no wallpaper
+                                // Clear any previously saved color and use white
+                                print("🎨 [LanguageController] flash_image is empty — clearing saved color, using white")
+                                UserDefaults.standard.removeObject(forKey: "wallpaper_r")
+                                UserDefaults.standard.removeObject(forKey: "wallpaper_g")
+                                UserDefaults.standard.removeObject(forKey: "wallpaper_b")
+                                self.view.backgroundColor = .white
+                                self.mBackgroundImage.backgroundColor = .white
+                                self.mBackgroundImage.image = nil
                             }
                             
                             let brandLogoURL = "\(mData.value(forKey: "brand_logo") ?? "")"

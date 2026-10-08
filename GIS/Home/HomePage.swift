@@ -1180,6 +1180,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
             wallpaperImageView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
         ])
         if let flashURL = UserDefaults.standard.string(forKey: "flash_image"), !flashURL.isEmpty {
+            print("flash_image = \(flashURL)")
             let cleanURL = flashURL.trimmingCharacters(in: .whitespacesAndNewlines)
             if let url = URL(string: cleanURL),
                let scheme = url.scheme?.lowercased(),
@@ -1195,6 +1196,12 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                     }
                 }
             }
+        } else {
+            // No wallpaper — clear any stale saved color and use white
+            UserDefaults.standard.removeObject(forKey: "wallpaper_r")
+            UserDefaults.standard.removeObject(forKey: "wallpaper_g")
+            UserDefaults.standard.removeObject(forKey: "wallpaper_b")
+            self.view.backgroundColor = .white
         }
         
         if UserDefaults.standard.string(forKey: "LANG") == "EN" {
@@ -1292,6 +1299,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 
         AF.request(mFetchProfileDetails, method: .post, parameters: nil, headers: sGisHeaders2)
             .responseJSON { [weak self] response in
+                print("mFetchProfileDetails = \(response)")
                 guard let self,
                       response.error == nil,
                       let data = response.data,

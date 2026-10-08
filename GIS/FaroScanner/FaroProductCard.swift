@@ -18,11 +18,10 @@ struct FaroProductCard: View {
 
     private let collapsedCardHeight: CGFloat = 292
 
-    // Keep the expanded card stable while a menu is opened, but do not leave
-    // empty selector rows on products that do not provide every attribute.
+    // Keep the expanded card stable. The height accounts for up to 3 selector
+    // rows so that the card size never changes when a dropdown opens or closes.
     private var expandedCardHeight: CGFloat {
-        let selectorCount = [metals, stones, sizes].filter { !$0.isEmpty }.count
-        return 190 + (CGFloat(selectorCount) * 43)
+        return 190 + (3 * 43)  // 319
     }
 
     private let cardCornerRadius: CGFloat = 10
@@ -163,7 +162,11 @@ struct FaroProductCard: View {
 
         )
 
-        .background(Color.white)
+        .background(
+            isExpanded
+                ? Color(red: 249/255, green: 249/255, blue: 251/255)
+                : Color.white
+        )
 
         .overlay(
 
@@ -175,7 +178,7 @@ struct FaroProductCard: View {
 
             .stroke(
 
-                Color.gray.opacity(0.16),
+                Color.gray.opacity(0.30),
 
                 lineWidth: 1
 
@@ -349,7 +352,7 @@ struct FaroProductCard: View {
 
             .padding(.horizontal, 10)
 
-            .padding(.top, 6)
+            .padding(.top, 2)
 
             Spacer(minLength: 0)
 
@@ -535,9 +538,15 @@ struct FaroProductCard: View {
 
             .lineLimit(1)
 
-            .padding(.horizontal, 10)
+            .padding(.leading, 58)
 
-            .padding(.top, 5)
+            .padding(.trailing, 10)
+
+            .padding(.top, 2)
+
+            Divider()
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
 
             // MARK: Dropdowns
 
@@ -873,7 +882,7 @@ struct FaroProductCard: View {
 
                             size: 18,
 
-                            weight: .bold
+                            weight: .medium
 
                         )
 
@@ -949,12 +958,6 @@ private struct FaroProductDropdownRow: View {
 
     var body: some View {
 
-        ZStack(
-
-            alignment: .topLeading
-
-        ) {
-
             // Dropdown button
 
             Button {
@@ -1013,7 +1016,7 @@ private struct FaroProductDropdownRow: View {
 
                             ? .gray
 
-                            : .black
+                            : Color(white: 0.25)
 
                     )
 
@@ -1043,15 +1046,15 @@ private struct FaroProductDropdownRow: View {
 
                             .system(
 
-                                size: 9,
+                                size: 10,
 
-                                weight: .medium
+                                weight: .semibold
 
                             )
 
                         )
 
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(white: 0.55))
 
                     }
 
@@ -1091,27 +1094,23 @@ private struct FaroProductDropdownRow: View {
 
             .buttonStyle(.plain)
 
-            // IMPORTANT:
+            // The dropdown menu opens UPWARD so it stays above the
+            // "Add Order" button and within the card boundary.
+            .overlay(alignment: .bottomLeading) {
+                if isOpen && !options.isEmpty {
 
-            // Menu is an overlay.
+                    dropdownMenu
 
-            // It does NOT change the card layout.
+                        .offset(
 
-            if isOpen && !options.isEmpty {
+                            y: -4
 
-                dropdownMenu
+                        )
 
-                    .offset(
+                        .zIndex(50_000)
 
-                        y: 40
-
-                    )
-
-                    .zIndex(50_000)
-
+                }
             }
-
-        }
 
         .zIndex(
 
@@ -1211,7 +1210,7 @@ private struct FaroProductDropdownRow: View {
 
                                 .foregroundColor(
 
-                                    .black
+                                    Color(white: 0.25)
 
                                 )
 

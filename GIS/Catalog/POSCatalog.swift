@@ -44,7 +44,7 @@ class CatalogCell :UICollectionViewCell {
 
 
 
-class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout , UITableViewDelegate ,UITableViewDataSource , RangeSeekSliderDelegate, GetCustomerDataDelegate,GetInventoryFiltersDelegate, UIViewControllerTransitioningDelegate {
+class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource , UICollectionViewDelegateFlowLayout , UITableViewDelegate ,UITableViewDataSource , RangeSeekSliderDelegate, GetCustomerDataDelegate,GetInventoryFiltersDelegate, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate {
 
     private var selectedSalesPersonId: String {
         return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
@@ -185,6 +185,23 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     private var isSearching = false
     private var recentSearch: [String] = []
     
+    // Expandable search bar
+    private var expandableSearchBar: ExpandableSearchBar?
+    private var catalogSearchRowHeightConstraint: NSLayoutConstraint?
+    private var catalogSearchCompactTrailingConstraint: NSLayoutConstraint?
+    private var catalogSearchFocusedTrailingConstraint: NSLayoutConstraint?
+    private let catalogSearchRowCollapsedHeight: CGFloat = 50
+
+    private var catalogSearchModeIcon: String {
+        mSearchType == "inventory" ? "catstock_ic" : "catcatlog_ic"
+    }
+
+    private var catalogSearchModeIconColor: UIColor {
+        mSearchType == "inventory"
+            ? (UIColor(named: "themeColor") ?? .systemTeal)
+            : UIColor(red: 1.0, green: 0.68, blue: 0.16, alpha: 1.0)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         
         
@@ -312,6 +329,14 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         addDoneButtonOnKeyboard()
         self.mSearchField.text = SiriID
         mCheckSelectedCustomer()
+        
+        installExpandableSearchBar()
+        
+        // Tap outside to dismiss keyboard
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardTap))
+        dismissTap.cancelsTouchesInView = false
+        dismissTap.delegate = self
+        view.addGestureRecognizer(dismissTap)
     }
     
     @objc func openCustomer() {
@@ -351,6 +376,116 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+    }
+    
+    // MARK: - Expandable Search Bar
+    private func installExpandableSearchBar() {
+        guard expandableSearchBar == nil,
+              let searchParent = mSearchField?.superview,
+              let grandParent = searchParent.superview,
+              let catalogSearchRow = grandParent.superview?.superview else { return }
+        
+        // Make the storyboard search row invisible but keep it in the layout
+        // so its constraints still define the correct position/size.
+        searchParent.alpha = 0
+        searchParent.isUserInteractionEnabled = false
+        
+        // Disable clipping on ancestors so the expanded bar (96pt)
+        // can overflow beyond the storyboard header area (~44pt).
+        // Walk up a few levels — enough to escape header containers.
+        var ancestor: UIView? = grandParent
+        for _ in 0..<5 {
+            guard let v = ancestor else { break }
+            v.clipsToBounds = false
+            ancestor = v.superview
+        }
+        
+        let config = ExpandableSearchBarConfig(
+            idlePlaceholder: "Search By SKU / Product Name".localizedString,
+            expandedPlaceholder: "SKU, product name, description".localizedString,
+            showMic: true,
+            showScan: true,
+            showFilter: true,
+            microphoneImage: "stocktake_ic_mic",
+            secondaryActionImage: catalogSearchModeIcon,
+            secondaryActionTintColor: catalogSearchModeIconColor,
+            secondaryActionAtTrailingEdge: true,
+            collapsedHeight: 44,
+            expandedHeight: 104
+        )
+        let bar = ExpandableSearchBar(config: config)
+        bar.delegate = self
+        if catalogSearchRowHeightConstraint == nil {
+            catalogSearchRowHeightConstraint = catalogSearchRow.constraints.first {
+                $0.firstAttribute == .height && $0.secondItem == nil
+            }
+        }
+        bar.onExpandedHeightChange = { [weak self] searchBarHeight in
+            guard let self else { return }
+            // The product grid is constrained below this row. Add the row's
+            // 5pt top inset and 5pt bottom breathing room to the bar height so
+            // the grid moves down as the text input gains lines.
+            self.catalogSearchRowHeightConstraint?.constant = max(
+                self.catalogSearchRowCollapsedHeight,
+                searchBarHeight + 10
+            )
+            self.view.setNeedsLayout()
+            UIView.animate(withDuration: 0.15) {
+                self.view.layoutIfNeeded()
+            }
+        }
+        bar.onStateChange = { [weak self] state in
+            self?.updateCatalogSearchPresentation(for: state)
+        }
+        
+        // Keep the custom bar pinned to the top of the header row itself.
+        // The original search stack is vertically centred in this row; using
+        // it as the top anchor would move the bar down whenever the row grows
+        // to accommodate three lines of text.
+        catalogSearchRow.addSubview(bar)
+        
+        catalogSearchCompactTrailingConstraint = bar.trailingAnchor.constraint(equalTo: searchParent.trailingAnchor)
+        catalogSearchFocusedTrailingConstraint = bar.trailingAnchor.constraint(equalTo: grandParent.trailingAnchor)
+        catalogSearchCompactTrailingConstraint?.isActive = true
+        NSLayoutConstraint.activate([
+            bar.leadingAnchor.constraint(equalTo: searchParent.leadingAnchor),
+            bar.topAnchor.constraint(equalTo: catalogSearchRow.topAnchor, constant: 5),
+        ])
+        
+        // Ensure the bar renders on top of everything else
+        catalogSearchRow.bringSubviewToFront(bar)
+        
+        if !SiriID.isEmpty {
+            bar.setText(SiriID)
+        }
+        
+        expandableSearchBar = bar
+        updateCatalogSearchPresentation(for: .idle)
+    }
+
+    private func updateCatalogSearchPresentation(for state: ExpandableSearchBar.SearchState) {
+        let isEditing = state == .focused || state == .typing
+        catalogSearchCompactTrailingConstraint?.isActive = !isEditing
+        catalogSearchFocusedTrailingConstraint?.isActive = isEditing
+        // The Customer selection control occupies the compact row only. Hide
+        // its arranged view while editing so the search control can use the
+        // full width, as specified in the approved focus layout.
+        mCheckUncheckCustomer.superview?.isHidden = isEditing
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+    
+    @objc private func dismissKeyboardTap() {
+        view.endEditing(true)
+        expandableSearchBar?.collapse()
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // This recognizer exists only for taps *outside* the custom field.
+        // Without this guard, a tap on the field is handled both by the field
+        // and the page, causing expand/collapse state changes to collide.
+        guard let searchBar = expandableSearchBar else { return true }
+        return !searchBar.bounds.contains(touch.location(in: searchBar))
     }
     
     //Speech Recognition
@@ -456,6 +591,10 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         }
 
         let keyword = SiriID.isEmpty ? "" : SiriID
+        expandableSearchBar?.setSecondaryAction(
+            imageName: catalogSearchModeIcon,
+            tintColor: catalogSearchModeIconColor
+        )
         mSearchField.text = keyword
         performSearch(keyword)
     }
@@ -1672,6 +1811,9 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             print("🚀 START mGetCatalogue")
             AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders).responseJSON
             { response in
+                // A Catalog request can be reached either directly or as the
+                // fallback from FARO. In both cases it completes this search.
+                self.isSearching = false
                 
                 
                 let elapsed = CFAbsoluteTimeGetCurrent() - startTime
@@ -1683,11 +1825,13 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 """)
                 print("POSCatalog mGetCatalogs response = \(response)")
                 guard response.error == nil else {
+                    CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
                 
                 guard let jsonData = response.data else {
+                    CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
@@ -1695,6 +1839,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                 
                 guard let jsonResult = json as? NSDictionary else {
+                    CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
@@ -1709,9 +1854,9 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
 
                     
                 }else{
+                    CommonClass.stopLoader()
                     if let error = jsonResult.value(forKey: "error") as? String {
                         if error == "Authorization has been expired" {
-                            CommonClass.stopLoader()
                             print("Authorization has been expired stopLoader")
                             CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
                         }
@@ -1720,6 +1865,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 
             }
         }else{
+            isSearching = false
             CommonClass.stopLoader()
             print("No Internet Connection stopLoader")
             CommonClass.showSnackBar(message: "No Internet Connection")
@@ -2081,7 +2227,9 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         }
 
         DispatchQueue.main.async {
-
+            // FARO successful results bypass mGetCatalogs, so they must close
+            // the full-screen loader themselves before showing the items.
+            CommonClass.stopLoader()
             self.mCatalogCollectionView.reloadData()
 
         }
@@ -2382,4 +2530,66 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             }
         }
     
+}
+
+// MARK: - ExpandableSearchBarDelegate
+extension POSCatalog: ExpandableSearchBarDelegate {
+    func searchBarDidSubmit(_ searchBar: ExpandableSearchBar, text: String) {
+        mSkipCount = 0
+        mSearchField.text = text
+        performSearch(text)
+    }
+    
+    func searchBarDidClear(_ searchBar: ExpandableSearchBar) {
+        mSkipCount = 0
+        mSearchField.text = ""
+        performSearch("")
+    }
+    
+    func searchBarMicTapped(_ searchBar: ExpandableSearchBar) {
+        if !isSpeechRecongnitionOn {
+            isSpeechRecongnitionOn = true
+            sMicImage?.image = UIImage(systemName: "mic.slash.fill")
+            speechRecongniger.startRecognition { [weak self] value in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.isSpeechRecongnitionOn = false
+                    self.sMicImage?.image = UIImage(named: "stocktake_ic_mic")
+                    if let text = value, !text.isEmpty {
+                        self.expandableSearchBar?.setText(text)
+                        self.mSearchField.text = text
+                    }
+                }
+            }
+        } else {
+            sMicImage?.image = UIImage(named: "stocktake_ic_mic")
+            isSpeechRecongnitionOn = false
+            speechRecongniger.stopRecognition()
+        }
+    }
+    
+    func searchBarScanTapped(_ searchBar: ExpandableSearchBar) {
+        // Catalog uses the second in-field action to switch Master/Stock.
+        clearCatalogScreen()
+        if mSearchType == "catalog" {
+            mSearchType = "inventory"
+            mCatalogHeaderLABEL.text = "Inventory".localizedString
+            mSwitchIcon.image = UIImage(named: "catstock_ic")
+        } else {
+            mSearchType = "catalog"
+            mCatalogHeaderLABEL.text = "Catalog".localizedString
+            mSwitchIcon.image = UIImage(named: "catcatlog_ic")
+        }
+        searchBar.setSecondaryAction(
+            imageName: catalogSearchModeIcon,
+            tintColor: catalogSearchModeIconColor
+        )
+        let keyword = SiriID.isEmpty ? "" : SiriID
+        mSearchField.text = keyword
+        performSearch(keyword)
+    }
+    
+    func searchBarFilterTapped(_ searchBar: ExpandableSearchBar) {
+        mShowFilters(self)
+    }
 }

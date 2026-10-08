@@ -361,6 +361,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var recentRFIDReads: [String: Date] = [:]
     private let rfidReadDebounceInterval: TimeInterval = 1.0
 
+    // ATID session-level deduplication — mirrors Zebra's scannedTags Set in
+    // ZebraRFIDService. Once a decoded/normalized tag value has been processed,
+    // it is never sent to getRFIDData() again during this scanning session.
+    private var atidScannedTags = Set<String>()
+
     // UI state for the Device bottom sheet.
     private var pendingZebraReaderID: Int32?
     private var pendingBluetoothIdentifier: UUID?
@@ -3262,6 +3267,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidPeripheral = nil
         atidTransportConnected = false
         pendingBluetoothIdentifier = nil
+        atidScannedTags.removeAll()
 
         #if !targetEnvironment(simulator) && canImport(EARfidFramework)
         // The direct BLE path does not use these objects; clear any stale
@@ -3413,6 +3419,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         guard !raw.isEmpty else { return }
 
+        // ── Session-level dedup (mirrors Zebra's scannedTags Set) ──
+        // If this raw tag has already been fully processed once in this
+        // scanning session, skip it entirely. This is the single biggest
+        // performance win: ATID hardware reports the same tag many times
+        // per second while it remains in range.
+        guard !atidScannedTags.contains(raw) else { return }
+
         // ATID readTagResult returns PC + EPC in Hex format.
         // Try PC+EPC and EPC-only forms, plus ASCII-from-hex.
         var candidates: [String] = [raw]
@@ -3420,9 +3433,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         if raw.count > Int(TAG_PC_LENGTH),
            raw.count % 2 == 0,
            raw.allSatisfy({ $0.isHexDigit }) {
-            
+
             let epcOnly = String(raw.dropFirst(Int(TAG_PC_LENGTH)))
-            
+
             if !epcOnly.isEmpty {
                 candidates.append(epcOnly)
             }
@@ -3472,6 +3485,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         print("📡 ATID CANDIDATES =", uniqueCandidates)
         print("📡 ATID RSSI =", rssi, "PHASE =", phase)
 
+        // Mark the raw tag as seen so we never process it again this session.
+        atidScannedTags.insert(raw)
+
         if let matched = uniqueCandidates.first(where: { stockMap[$0] != nil }) {
             let now = Date()
 
@@ -3483,6 +3499,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             recentRFIDReads[matched] = now
 
+            // Periodic cleanup — same logic Zebra uses.
+            if recentRFIDReads.count > 500 {
+                let cutoff = now.addingTimeInterval(-rfidReadDebounceInterval)
+                recentRFIDReads = recentRFIDReads.filter { $0.value >= cutoff }
+            }
+
             DispatchQueue.main.async {
                 if let item = self.stockMap[matched] {
                     let stockID = "\(item["stock_id"] ?? "")"
@@ -3492,27 +3514,43 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     }
                 }
 
-                self.getRFIDData(data: matched)
+                self.getRFIDData(data: matched, source: "atid")
             }
             return
         }
 
+        // ── No candidate matched stockMap ──
+        // Unlike Zebra (which pre-filters via decodeFromHex and its own
+        // scannedTags Set), ATID receives every tag in range — including
+        // neighbouring products, packaging, and environmental noise.
+        // Recording all of these as Unknown inflates the count by hundreds.
+        // Only record a tag as Unknown if it looks like it could be a valid
+        // stock identifier (ASCII-decodable or already in a sold-data set).
+        //
+        // Try the sold-data path first — a sold item IS meaningful.
         let fallback = uniqueCandidates.count > 1
             ? uniqueCandidates[1]
             : (uniqueCandidates.first ?? raw)
 
-        let now = Date()
-        if let lastRead = recentRFIDReads[fallback],
-           now.timeIntervalSince(lastRead) < rfidReadDebounceInterval {
-            print("↩️ Ignore duplicate ATID RFID =", fallback)
+        let lookupKey = normalizedStockLookupKey(fallback)
+        if !lookupKey.isEmpty, soldStockItem(for: lookupKey) != nil {
+            // This is a sold item → let getRFIDData record it as a Conflict.
+            let now = Date()
+            if let lastRead = recentRFIDReads[fallback],
+               now.timeIntervalSince(lastRead) < rfidReadDebounceInterval {
+                return
+            }
+            recentRFIDReads[fallback] = now
+
+            DispatchQueue.main.async {
+                self.getRFIDData(data: fallback, source: "atid")
+            }
             return
         }
 
-        recentRFIDReads[fallback] = now
-
-        DispatchQueue.main.async {
-            self.getRFIDData(data: fallback)
-        }
+        // Not in stockMap and not in sold_data → environmental noise.
+        // Silently discard instead of flooding the Unknown list.
+        print("🚫 ATID skip noise tag =", raw, "fallback =", fallback)
     }
     #else
     // Simulator stubs: keep the Stock Take UI/buildable without EARfidFramework.
@@ -3532,6 +3570,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidStartRequested = false
         atidPeripheral = nil
         pendingBluetoothIdentifier = nil
+        atidScannedTags.removeAll()
         isATIDDisconnecting = false
         updateScannerControls()
         mDeviceTableView.reloadData()
@@ -5129,12 +5168,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
-    func getRFIDData(data: String) {
+    func getRFIDData(data: String, source: String = "zebra") {
 
         // FINAL SAFETY NET:
         // Never compare the RAW Zebra encoded value with stock_id/SKU.
         // Decode first, then normalize, then lookup.
-        let decodedData = decodeZebraStockScanValue(data)
+        // For ATID: handleATIDTag already decoded & matched against stockMap,
+        // so skip the Zebra-specific decode to avoid mangling the value.
+        let decodedData = source == "atid" ? data : decodeZebraStockScanValue(data)
         let lookupKey = normalizedStockLookupKey(decodedData)
 
         print("========== STOCK TAKE LOOKUP ==========")

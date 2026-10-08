@@ -921,32 +921,44 @@ private struct ImageSearchResultCard: View {
 
             HStack(spacing: 8) {
 
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 22, height: 22)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 5)
-                    )
-
-                // X beside the small image.
-                // This is the ONLY action that removes the image.
+                // Thumbnail: tap to expand when collapsed
                 Button {
-
-                    onRemoveImage()
-
-                } label: {
-
-                    Image(systemName: "xmark")
-                        .font(
-                            .system(
-                                size: 10,
-                                weight: .semibold
+                    if !isExpanded {
+                        withAnimation(
+                            .spring(
+                                response: 0.45,
+                                dampingFraction: 0.82
                             )
-                        )
-                        .foregroundColor(.gray)
+                        ) {
+                            isExpanded = true
+                        }
+                    }
+                } label: {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 22, height: 22)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 5)
+                        )
+                }
+                .buttonStyle(.plain)
 
+                // X beside the small image — only visible in collapsed state.
+                if !isExpanded {
+                    Button {
+                        onRemoveImage()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(
+                                .system(
+                                    size: 10,
+                                    weight: .semibold
+                                )
+                            )
+                            .foregroundColor(.gray)
+                            .frame(width: 22, height: 22)
+                    }
                 }
 
                 TextField(
@@ -965,38 +977,29 @@ private struct ImageSearchResultCard: View {
 
                 Spacer(minLength: 0)
 
-                // ^ ONLY closes/opens the large image.
-                // It does NOT dismiss the result and does NOT remove the image.
-                Button {
-
-                    withAnimation(
-                        .spring(
-                            response: 0.45,
-                            dampingFraction: 0.82
-                        )
-                    ) {
-
-                        isExpanded.toggle()
-
+                // Chevron up — only visible in expanded state to collapse.
+                // Collapsed state has NO down arrow; tap image to expand.
+                if isExpanded {
+                    Button {
+                        withAnimation(
+                            .spring(
+                                response: 0.45,
+                                dampingFraction: 0.82
+                            )
+                        ) {
+                            isExpanded = false
+                        }
+                    } label: {
+                        Image(systemName: "chevron.up")
+                            .font(
+                                .system(
+                                    size: 13,
+                                    weight: .medium
+                                )
+                            )
+                            .foregroundColor(.gray)
+                            .frame(width: 28, height: 28)
                     }
-
-                } label: {
-
-                    Image(
-                        systemName:
-                            isExpanded
-                            ? "chevron.up"
-                            : "chevron.down"
-                    )
-                    .font(
-                        .system(
-                            size: 13,
-                            weight: .medium
-                        )
-                    )
-                    .foregroundColor(.gray)
-                    .frame(width: 28, height: 28)
-
                 }
 
             }
@@ -1047,6 +1050,20 @@ private struct ImageSearchResultCard: View {
         .background(Color.white)
         .clipShape(
             RoundedRectangle(cornerRadius: 28)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.36, green: 0.54, blue: 1.0),
+                            Color(red: 0.24, green: 0.92, blue: 0.95)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 1.2
+                )
         )
         .shadow(
             color: .black.opacity(0.055),
@@ -1155,7 +1172,7 @@ private struct FaroImageGalleryView: View {
         
         ZStack(alignment: .topTrailing) {
             
-            Color.white
+            Color(red: 249/255, green: 249/255, blue: 251/255)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -1269,6 +1286,8 @@ private struct FaroImageGalleryView: View {
                     
                 }
                 
+                Spacer().frame(height: 24)
+
                 //--------------------------------
                 // Thumbnail
                 //--------------------------------
@@ -1422,46 +1441,48 @@ private struct FaroConfirmOrderView: View {
     }
 
     private var headerView: some View {
-        HStack {
-            Button { dismiss() } label: {
-                Image(systemName: "chevron.left")
-                    .font(FaroFont.regular(19))
-                    .foregroundColor(.black)
-                    .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.plain)
-
-            Spacer()
-
+        ZStack {
+            // Centered title
             Text("Order")
                 .font(FaroFont.regular(18))
                 .foregroundColor(.black)
 
-            Spacer()
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    isManaging.toggle()
-                    selectedIndexes.removeAll()
-                    swipedIndex = nil
+            HStack {
+                Button { dismiss() } label: {
+                    Image("back_ic")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .frame(width: 32, height: 32)
                 }
-            } label: {
-                Text(isManaging ? "Cancel" : "Manage")
-                    .font(FaroFont.regular(16))
-                    .foregroundColor(teal)
-            }
-            .buttonStyle(.plain)
+                .buttonStyle(.plain)
 
-            Button {
-                exportOrderPDF()
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 18, weight: .regular))
-                    .foregroundColor(products.isEmpty ? Color.gray.opacity(0.4) : .black)
-                    .frame(width: 32, height: 32)
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isManaging.toggle()
+                        selectedIndexes.removeAll()
+                        swipedIndex = nil
+                    }
+                } label: {
+                    Text(isManaging ? "Cancel" : "Manage")
+                        .font(FaroFont.regular(16))
+                        .foregroundColor(teal)
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    exportOrderPDF()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 18, weight: .regular))
+                        .foregroundColor(products.isEmpty ? Color.gray.opacity(0.4) : .black)
+                        .frame(width: 32, height: 32)
+                }
+                .buttonStyle(.plain)
+                .disabled(products.isEmpty || isExporting)
             }
-            .buttonStyle(.plain)
-            .disabled(products.isEmpty || isExporting)
         }
         .padding(.horizontal, 22)
         .frame(height: 56)
@@ -1738,6 +1759,7 @@ private struct FaroConfirmOrderView: View {
                         .foregroundColor(.black)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 8)
 
                     Text(product["SKU"] as? String ?? "")
                         .font(FaroFont.regular(13))
@@ -1903,9 +1925,9 @@ private struct FaroEditOrderView: View {
     )
 
     private let background = Color(
-        red: 247 / 255,
-        green: 247 / 255,
-        blue: 249 / 255
+        red: 249 / 255,
+        green: 249 / 255,
+        blue: 251 / 255
     )
 
     private var metals: [String] {
@@ -2069,7 +2091,7 @@ private struct FaroEditOrderView: View {
             Spacer()
 
             Text("Edit Order")
-                .font(FaroFont.regular(18))
+                .font(FaroFont.semibold(18))
                 .foregroundColor(.black)
 
             Spacer()
@@ -2153,44 +2175,43 @@ private struct FaroEditDropdown: View {
                 .font(FaroFont.regular(11))
                 .foregroundColor(.black)
 
-            ZStack(alignment: .topLeading) {
-                Button {
-                    guard !options.isEmpty else { return }
-                    if isOpen {
-                        isOpen = false
-                    } else {
-                        onOpen()
-                    }
-                } label: {
-                    HStack {
-                        Text(selection.isEmpty ? "Select \(title)" : selection)
-                            .font(FaroFont.regular(14))
-                            .foregroundColor(Color(white: 0.40))
-                            .lineLimit(1)
-
-                        Spacer()
-
-                        Image(systemName: isOpen ? "chevron.up" : "chevron.down")
-                            .font(FaroFont.semibold(10))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: rowHeight)
-                    .background(
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .fill(Color.white)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .stroke(Color.gray.opacity(0.25), lineWidth: 1)
-                    )
-                    .contentShape(
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    )
+            Button {
+                guard !options.isEmpty else { return }
+                if isOpen {
+                    isOpen = false
+                } else {
+                    onOpen()
                 }
-                .buttonStyle(.plain)
+            } label: {
+                HStack {
+                    Text(selection.isEmpty ? "Select \(title)" : selection)
+                        .font(FaroFont.regular(14))
+                        .foregroundColor(Color(white: 0.40))
+                        .lineLimit(1)
 
+                    Spacer()
+
+                    Image(systemName: isOpen ? "chevron.up" : "chevron.down")
+                        .font(FaroFont.semibold(10))
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity)
+                .frame(height: rowHeight)
+                .background(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(Color.white)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(Color.gray.opacity(0.25), lineWidth: 1)
+                )
+                .contentShape(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                )
+            }
+            .buttonStyle(.plain)
+            .overlay(alignment: .topLeading) {
                 if isOpen && !options.isEmpty {
                     let dropdownHeight = min(CGFloat(options.count) * rowHeight, 180)
 
@@ -2219,6 +2240,13 @@ private struct FaroEditDropdown: View {
                                             ? Color(red: 242 / 255, green: 251 / 255, blue: 250 / 255)
                                             : Color.white
                                     )
+                                    .overlay(alignment: .leading) {
+                                        if selection == option {
+                                            Rectangle()
+                                                .fill(teal)
+                                                .frame(width: 3)
+                                        }
+                                    }
                                 }
                                 .buttonStyle(.plain)
 

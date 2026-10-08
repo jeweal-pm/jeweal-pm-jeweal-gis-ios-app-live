@@ -332,6 +332,11 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     private var selectedItemCountLabel: UILabel?
     private var selectedItemsShareButton: UIButton?
     private var selectedItemsReserveButton: UIButton?
+    
+    // Expandable search bar
+    private var expandableSearchBar: ExpandableSearchBar?
+    private let inventorySpeechRecognizer = SpeechRecognizer(localeIdentifier: "en-US")
+    private var isInventorySpeechOn = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -370,8 +375,11 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         mStockName.isUserInteractionEnabled = true
         mStockName.addGestureRecognizer(tap)
         
-        
-        
+        // Tap outside to dismiss keyboard
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboardTap))
+        dismissTap.cancelsTouchesInView = false
+        dismissTap.delegate = self
+        view.addGestureRecognizer(dismissTap)
     }
 
     private func installMultiPDFExportButton() {
@@ -494,6 +502,159 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         selectedItemsReserveButton?.isEnabled = shouldShow
     }
 
+    // MARK: - Expandable Search Bar
+    private func installExpandableSearchBar() {
+        guard expandableSearchBar == nil,
+              let filterView = mFilterSearchView,
+              let headerView = filterView.superview else { return }
+        
+        // Disable clipping on ancestors so the expanded bar can overflow.
+        var ancestor: UIView? = headerView
+        for _ in 0..<5 {
+            guard let v = ancestor else { break }
+            v.clipsToBounds = false
+            ancestor = v.superview
+        }
+        
+        let config = ExpandableSearchBarConfig(
+            idlePlaceholder: "Search by SKU / Stock ID".localizedString,
+            expandedPlaceholder: "SKU, stock ID, product name, description".localizedString,
+            showMic: true,
+            showScan: true,
+            showFilter: true,
+            collapsedHeight: 44,
+            expandedHeight: 104
+        )
+        let bar = ExpandableSearchBar(config: config)
+        bar.delegate = self
+        bar.onExpandedHeightChange = { [weak self] searchBarHeight in
+            guard let self else { return }
+            // The tab row is constrained below this header. Keep the header at
+            // least as tall as the growing search bar, so Summary/My Inventory
+            // and all following content are pushed down rather than overlapped.
+            self.headerHeightConstraint?.constant = max(self.originalHeaderHeight, searchBarHeight)
+            self.view.setNeedsLayout()
+            UIView.animate(withDuration: 0.15) {
+                self.view.layoutIfNeeded()
+            }
+        }
+        bar.isHidden = true  // Start hidden
+        
+        // Place the bar on the header view — spanning full width
+        // so the X button replaces the back button position.
+        headerView.addSubview(bar)
+        
+        NSLayoutConstraint.activate([
+            bar.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            bar.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            bar.topAnchor.constraint(equalTo: headerView.topAnchor),
+        ])
+        
+        headerView.bringSubviewToFront(bar)
+        
+        if !SiriID.isEmpty {
+            bar.setText(SiriID)
+        }
+        
+        expandableSearchBar = bar
+    }
+    
+    private var headerHeightConstraint: NSLayoutConstraint?
+    private let originalHeaderHeight: CGFloat = 60
+
+    /// Show the expandable search bar and hide back/title/search icons
+    private func showExpandableSearchBar() {
+        installExpandableSearchBar()
+        
+        guard let bar = expandableSearchBar,
+              let headerView = bar.superview else { return }
+        
+        // Find the header's height constraint (storyboard: 60pt)
+        if headerHeightConstraint == nil {
+            headerHeightConstraint = headerView.constraints.first {
+                $0.firstAttribute == .height && $0.secondItem == nil
+            }
+        }
+        
+        // Hide all header children except the expandable bar
+        for subview in headerView.subviews where subview !== bar {
+            subview.alpha = 0
+        }
+        bar.isHidden = false
+        headerView.bringSubviewToFront(bar)
+        
+        // Expand the header to accommodate the search bar
+        UIView.animate(withDuration: 0.25) {
+            self.headerHeightConstraint?.constant = 104
+            self.view.layoutIfNeeded()
+        }
+        
+        bar.expand()
+    }
+    
+    /// Show the filled (collapsed single-line) search bar — keeps bar visible but shrinks header
+    private func showFilledSearchBar() {
+        guard let bar = expandableSearchBar,
+              let headerView = bar.superview else { return }
+        
+        bar.isHidden = false
+        headerView.bringSubviewToFront(bar)
+        
+        // Keep header children hidden (bar replaces them)
+        for subview in headerView.subviews where subview !== bar {
+            subview.alpha = 0
+        }
+        
+        // Shrink header back to original height for the single-line filled bar
+        UIView.animate(withDuration: 0.25) {
+            self.headerHeightConstraint?.constant = self.originalHeaderHeight
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    /// Hide the expandable search bar and restore original header
+    private func hideExpandableSearchBar() {
+        guard let bar = expandableSearchBar,
+              let headerView = bar.superview else { return }
+        
+        bar.isHidden = true
+        // Restore all header children except mFilterSearchView
+        // (it must stay hidden — the expandable bar replaces it)
+        for subview in headerView.subviews where subview !== bar {
+            if subview === mFilterSearchView {
+                subview.alpha = 0
+                subview.isUserInteractionEnabled = false
+            } else {
+                subview.alpha = 1
+            }
+        }
+        
+        // Restore original header height
+        UIView.animate(withDuration: 0.25) {
+            self.headerHeightConstraint?.constant = self.originalHeaderHeight
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func dismissKeyboardTap() {
+        view.endEditing(true)
+        if let bar = expandableSearchBar {
+            bar.collapse()
+            if bar.searchText.isEmpty {
+                hideExpandableSearchBar()
+            } else {
+                showFilledSearchBar()
+            }
+        }
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // Keep the outside-tap recognizer away from the field itself; otherwise
+        // its expand action and the page's collapse action can run together.
+        guard let searchBar = expandableSearchBar else { return true }
+        return !searchBar.bounds.contains(touch.location(in: searchBar))
+    }
+    
     @objc private func exportSelectedInventoryPDFs() {
         let selectedProductIDs = mSelectedInventoryIndex
             .sorted { $0.row < $1.row }
@@ -644,7 +805,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     }
 
     @IBAction func mScanNow(_ sender: Any) {
-        
+        view.endEditing(true)
         let storyBoard: UIStoryboard = UIStoryboard(name: "transactions", bundle: nil)
         if let mCommonScanner = storyBoard.instantiateViewController(withIdentifier: "CommonScanner") as? CommonScanner {
             mCommonScanner.delegate =  self
@@ -841,15 +1002,17 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     
     
     @IBAction func mHideSearchFilterView(_ sender: Any) {
-        mFilterSearchView.isHidden =  true
+        if expandableSearchBar != nil {
+            expandableSearchBar?.collapse()
+            hideExpandableSearchBar()
+        } else {
+            mFilterSearchView.isHidden = true
+        }
         mSearchFIELD.text = SiriID
-
     }
     @IBAction func mSearch(_ sender: Any) {
-       
-        mFilterSearchView.isHidden =  false
+        showExpandableSearchBar()
         mSearchFIELD.text = SiriID
-     
     }
     
     @IBAction func mFilter(_ sender: Any) {
@@ -881,8 +1044,13 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     @IBAction func mMinimizeFilter(_ sender: Any) {
         mFilterView.slideTop()
         mFilterView.isHidden = true
-        mFilterSearchView.isHidden = true
-        mSearchButtonView.isHidden =  false
+        if let bar = expandableSearchBar, !bar.isHidden {
+            // The expandable bar is visible — keep mSearchButtonView hidden
+            mSearchButtonView.isHidden = true
+        } else {
+            mFilterSearchView.isHidden = true
+            mSearchButtonView.isHidden = true
+        }
     }
     
     
@@ -2991,5 +3159,83 @@ extension UIBezierPath {
 
         path.closeSubpath()
         cgPath = path
+    }
+}
+
+// MARK: - ExpandableSearchBarDelegate
+extension InventoryPage: ExpandableSearchBarDelegate {
+    func searchBarDidSubmit(_ searchBar: ExpandableSearchBar, text: String) {
+        mSearchFIELD.text = text
+        // Collapse header to filled single-line bar
+        showFilledSearchBar()
+        if mTYPE == "S" {
+            mGetInventorySummaryData(key: text)
+        } else {
+            mInventorySkip = 0
+            mGetInventoryData(key: text)
+        }
+    }
+    
+    func searchBarDidClear(_ searchBar: ExpandableSearchBar) {
+        mSearchFIELD.text = ""
+        hideExpandableSearchBar()
+        if mTYPE == "S" {
+            mGetInventorySummaryData(key: "")
+        } else {
+            mInventorySkip = 0
+            mGetInventoryData(key: "")
+        }
+    }
+    
+    func searchBarMicTapped(_ searchBar: ExpandableSearchBar) {
+        if !isInventorySpeechOn {
+            isInventorySpeechOn = true
+            inventorySpeechRecognizer.startRecognition { [weak self] value in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.isInventorySpeechOn = false
+                    if let text = value, !text.isEmpty {
+                        self.expandableSearchBar?.setText(text)
+                        self.mSearchFIELD.text = text
+                    }
+                }
+            }
+        } else {
+            isInventorySpeechOn = false
+            inventorySpeechRecognizer.stopRecognition()
+        }
+    }
+    
+    func searchBarScanTapped(_ searchBar: ExpandableSearchBar) {
+        view.endEditing(true)
+        let storyBoard: UIStoryboard = UIStoryboard(name: "transactions", bundle: nil)
+        if let mCommonScanner = storyBoard.instantiateViewController(withIdentifier: "CommonScanner") as? CommonScanner {
+            mCommonScanner.delegate = self
+            mCommonScanner.mType = "Inventory"
+            mCommonScanner.modalPresentationStyle = .overFullScreen
+            mCommonScanner.transitioningDelegate = self
+            self.present(mCommonScanner, animated: true)
+        }
+    }
+    
+    func searchBarFilterTapped(_ searchBar: ExpandableSearchBar) {
+        view.endEditing(true)
+        let storyBoard: UIStoryboard = UIStoryboard(name: "common", bundle: nil)
+        if let mFilters = storyBoard.instantiateViewController(withIdentifier: "CommonFilters") as? CommonFilters {
+            mFilters.delegate = self
+            mFilters.mType = "inventory"
+            mFilters.mItemsId = mItemsId
+            mFilters.mMetalsId = mMetalsId
+            mFilters.mCollectionId = mCollectionId
+            mFilters.mStonesId = mStonesId
+            mFilters.mSizeId = mSizeId
+            mFilters.mLocationsId = mLocationsId
+            mFilters.mStatusId = mStatusId
+            mFilters.mMinPrices = mMinPrices
+            mFilters.mMaxPrices = mMaxPrices
+            mFilters.modalPresentationStyle = .automatic
+            mFilters.transitioningDelegate = self
+            self.present(mFilters, animated: true)
+        }
     }
 }

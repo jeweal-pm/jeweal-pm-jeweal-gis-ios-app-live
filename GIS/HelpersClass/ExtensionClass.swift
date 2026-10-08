@@ -1211,20 +1211,60 @@ extension UINavigationController {
 
 // MARK: - UIImage average color
 extension UIImage {
-    /// Returns the average color of the image by scaling it down to 1x1 pixel.
+    /// Returns the background color of the image by sampling corner pixels.
+    /// This avoids logos and content in the center skewing the result.
     var averageColor: UIColor? {
         guard let cgImage = self.cgImage else { return nil }
-        let size = CGSize(width: 1, height: 1)
-        UIGraphicsBeginImageContextWithOptions(size, true, 0)
+        
+        // Scale image to a small size to read pixel data efficiently
+        let sampleSize = 20
+        let size = CGSize(width: sampleSize, height: sampleSize)
+        UIGraphicsBeginImageContextWithOptions(size, true, 1)
         defer { UIGraphicsEndImageContext() }
         guard let ctx = UIGraphicsGetCurrentContext() else { return nil }
         ctx.interpolationQuality = .medium
         ctx.draw(cgImage, in: CGRect(origin: .zero, size: size))
-        guard let data = ctx.makeImage()?.dataProvider?.data,
+        guard let outImage = ctx.makeImage(),
+              let data = outImage.dataProvider?.data,
               let ptr = CFDataGetBytePtr(data) else { return nil }
-        return UIColor(red: CGFloat(ptr[0]) / 255,
-                       green: CGFloat(ptr[1]) / 255,
-                       blue: CGFloat(ptr[2]) / 255,
+        
+        let bytesPerPixel = 4
+        let bytesPerRow = outImage.bytesPerRow
+        
+        // Sample corner regions (top-left, top-right, bottom-left, bottom-right)
+        // Use 3 pixels from each corner = 12 samples total
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0
+        var count: CGFloat = 0
+        
+        let cornerOffsets: [(Int, Int)] = [
+            // Top-left
+            (0, 0), (1, 0), (0, 1),
+            // Top-right
+            (sampleSize - 1, 0), (sampleSize - 2, 0), (sampleSize - 1, 1),
+            // Bottom-left
+            (0, sampleSize - 1), (1, sampleSize - 1), (0, sampleSize - 2),
+            // Bottom-right
+            (sampleSize - 1, sampleSize - 1), (sampleSize - 2, sampleSize - 1), (sampleSize - 1, sampleSize - 2)
+        ]
+        
+        for (x, y) in cornerOffsets {
+            let offset = y * bytesPerRow + x * bytesPerPixel
+            let pr = ptr[offset], pg = ptr[offset + 1], pb = ptr[offset + 2]
+            print("🎨 [averageColor] pixel(\(x),\(y)) = R:\(pr) G:\(pg) B:\(pb)")
+            r += CGFloat(pr)
+            g += CGFloat(pg)
+            b += CGFloat(pb)
+            count += 1
+        }
+        
+        guard count > 0 else { return nil }
+        let finalR = r / count / 255
+        let finalG = g / count / 255
+        let finalB = b / count / 255
+        print("🎨 [averageColor] FINAL = R:\(Int(finalR*255)) G:\(Int(finalG*255)) B:\(Int(finalB*255)) (from \(Int(count)) samples)")
+        return UIColor(red: finalR,
+                       green: finalG,
+                       blue: finalB,
                        alpha: 1)
     }
 }
