@@ -402,7 +402,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         
         let config = ExpandableSearchBarConfig(
             idlePlaceholder: "Search By SKU / Product Name".localizedString,
-            expandedPlaceholder: "SKU, product name, description".localizedString,
+            expandedPlaceholder: "SKU, product name".localizedString,
             showMic: true,
             showScan: true,
             showFilter: true,

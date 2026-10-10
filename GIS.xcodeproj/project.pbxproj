@@ -188,6 +188,7 @@
 		C553B66F302880DA0000A8E4 /* BackspaceTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C553B66E302880D90000A8E4 /* BackspaceTextField.swift */; };
 		C553B6713028996B0000A8E4 /* FaroResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C553B670302899690000A8E4 /* FaroResultView.swift */; };
 		C553B673302899880000A8E4 /* FaroProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C553B672302899860000A8E4 /* FaroProductCard.swift */; };
+		C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -562,6 +563,7 @@
 		C553B66E302880D90000A8E4 /* BackspaceTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackspaceTextField.swift; sourceTree = "<group>"; };
 		C553B670302899690000A8E4 /* FaroResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaroResultView.swift; sourceTree = "<group>"; };
 		C553B672302899860000A8E4 /* FaroProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaroProductCard.swift; sourceTree = "<group>"; };
+		C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockIdDecoder.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1058,6 +1060,7 @@
 				D9DC6DE1258BAAC6005C6264 /* UnscannedStock.swift */,
 				D9DC6DE3258BAB17005C6264 /* ScannedStock.swift */,
 				D9DC6DE5258BAB6C005C6264 /* ConflictUnknownStock.swift */,
+				C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */,
 			);
 			path = "Stock Take";
 			sourceTree = "<group>";
@@ -1787,6 +1790,7 @@
 				748B073E2990FB0A001C6A6C /* PosCart.swift in Sources */,
 				D968C9A52538696B00D45A90 /* SceneDelegate.swift in Sources */,
 				C5D05310302D754E00CBEA51 /* CameraManager.swift in Sources */,
+				C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */,
 				7471018A295B330100556743 /* CommonFilters.swift in Sources */,
 				744F599C29DE071700E0587C /* CommonSearch.swift in Sources */,
 				D940CED32588F640006D246E /* CustomOrder.swift in Sources */,
@@ -2207,7 +2211,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 78;
+				CURRENT_PROJECT_VERSION = 81;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2221,7 +2225,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.7;
+				MARKETING_VERSION = 4.0.8;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2243,7 +2247,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 78;
+				CURRENT_PROJECT_VERSION = 81;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2257,7 +2261,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.7;
+				MARKETING_VERSION = 4.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

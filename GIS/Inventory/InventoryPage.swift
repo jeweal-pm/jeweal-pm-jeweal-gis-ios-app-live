@@ -518,7 +518,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         
         let config = ExpandableSearchBarConfig(
             idlePlaceholder: "Search by SKU / Stock ID".localizedString,
-            expandedPlaceholder: "SKU, stock ID, product name, description".localizedString,
+            expandedPlaceholder: "SKU, stock ID, product name".localizedString,
             showMic: true,
             showScan: true,
             showFilter: true,

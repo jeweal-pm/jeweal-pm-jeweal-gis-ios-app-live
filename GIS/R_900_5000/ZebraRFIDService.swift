@@ -1156,19 +1156,16 @@ class ZebraRFIDService: NSObject,
                 return
             }
 
-            var value = decodeFromHex(epc) ?? epc
-            
-            if value.first == "-" {
-                value.removeFirst()
-            }
-        
-            scannedTags.insert(value)
+            // Use StockIdDecoder (same logic as C# backend) for decoding.
+            let decoded = StockIdDecoder.decode(epc)?.uppercased() ?? epc
 
-            print("POST =", value)
+            scannedTags.insert(decoded)
+
+            print("POST =", decoded)
 
             NotificationCenter.default.post(
                 name: .zebraTagRead,
-                object: value
+                object: decoded
             )
     }
     

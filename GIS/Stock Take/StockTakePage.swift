@@ -327,6 +327,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var atidBLEService: CBService?
     private var atidBLECharacteristic: CBCharacteristic?
     private var atidNotifyReady = false
+    // A BLE notification is not a protocol-frame boundary. AT388 can split a
+    // single inventory response across notifications, or combine several
+    // responses in one. Keep the remaining bytes until a full frame arrives.
+    private var atidReceiveBuffer = Data()
     private var atidPendingCharacteristicServices = 0
     private var atidConnectStartedAt: CFAbsoluteTime = 0
     private var atidPeripheralIdentifiers = Set<UUID>()
@@ -361,9 +365,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var recentRFIDReads: [String: Date] = [:]
     private let rfidReadDebounceInterval: TimeInterval = 1.0
 
-    // ATID session-level deduplication — mirrors Zebra's scannedTags Set in
-    // ZebraRFIDService. Once a decoded/normalized tag value has been processed,
-    // it is never sent to getRFIDData() again during this scanning session.
+    // ATID session-level deduplication — this stores both the raw frame value
+    // and its normalized candidates. AT388 can vary PC/RSSI metadata while
+    // reporting the same physical tag, so raw-only deduplication is not
+    // sufficient and can inflate Unknown.
     private var atidScannedTags = Set<String>()
 
     // UI state for the Device bottom sheet.
@@ -1818,8 +1823,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         for rawItem in mInventoryData {
             guard let item = rawItem as? NSDictionary else { continue }
 
-            let sku = "\(item["SKU"] ?? "")"
-            let stockID = "\(item["stock_id"] ?? "")"
+            let sku = sku(from: item)
+            let stockID = stockID(from: item)
 
             guard searchKey == normalizedStockLookupKey(sku)
                     || searchKey == normalizedStockLookupKey(stockID) else {
@@ -2744,7 +2749,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             // A tag that has already been counted in this Stock Take must not
             // become a Conflict simply because Zebra keeps seeing it.
             if let item = self.stockMap[tag] {
-                let stockID = "\(item["stock_id"] ?? "")"
+                let stockID = self.stockID(from: item)
                 if !stockID.isEmpty && self.mScannedData.contains(stockID) {
                     print("↩️ Ignore already scanned Zebra stock =", stockID)
                     return
@@ -3041,6 +3046,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         sender.setValue(Float(percent) / 100.0, animated: false)
         mPowerValue.text = "\(percent)%"
 
+        if isATIDRFIDConnected {
+            let requested = UInt16((Double(3000) * Double(percent) / 100.0).rounded())
+            configureATIDPower(requested)
+            mPowerValue.text = String(format: "%.1f / 30.0 dBm", Double(requested) / 100.0)
+            return
+        }
+
         if isZebraRFIDConnected {
             let minPower = ZebraRFIDService.shared.minPower
             let maxPower = ZebraRFIDService.shared.maxPower
@@ -3154,6 +3166,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidBLEService = nil
         atidBLECharacteristic = nil
         atidNotifyReady = false
+        atidReceiveBuffer.removeAll(keepingCapacity: false)
         atidPendingCharacteristicServices = 0
         atidReaderReady = false
         atidInventoryRunning = false
@@ -3217,6 +3230,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                          self.atidBLEService?.uuid.uuidString ?? "-",
                          self.atidBLECharacteristic?.uuid.uuidString ?? "-"))
 
+            // Set max power immediately after connection for fastest scanning.
+            self.configureATIDPower()
+
             let shouldStart = self.atidStartRequested
             self.atidStartRequested = false
             self.updateScannerControls()
@@ -3226,6 +3242,23 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 self.startATIDInventory()
             }
         }
+    }
+
+    // ── AT388 RF Power Configuration ──
+    // The AT388 raw BLE protocol uses command 0xB6 to set TX power.
+    // Power is specified as 2 bytes big-endian in centi-dBm:
+    //   3000 = 30.00 dBm = 1 W (AT388 max rated output)
+    //   2000 = 20.00 dBm
+    // Default to max power (30 dBm) for fastest scanning.
+    private var atidPowerCentidBm: UInt16 = 3000
+
+    private func configureATIDPower(_ centidBm: UInt16? = nil) {
+        let power = centidBm ?? atidPowerCentidBm
+        atidPowerCentidBm = power
+        let hi = UInt8((power >> 8) & 0xFF)
+        let lo = UInt8(power & 0xFF)
+        writeATIDCommand(command: 0xB6, data: [hi, lo])
+        print("⚡ AT388 SET POWER = \(power) centi-dBm (\(Double(power) / 100.0) dBm)")
     }
 
     private func disconnectLegacyBluetoothReader() {
@@ -3261,6 +3294,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidStartRequested = false
         atidReaderReady = false
         atidNotifyReady = false
+        atidReceiveBuffer.removeAll(keepingCapacity: false)
         atidPendingCharacteristicServices = 0
         atidBLECharacteristic = nil
         atidBLEService = nil
@@ -3341,10 +3375,16 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 print("❌ AT388 sendStart: connection lost before write")
                 return
             }
-            self.writeATIDCommand(command: 0x89, data: [0x00])
-            self.atidInventoryRunning = true
-            print("▶️ AT388 DIRECT BLE INVENTORY START")
-            self.updateScannerControls()
+            // Ensure max power before every inventory cycle.
+            self.configureATIDPower()
+            // Small delay so the reader processes the power command first.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                guard let self = self, self.isATIDRFIDConnected else { return }
+                self.writeATIDCommand(command: 0x89, data: [0x00])
+                self.atidInventoryRunning = true
+                print("▶️ AT388 DIRECT BLE INVENTORY START")
+                self.updateScannerControls()
+            }
         }
 
         // Match the React Native driver: subscribe first, then allow ~200 ms
@@ -3393,13 +3433,54 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func handleATIDBLEData(_ data: Data) {
-        if let epc = parseATIDInventoryFrame(data) {
-            handleATIDTag(epc, rssi: 0, phase: 0)
-            return
+        // A notification may contain a partial frame. Appending to a session
+        // buffer prevents a tag from being lost merely because CoreBluetooth
+        // split it at an arbitrary byte boundary.
+        atidReceiveBuffer.append(data)
+
+        var parsedFrame = false
+        while true {
+            var bytes = [UInt8](atidReceiveBuffer)
+            guard !bytes.isEmpty else { break }
+
+            // Discard noise before the next protocol header but preserve an
+            // empty buffer for the legacy ASCII fallback below.
+            if bytes[0] != 0xA0 {
+                guard let headerOffset = bytes.firstIndex(of: 0xA0) else {
+                    atidReceiveBuffer.removeAll(keepingCapacity: false)
+                    break
+                }
+                atidReceiveBuffer.removeSubrange(0..<headerOffset)
+                bytes = [UInt8](atidReceiveBuffer)
+            }
+
+            // Wait for the length byte, then for the complete frame.
+            guard bytes.count >= 2 else { break }
+            let frameLength = Int(bytes[1])
+            let totalLength = frameLength + 2 // header + length + payload/checksum
+
+            // A valid AT388 payload always includes address, command and a
+            // checksum. Resynchronise rather than letting a corrupt length
+            // block every future scan.
+            guard frameLength >= 3, totalLength <= 257 else {
+                atidReceiveBuffer.removeFirst()
+                continue
+            }
+            guard bytes.count >= totalLength else { break }
+
+            let frameData = atidReceiveBuffer.prefix(totalLength)
+            atidReceiveBuffer.removeFirst(totalLength)
+            parsedFrame = true
+
+            if let epc = parseATIDInventoryFrame(Data(frameData)) {
+                handleATIDTag(epc, rssi: 0, phase: 0)
+            }
         }
 
-        // Keep the React Native driver's fallback behavior for firmware that
-        // emits legacy ASCII/hex notifications instead of a framed packet.
+        if parsedFrame || !atidReceiveBuffer.isEmpty { return }
+
+        // Fallback for firmware that emits legacy ASCII/hex notifications.
+        // This is used only when the incoming payload is not framed at all.
         if let text = String(data: data, encoding: .utf8) {
             let cleaned = text
                 .replacingOccurrences(of: "\0", with: "")
@@ -3420,53 +3501,25 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         guard !raw.isEmpty else { return }
 
         // ── Session-level dedup (mirrors Zebra's scannedTags Set) ──
-        // If this raw tag has already been fully processed once in this
-        // scanning session, skip it entirely. This is the single biggest
-        // performance win: ATID hardware reports the same tag many times
-        // per second while it remains in range.
         guard !atidScannedTags.contains(raw) else { return }
 
-        // ATID readTagResult returns PC + EPC in Hex format.
-        // Try PC+EPC and EPC-only forms, plus ASCII-from-hex.
+        // ── Decode using StockIdDecoder (same logic as C# backend) ──
+        // Try the full raw EPC first, then without the PC header.
         var candidates: [String] = [raw]
 
-        if raw.count > Int(TAG_PC_LENGTH),
-           raw.count % 2 == 0,
-           raw.allSatisfy({ $0.isHexDigit }) {
+        let isHex = raw.count % 2 == 0 && raw.allSatisfy({ $0.isHexDigit })
 
+        if isHex && raw.count > Int(TAG_PC_LENGTH) {
             let epcOnly = String(raw.dropFirst(Int(TAG_PC_LENGTH)))
-
             if !epcOnly.isEmpty {
                 candidates.append(epcOnly)
             }
         }
 
-        func asciiFromHex(_ value: String) -> String? {
-            guard value.count % 2 == 0 else { return nil }
-
-            var output = ""
-            var index = value.startIndex
-
-            while index < value.endIndex {
-                let next = value.index(index, offsetBy: 2)
-                let byteString = String(value[index..<next])
-
-                guard let byte = UInt8(byteString, radix: 16),
-                      byte >= 32,
-                      byte <= 126 else {
-                    return nil
-                }
-
-                output.append(Character(UnicodeScalar(byte)))
-                index = next
-            }
-
-            return output.isEmpty ? nil : output
-        }
-
-        let snapshot = candidates
-        for candidate in snapshot {
-            if let decoded = asciiFromHex(candidate) {
+        // Decode each candidate using StockIdDecoder.
+        let rawCandidates = candidates
+        for candidate in rawCandidates {
+            if let decoded = StockIdDecoder.decode(candidate) {
                 candidates.append(decoded.uppercased())
             }
         }
@@ -3481,19 +3534,20 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
         }
 
-        print("📡 ATID RAW TAG =", raw)
-        print("📡 ATID CANDIDATES =", uniqueCandidates)
-        print("📡 ATID RSSI =", rssi, "PHASE =", phase)
-
-        // Mark the raw tag as seen so we never process it again this session.
+        // AT388 can report the same physical EPC with changing PC/RSSI
+        // metadata. Treat any previously processed normalized candidate as
+        // the same tag—not merely an identical raw notification.
+        if uniqueCandidates.contains(where: { atidScannedTags.contains($0) }) {
+            return
+        }
         atidScannedTags.insert(raw)
+        uniqueCandidates.forEach { atidScannedTags.insert($0) }
 
         if let matched = uniqueCandidates.first(where: { stockMap[$0] != nil }) {
             let now = Date()
 
             if let lastRead = recentRFIDReads[matched],
                now.timeIntervalSince(lastRead) < rfidReadDebounceInterval {
-                print("↩️ Ignore duplicate ATID RFID =", matched)
                 return
             }
 
@@ -3507,50 +3561,38 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             DispatchQueue.main.async {
                 if let item = self.stockMap[matched] {
-                    let stockID = "\(item["stock_id"] ?? "")"
+                    let stockID = self.stockID(from: item)
                     if !stockID.isEmpty && self.mScannedData.contains(stockID) {
-                        print("↩️ Ignore already scanned ATID stock =", stockID)
                         return
                     }
                 }
-
                 self.getRFIDData(data: matched, source: "atid")
             }
             return
         }
 
         // ── No candidate matched stockMap ──
-        // Unlike Zebra (which pre-filters via decodeFromHex and its own
-        // scannedTags Set), ATID receives every tag in range — including
-        // neighbouring products, packaging, and environmental noise.
-        // Recording all of these as Unknown inflates the count by hundreds.
-        // Only record a tag as Unknown if it looks like it could be a valid
-        // stock identifier (ASCII-decodable or already in a sold-data set).
-        //
-        // Try the sold-data path first — a sold item IS meaningful.
-        let fallback = uniqueCandidates.count > 1
-            ? uniqueCandidates[1]
-            : (uniqueCandidates.first ?? raw)
+        // Check valid stock IDs, including Europe alphanumeric tags such as LH59064.
+        // Otherwise, discard as environmental noise.
+        let decodedCandidate = uniqueCandidates.first(where: isValidStockScanIdentifier)
 
-        let lookupKey = normalizedStockLookupKey(fallback)
-        if !lookupKey.isEmpty, soldStockItem(for: lookupKey) != nil {
-            // This is a sold item → let getRFIDData record it as a Conflict.
+        if let stockID = decodedCandidate {
+            // Looks like a valid stock ID — check sold data first.
+            let lookupKey = normalizedStockLookupKey(stockID)
             let now = Date()
-            if let lastRead = recentRFIDReads[fallback],
+            if let lastRead = recentRFIDReads[lookupKey],
                now.timeIntervalSince(lastRead) < rfidReadDebounceInterval {
                 return
             }
-            recentRFIDReads[fallback] = now
+            recentRFIDReads[lookupKey] = now
 
             DispatchQueue.main.async {
-                self.getRFIDData(data: fallback, source: "atid")
+                self.getRFIDData(data: stockID, source: "atid")
             }
             return
         }
 
-        // Not in stockMap and not in sold_data → environmental noise.
-        // Silently discard instead of flooding the Unknown list.
-        print("🚫 ATID skip noise tag =", raw, "fallback =", fallback)
+        // No valid stock ID decoded → environmental noise. Discard silently.
     }
     #else
     // Simulator stubs: keep the Stock Take UI/buildable without EARfidFramework.
@@ -4868,8 +4910,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         for rawItem in mInventoryData {
             guard let item = rawItem as? NSDictionary else { continue }
 
-            let sku = "\(item["SKU"] ?? "")"
-            let stockID = "\(item["stock_id"] ?? "")"
+            let sku = sku(from: item)
+            let stockID = stockID(from: item)
 
             guard searchKey == normalizedStockLookupKey(sku)
                     || searchKey == normalizedStockLookupKey(stockID) else {
@@ -5208,8 +5250,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
-        let stockID = "\(item["stock_id"] ?? "")"
-        let sku = "\(item["SKU"] ?? "")"
+        let stockID = stockID(from: item)
+        let sku = sku(from: item)
         let poQty = Int("\(item["po_QTY"] ?? "0")") ?? 0
 
         print("========== RFID MATCH ==========")
@@ -6355,6 +6397,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 )
                 mPowerSlider?.setValue(normalized, animated: false)
                 mPowerValue?.text = "\(currentPower) / \(maxPower)"
+            } else if isATIDRFIDConnected {
+                let normalized = Float(Double(atidPowerCentidBm) / 3000.0)
+                mPowerSlider?.setValue(normalized, animated: false)
+                mPowerValue?.text = String(format: "%.1f / 30.0 dBm", Double(atidPowerCentidBm) / 100.0)
             } else {
                 mPowerSlider?.setValue(0.5, animated: false)
                 mPowerValue?.text = "50%"
@@ -6679,25 +6725,33 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             sheet.bringSubviewToFront(close)
         }
 
-        let minPower = ZebraRFIDService.shared.minPower
-        let maxPower = ZebraRFIDService.shared.maxPower
-        let currentPower = ZebraRFIDService.shared.currentPower
-        let range = max(1, maxPower - minPower)
-
-        let normalized = Float(
-            max(
-                0,
-                min(
-                    1,
-                    Double(currentPower - minPower) / Double(range)
-                )
-            )
-        )
-
         referencePowerSlider?.minimumValue = 0
         referencePowerSlider?.maximumValue = 1
-        referencePowerSlider?.setValue(normalized, animated: false)
-        referencePowerValueLabel?.text = "\(currentPower) / \(maxPower)"
+
+        if isATIDRFIDConnected {
+            // AT388: show current power in dBm format.
+            let normalized = Float(Double(atidPowerCentidBm) / 3000.0)
+            referencePowerSlider?.setValue(normalized, animated: false)
+            referencePowerValueLabel?.text = String(format: "%.1f / 30.0 dBm", Double(atidPowerCentidBm) / 100.0)
+        } else {
+            let minPower = ZebraRFIDService.shared.minPower
+            let maxPower = ZebraRFIDService.shared.maxPower
+            let currentPower = ZebraRFIDService.shared.currentPower
+            let range = max(1, maxPower - minPower)
+
+            let normalized = Float(
+                max(
+                    0,
+                    min(
+                        1,
+                        Double(currentPower - minPower) / Double(range)
+                    )
+                )
+            )
+            referencePowerSlider?.setValue(normalized, animated: false)
+            referencePowerValueLabel?.text = "\(currentPower) / \(maxPower)"
+        }
+
         let selectedCountry = UserDefaults.standard.string(forKey: "StockTakeRFIDFrequencyCountry") ?? "TH"
         referenceFrequencySelector?.setTitle(selectedCountry, for: .normal)
         referenceFrequencySelector?.menu = makeFrequencyCountryMenu()
@@ -6716,6 +6770,20 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     @objc private func referencePowerSliderChanged(_ sender: UISlider) {
+        if isATIDRFIDConnected {
+            // AT388: power range 0–3000 centi-dBm (0–30 dBm).
+            let atidMin: UInt16 = 0
+            let atidMax: UInt16 = 3000
+            let requested = atidMin + UInt16(
+                (Double(atidMax - atidMin) * Double(sender.value)).rounded()
+            )
+            configureATIDPower(requested)
+            let normalized = Float(Double(requested) / Double(atidMax))
+            sender.setValue(normalized, animated: false)
+            referencePowerValueLabel?.text = String(format: "%.1f / 30.0 dBm", Double(requested) / 100.0)
+            return
+        }
+
         let minPower = ZebraRFIDService.shared.minPower
         let maxPower = ZebraRFIDService.shared.maxPower
         let range = max(1, maxPower - minPower)
@@ -7245,18 +7313,18 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     
     // MARK: - Zebra scanner decoding
 
-    /// Decode a Zebra hex-encoded stock ID before doing any inventory lookup.
-    ///
-    /// Zebra RFID currently does this inside ZebraRFIDService:
-    ///     decodeFromHex(epc) ?? epc
-    /// and then uses the decoded value when it is a numeric 1-12 digit stock ID.
-    /// Barcode callbacks, however, arrive here as raw strings, so StockTakePage
-    /// must apply the same rule before checking SKU / stock_id.
+    /// Decode stock_id from RFID EPC hex using `StockIdDecoder` (ported from
+    /// the C# RfidBridge backend). This handles all encoding variants:
+    ///   - Legacy "-" marker (0x2D after zero padding)
+    ///   - JW GIS encodeToHex 32-nibble field
+    ///   - Interior zero-padded payloads
+    ///   - Embedded ASCII text scan
     ///
     /// Examples:
-    ///     "32323231323931" -> "2221291"
-    ///     "2212291"        -> "2212291" (already plain text)
-    ///     invalid/non-hex   -> original value
+    ///     "000000000002D3232313132390000" -> "2221291"
+    ///     "4C483539303634"               -> "LH59064"
+    ///     "2212291"                       -> "2212291" (already plain text)
+    ///     invalid/non-hex                 -> original value
     private func decodeZebraStockScanValue(_ rawValue: String) -> String {
         let raw = rawValue
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -7264,41 +7332,56 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         guard !raw.isEmpty else { return "" }
 
-        // Already a normal numeric stock_id: keep it exactly as-is.
-        if raw.range(of: #"^\d{1,12}$"#, options: .regularExpression) != nil {
-            print("🦓 Zebra Plain Format =", raw)
+        // Already a valid stock ID in plain text: return as-is.
+        if isValidStockScanIdentifier(raw) {
+            print("🦓 Plain Stock ID Format =", raw)
             return raw
         }
 
-        // Zebra's encoded stock format is ASCII stored as HEX.
-        // Example:
-        // 000000000002D3232313132390000
-        //       2D = "-" marker
-        //       32 32 31 31 32 39 = "221129"
-        //       00 = padding
-        //
-        // ZebraRFIDService.decodeFromHex() removes the 00 padding and
-        // converts HEX bytes to ASCII. The leading "-" must then be removed.
-        if var decoded = ZebraRFIDService.shared.decodeFromHex(raw) {
-            decoded = decoded
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            if decoded.hasPrefix("-") {
-                decoded.removeFirst()
+        // Use the new StockIdDecoder (same logic as C# backend).
+        let result = StockIdDecoder.tryDecode(raw)
+        if result.success, let stockId = result.stockId {
+            print("🦓 StockIdDecoder SUCCESS")
+            print("🦓 RAW     =", raw)
+            print("🦓 DECODED =", stockId)
+            if let warning = result.decodeWarning {
+                print("🦓 WARNING =", warning)
             }
-
-            if decoded.range(of: #"^\d{1,12}$"#, options: .regularExpression) != nil {
-                print("🦓 Zebra DECODE SUCCESS")
-                print("🦓 RAW     =", raw)
-                print("🦓 DECODED =", decoded)
-                return decoded
-            }
+            return stockId.uppercased()
         }
 
-        // Do not silently convert arbitrary text.
-        // Return the original value for old/non-encoded tags.
+        // Fallback: return original value for old/non-encoded tags.
         print("🦓 Zebra Plain/Old Format =", raw)
         return raw
+    }
+
+    /// Validates that a string looks like a real stock ID (alphanumeric, 1-16
+    /// chars) matching the C# backend's `^[A-Za-z0-9]{1,16}$` pattern.
+    ///
+    /// Pure-hex strings that could be encoded EPCs are rejected unless they
+    /// contain at least one non-hex letter (G-Z).
+    func isValidStockScanIdentifier(_ value: String) -> Bool {
+        let normalized = value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased()
+
+        guard !normalized.isEmpty, normalized.count <= 16 else { return false }
+        guard normalized.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) }) else {
+            return false
+        }
+
+        // Pure numeric stock IDs: always valid (e.g. "2212291").
+        if normalized.allSatisfy({ $0.isNumber }) {
+            return true
+        }
+
+        // Alphanumeric: must contain at least one non-hex letter (G-Z).
+        // This prevents raw hex EPCs like "4C483539303634" from being
+        // mistaken for stock IDs.
+        let hasNonHexLetter = normalized.contains(where: { ch in
+            ch.isLetter && !"ABCDEF".contains(ch)
+        })
+        return hasNonHexLetter
     }
 
     private func normalizedStockLookupKey(_ value: String) -> String {
@@ -7306,6 +7389,29 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .uppercased()
             .replacingOccurrences(of: " ", with: "")
+    }
+
+    /// Europe can return `stockId` while older Stock Take responses use
+    /// `stock_id`. Every scanner path must use the same physical ID.
+    private func stockID(from item: NSDictionary) -> String {
+        let keys = [
+            "stock_id", "stockId", "stockID", "StockId", "Stock ID",
+            "stock_code", "stockCode"
+        ]
+
+        for key in keys {
+            let value = "\(item[key] ?? "")"
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !value.isEmpty {
+                return value
+            }
+        }
+        return ""
+    }
+
+    private func sku(from item: NSDictionary) -> String {
+        return "\(item["SKU"] ?? item["sku"] ?? "")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Finds a sold item by its physical stock identifier. SKU is only used
@@ -7338,8 +7444,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     /// Adds a conflict only for an item explicitly supplied in sold_data.
     private func recordSoldConflict(_ soldItem: NSDictionary, lookupKey: String, source: String) {
-        let sku = "\(soldItem["SKU"] ?? soldItem["sku"] ?? lookupKey)"
-        let stockID = "\(soldItem["stock_id"] ?? soldItem["stockId"] ?? soldItem["stockID"] ?? soldItem["StockId"] ?? soldItem["stock_code"] ?? soldItem["stockCode"] ?? lookupKey)"
+        let sku = sku(from: soldItem).isEmpty ? lookupKey : sku(from: soldItem)
+        let stockID = stockID(from: soldItem).isEmpty ? lookupKey : stockID(from: soldItem)
         let conflictKey = stockID + "|SOLD"
 
         if !mCONFLICT.contains(conflictKey) {
@@ -7397,8 +7503,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         ]
 
         for item in data {
-            addStockLookupKey("\(item["stock_id"] ?? "")", item: item)
-            addStockLookupKey("\(item["SKU"] ?? "")", item: item)
+            addStockLookupKey(stockID(from: item), item: item)
+            addStockLookupKey(sku(from: item), item: item)
 
             for key in possibleRFIDKeys {
                 if let value = item[key] as? String {
@@ -7497,20 +7603,20 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     var unscannedData = [NSDictionary]()
                     
                     for data in mData {
-                        if let SKU = data["SKU"] as? String,
-                           let stock_id = data["stock_id"] as? String,
-                           let poQty = Int("\(data["po_QTY"] ?? "0")"),
-                           let _id = data["_id"] as? String,
-                           let location_id = data["location_id"] as? String {
+                        let stockID = self.stockID(from: data)
+                        let SKU = self.sku(from: data)
+
+                        if !stockID.isEmpty,
+                           let poQty = Int("\(data["po_QTY"] ?? "0")") {
                             
                             let poQtyString = "\(data["po_QTY"] ?? "0")"
                             
                             let mData = NSMutableDictionary()
                             mData.setValue(SKU, forKey: "SKU")
-                            mData.setValue(stock_id, forKey: "stock_id")
+                            mData.setValue(stockID, forKey: "stock_id")
                             mData.setValue(poQtyString, forKey: "po_QTY")
-                            mData.setValue(_id, forKey: "_id")
-                            mData.setValue(location_id, forKey: "location_id")
+                            mData.setValue("\(data["_id"] ?? "")", forKey: "_id")
+                            mData.setValue("\(data["location_id"] ?? "")", forKey: "location_id")
 
                             // Preserve API per-item weight in mStatusData so
                             // Scanned / Unscanned summary weights are not zero.

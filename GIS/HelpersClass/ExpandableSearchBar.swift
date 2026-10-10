@@ -19,7 +19,7 @@ protocol ExpandableSearchBarDelegate: AnyObject {
 // MARK: - Configuration
 struct ExpandableSearchBarConfig {
     var idlePlaceholder: String = "Search By SKU/Product Name"
-    var expandedPlaceholder: String = "SKU, product name, description"
+    var expandedPlaceholder: String = "SKU, product name"
     var showMic: Bool = true
     var showScan: Bool = false
     var showFilter: Bool = true
