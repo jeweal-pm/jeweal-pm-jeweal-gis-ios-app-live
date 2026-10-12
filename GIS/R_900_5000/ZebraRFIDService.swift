@@ -532,7 +532,7 @@ class ZebraRFIDService: NSObject,
             isInventoryRunning = false
             isConnecting = false
             connectingReaderID = -1
-            scannedTags.removeAll()
+            tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
             NotificationCenter.default.post(name: .zebraConnectionChanged, object: false)
             return
         }
@@ -554,7 +554,7 @@ class ZebraRFIDService: NSObject,
         currentReaderID = -1
         connectingReaderID = -1
         configuredRegulatoryReaderID = -1
-        scannedTags.removeAll()
+        tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
 
         sdkApi?.srfidTerminateCommunicationSession(readerID)
         NotificationCenter.default.post(name: .zebraConnectionChanged, object: false)
@@ -640,7 +640,7 @@ class ZebraRFIDService: NSObject,
 
         if result == SRFID_RESULT_SUCCESS {
             isInventoryRunning = true
-            scannedTags.removeAll()
+            tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
             NotificationCenter.default.post(name: .zebraInventoryChanged, object: true)
         }
     }
@@ -1034,7 +1034,7 @@ class ZebraRFIDService: NSObject,
         isReaderReadyForCommands = false
         isASCIIConnectionReady = false
         inventoryStartRetryCount = 0
-        scannedTags.removeAll()
+        tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
         NotificationCenter.default.post(name: .zebraConnectionChanged, object: true)
         scheduleReaderReadinessCheck(for: currentReaderID)
         
@@ -1131,42 +1131,39 @@ class ZebraRFIDService: NSObject,
         currentReaderID = -1
         connectingReaderID = -1
         configuredRegulatoryReaderID = -1
-        scannedTags.removeAll()
+        tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
         NotificationCenter.default.post(name: .zebraConnectionChanged, object: false)
         print(readerID)
     }
     
     private var scannedTags = Set<String>()
+    private let tagProcessingQueue = DispatchQueue(label: "com.gis.zebra.tagProcessing")
 
     func srfidEventReadNotify(_ readerID: Int32, aTagData tagData: srfidTagData!) {
-        print("🔥 READ CALLBACK")
-        print("🔥🔥🔥 READ EVENT")
         guard let tagData = tagData,
               let epc = tagData.getTagId(), !epc.isEmpty else {
                 return
             }
 
-            // Ignore old/wrong tags
-//            if epc.uppercased().hasPrefix("E280") {
-//                print("❌ Ignore EPC =", epc)
-//                return
-//            }
+            tagProcessingQueue.async { [weak self] in
+                guard let self = self else { return }
 
-            if scannedTags.contains(epc) {
-                return
+                guard !self.scannedTags.contains(epc) else { return }
+                self.scannedTags.insert(epc)
+
+                // Use StockIdDecoder (same logic as C# backend) for decoding.
+                let decoded = StockIdDecoder.decode(epc)?.uppercased() ?? epc
+                self.scannedTags.insert(decoded)
+
+                print("📡 ZEBRA POST =", decoded)
+
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: .zebraTagRead,
+                        object: decoded
+                    )
+                }
             }
-
-            // Use StockIdDecoder (same logic as C# backend) for decoding.
-            let decoded = StockIdDecoder.decode(epc)?.uppercased() ?? epc
-
-            scannedTags.insert(decoded)
-
-            print("POST =", decoded)
-
-            NotificationCenter.default.post(
-                name: .zebraTagRead,
-                object: decoded
-            )
     }
     
 //    func encodeToHex(stockId) {

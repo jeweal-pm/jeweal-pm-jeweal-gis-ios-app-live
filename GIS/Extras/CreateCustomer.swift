@@ -374,12 +374,9 @@ class CreateCustomer: UIViewController , UITableViewDataSource, UITableViewDeleg
         var mCurrentYear = Int()
         if #available(iOS 15, *) {
             mCurrentYear = Calendar(identifier: .gregorian).dateComponents([.year], from: .now).year ?? 0
-            mCurrentYear = mCurrentYear - 18
 
         } else {
             mCurrentYear = Calendar(identifier: .gregorian).dateComponents([.year], from: Date()).year ?? 0
-
-            mCurrentYear = mCurrentYear - 18
         }
 
       

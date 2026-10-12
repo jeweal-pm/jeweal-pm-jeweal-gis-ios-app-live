@@ -275,9 +275,14 @@ enum StockIdDecoder {
 
     // MARK: - Core helpers
 
-    private static func extractAsciiTextHexRun(_ hex: String, startIndex: Int, maxNibbles: Int = Int.max) -> String {
+    private static func extractAsciiTextHexRun(_ hex: String, startIndex: Int, maxNibbles: Int = -1) -> String {
         let chars = Array(hex)
-        let limit = min(chars.count, startIndex + maxNibbles)
+        let limit: Int
+        if maxNibbles < 0 {
+            limit = chars.count
+        } else {
+            limit = min(chars.count, startIndex + maxNibbles)
+        }
         var result = ""
 
         var i = startIndex
