@@ -7,6 +7,7 @@
 
 import UIKit
 import DropDown
+import Lottie
 import Alamofire
 
 
@@ -99,6 +100,15 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     private weak var diamondMenuTile: UIView?
     private weak var traceMenuTile: UIView?
     private let wallpaperImageView = UIImageView()
+
+    // The holiday welcome plays on app launch, after each login and after a store switch,
+    // not when returning from another menu. Login screens set this flag before Home is shown.
+    static var pendingHolidayWelcome = true
+    private weak var holidayAnimationView: LottieAnimationView?
+    // Stops two runs overlapping.
+    // The source artwork is free to use under the Pixabay Content License:
+    // https://pixabay.com/vectors/santa-sleigh-santa-with-reindeer-9991964/
+    private var isHolidayWelcomePlaying = false
 
     /// Keeps the home menu as a two-column grid. When Diamond is unavailable,
     /// the next menu tile moves into its position instead of stretching Inventory.
@@ -479,6 +489,89 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         
         UserDefaults.standard.setValue(nil, forKey: "cRemark")
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // Start only after Home is on screen, so its dimensions are final and
+        // the overlay never flashes during the navigation transition.
+        guard HomePage.pendingHolidayWelcome else { return }
+        HomePage.pendingHolidayWelcome = false
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            self?.showHolidayWelcomeIfNeeded()
+        }
+    }
+
+    private func showHolidayWelcomeIfNeeded() {
+        guard !isHolidayWelcomePlaying,
+              view.window != nil,
+              let animation = LottieAnimation.asset("christmas_intro") else { return }
+
+        isHolidayWelcomePlaying = true
+
+        let animationView = LottieAnimationView(animation: animation)
+        animationView.contentMode = .scaleAspectFit
+        animationView.loopMode = .playOnce
+        animationView.isUserInteractionEnabled = false
+        let container = UIView(frame: view.bounds)
+        container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        container.clipsToBounds = true
+        container.isUserInteractionEnabled = false
+        container.addSubview(animationView)
+        view.addSubview(container)
+        holidayAnimationView = animationView
+        layoutHolidayAnimation()
+
+        animationView.play { [weak self] _ in
+            UIView.animate(withDuration: 0.25, animations: {
+                container.alpha = 0
+            }, completion: { _ in
+                container.removeFromSuperview()
+                self?.holidayAnimationView = nil
+                self?.isHolidayWelcomePlaying = false
+            })
+        }
+    }
+
+    // Cover the screen with the portrait artwork, scaled by whichever side needs more and
+    // anchored to the bottom so the trees stay on the bottom edge on iPad and other wide screens.
+    private func layoutHolidayAnimation() {
+        guard let animationView = holidayAnimationView,
+              let size = animationView.animation?.size else { return }
+
+        let bounds = animationView.superview?.bounds ?? view.bounds
+        animationView.transform = .identity
+
+        // Screen wider than the artwork (iPad): keep the full height so the garlands at the top
+        // still show, then stretch horizontally to reach both side edges.
+        if bounds.width / bounds.height > size.width / size.height {
+            let width = bounds.height * size.width / size.height
+            animationView.frame = CGRect(
+                x: (bounds.width - width) / 2,
+                y: 0,
+                width: width,
+                height: bounds.height
+            )
+            animationView.transform = CGAffineTransform(scaleX: bounds.width / width, y: 1)
+            return
+        }
+
+        let scale = max(bounds.width / size.width, bounds.height / size.height)
+        let width = size.width * scale
+        let height = size.height * scale
+        animationView.frame = CGRect(
+            x: (bounds.width - width) / 2,
+            y: bounds.height - height,
+            width: width,
+            height: height
+        )
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        layoutHolidayAnimation()
+    }
     
     @objc func openSwitchStore() {
 
@@ -489,7 +582,6 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     
     func showStoreList(hideProfileActions: Bool) {
 
-        // ซ่อน/แสดงปุ่มตามจุดที่เปิด popup
         mLogOutBUTTON.isHidden = hideProfileActions
         mSiriPermissionBtn.isHidden = hideProfileActions
 
@@ -1645,6 +1737,11 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 //                print("before Selected Location =", UserDefaults.standard.string(forKey: "location") ?? "")
                 if let location = mData.value(forKey: "location_id") as? String,
                 let locationName = mData.value(forKey: "location_name") as? String {
+                    if UserDefaults.standard.string(forKey: "location") != location {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                            self?.showHolidayWelcomeIfNeeded()
+                        }
+                    }
                     UserDefaults.standard.setValue("\(location)", forKey: "location")
                     UserDefaults.standard.setValue("\(locationName)", forKey: "locationName")
                     self.mUserName.text = locationName

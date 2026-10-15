@@ -757,7 +757,8 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
 
                             let mToken = "\(mData.value(forKey: "login_token") ?? "")"
                             UserDefaults.standard.set(mToken, forKey: "token")
-                            
+                            HomePage.pendingHolidayWelcome = true
+
                             if "\(mData.value(forKey: "twofactorauth") ?? "0")" == "0" {
                                 
                                 let mUDID = "\(mData.value(forKey: "mobileUDID") ?? "")"
@@ -847,6 +848,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                             let udid = "\(mData.value(forKey: "mobileUDID") ?? "")"
                             UserDefaults.standard.set(udid, forKey: "mobileUDID")
                             UserDefaults.standard.set(mToken, forKey: "token")
+                            HomePage.pendingHolidayWelcome = true
                             if !self.mCredentialUserName.isEmpty && !self.mCredentialPassword.isEmpty {
                                 self.saveCredentials(username: self.mCredentialUserName, password: self.mCredentialPassword)
                             }

@@ -14,6 +14,7 @@ target 'GIS' do
   pod 'SDWebImageSVGCoder'
   pod 'SVGKit'
   pod 'SKCountryPicker'
+  pod 'lottie-ios'
 
   target 'GISTests' do
     inherit! :search_paths

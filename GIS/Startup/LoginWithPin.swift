@@ -519,6 +519,7 @@ class LoginWithPin: UIViewController {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
                             let mToken = "\(mData.value(forKey: "login_token") ?? "")"
                             UserDefaults.standard.set(mToken, forKey: "token")
+                            HomePage.pendingHolidayWelcome = true
                             //------------------------------------------------------
                             // Save website_url from JWT
                             //------------------------------------------------------

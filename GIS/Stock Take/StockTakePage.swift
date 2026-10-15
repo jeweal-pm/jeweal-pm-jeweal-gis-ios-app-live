@@ -371,6 +371,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // sufficient and can inflate Unknown.
     private var atidScannedTags = Set<String>()
 
+    // ── AT388 RF Power Configuration ──
+    // The AT388 raw BLE protocol uses command 0xB6 to set TX power.
+    // Power is specified as 2 bytes big-endian in centi-dBm:
+    //   3000 = 30.00 dBm = 1 W (AT388 max rated output)
+    //   2000 = 20.00 dBm
+    // Default to max power (30 dBm) for fastest scanning.
+    private var atidPowerCentidBm: UInt16 = 3000
+
     // UI state for the Device bottom sheet.
     private var pendingZebraReaderID: Int32?
     private var pendingBluetoothIdentifier: UUID?
@@ -3133,6 +3141,20 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     
     // MARK: - ATID Reader SDK
 
+    private func disconnectLegacyBluetoothReader() {
+        guard let legacyPeripheral = bluetoothService?.peripheral else {
+            return
+        }
+
+        if bluetoothService?.scannerIsRunning == 1 {
+            stopRFID()
+        }
+
+        bluetoothService?.byeBluetoothDevice()
+        centralManager?.cancelPeripheralConnection(legacyPeripheral)
+        bluetoothService?.peripheral = nil
+    }
+
     #if !targetEnvironment(simulator) && canImport(EARfidFramework)
     private func connectATID(_ peripheral: CBPeripheral) {
         guard isATIDPeripheral(peripheral) else {
@@ -3244,14 +3266,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
-    // ── AT388 RF Power Configuration ──
-    // The AT388 raw BLE protocol uses command 0xB6 to set TX power.
-    // Power is specified as 2 bytes big-endian in centi-dBm:
-    //   3000 = 30.00 dBm = 1 W (AT388 max rated output)
-    //   2000 = 20.00 dBm
-    // Default to max power (30 dBm) for fastest scanning.
-    private var atidPowerCentidBm: UInt16 = 3000
-
     private func configureATIDPower(_ centidBm: UInt16? = nil) {
         let power = centidBm ?? atidPowerCentidBm
         atidPowerCentidBm = power
@@ -3259,20 +3273,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         let lo = UInt8(power & 0xFF)
         writeATIDCommand(command: 0xB6, data: [hi, lo])
         print("⚡ AT388 SET POWER = \(power) centi-dBm (\(Double(power) / 100.0) dBm)")
-    }
-
-    private func disconnectLegacyBluetoothReader() {
-        guard let legacyPeripheral = bluetoothService?.peripheral else {
-            return
-        }
-
-        if bluetoothService?.scannerIsRunning == 1 {
-            stopRFID()
-        }
-
-        bluetoothService?.byeBluetoothDevice()
-        centralManager?.cancelPeripheralConnection(legacyPeripheral)
-        bluetoothService?.peripheral = nil
     }
 
     private func disconnectATIDReader() {
@@ -3600,7 +3600,23 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         print("ℹ️ ATID RFID is unavailable on iOS Simulator")
     }
 
+    private func beginATIDDirectBLEDiscovery(_ peripheral: CBPeripheral) {
+        print("ℹ️ ATID RFID is unavailable on iOS Simulator")
+    }
+
+    private func finishATIDDirectBLESetup(_ peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+        print("ℹ️ ATID RFID is unavailable on iOS Simulator")
+    }
+
     private func finishATIDPeripheralConnection(_ peripheral: CBPeripheral) {
+        print("ℹ️ ATID RFID is unavailable on iOS Simulator")
+    }
+
+    private func configureATIDPower(_ centidBm: UInt16? = nil) {
+        print("ℹ️ ATID RFID is unavailable on iOS Simulator")
+    }
+
+    private func handleATIDBLEData(_ data: Data) {
         print("ℹ️ ATID RFID is unavailable on iOS Simulator")
     }
 

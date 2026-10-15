@@ -207,8 +207,7 @@
 		C5D05318302D766D00CBEA51 /* LibraryThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D05317302D766C00CBEA51 /* LibraryThumbnail.swift */; };
 		C5D0531A3031DF2100CBEA51 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D053193031DF1F00CBEA51 /* PhotoCaptureDelegate.swift */; };
 		C5D0531C30355BE100CBEA51 /* FaroFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D0531B30355BE100CBEA51 /* FaroFont.swift */; };
-		C5D0532D30444F4400CBEA51 /* EARfidFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5D0532B30444F3800CBEA51 /* EARfidFramework.framework */; };
-		C5D0532E30444F4400CBEA51 /* EARfidFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C5D0532B30444F3800CBEA51 /* EARfidFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C5D0532E30444F4400CBEA51 /* EARfidFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C5D0532B30444F3800CBEA51 /* EARfidFramework.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C5EBD66B3008B94B000CC768 /* CountryPicker in Frameworks */ = {isa = PBXBuildFile; productRef = C5EBD66A3008B94B000CC768 /* CountryPicker */; };
 		C5EBD66D300DE968000CC768 /* PriceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5EBD66C300DE964000CC768 /* PriceHelper.swift */; };
 		C5F039FF2FEE7F3F00B5B9F6 /* PayPalCheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F039FE2FEE7F3A00B5B9F6 /* PayPalCheckoutView.swift */; };
@@ -693,7 +692,6 @@
 				065CE7532D19CE41000589D8 /* Stripe in Frameworks */,
 				C553B619301325A60000A8E4 /* ZebraRfidSdkFramework.xcframework in Frameworks */,
 				C553B6153013259F0000A8E4 /* ZebraScannerFramework.xcframework in Frameworks */,
-				C5D0532D30444F4400CBEA51 /* EARfidFramework.framework in Frameworks */,
 				C5F03A082FF25A4500B5B9F6 /* PayPalWebPayments in Frameworks */,
 				76F7AD76D9A7C2D09C940A91 /* Pods_GIS.framework in Frameworks */,
 			);
@@ -2211,7 +2209,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 84;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2225,7 +2223,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.9;
+				MARKETING_VERSION = 4.0.10;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2247,7 +2245,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 83;
+				CURRENT_PROJECT_VERSION = 84;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2261,7 +2259,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.9;
+				MARKETING_VERSION = 4.0.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

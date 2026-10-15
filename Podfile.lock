@@ -44,6 +44,7 @@ PODS:
     - IQKeyboardCore
   - IQTextView (1.0.5):
     - IQKeyboardToolbar/Placeholderable
+  - lottie-ios (4.6.1)
   - MaterialComponents/AnimationTiming (124.2.0)
   - MaterialComponents/Availability (124.2.0)
   - MaterialComponents/Buttons (124.2.0):
@@ -130,6 +131,7 @@ DEPENDENCIES:
   - Alamofire
   - DropDown
   - IQKeyboardManagerSwift
+  - lottie-ios
   - MaterialComponents/Snackbar
   - NVActivityIndicatorView
   - RSSelectionMenu
@@ -152,6 +154,7 @@ SPEC REPOS:
     - IQKeyboardToolbarManager
     - IQTextInputViewNotification
     - IQTextView
+    - lottie-ios
     - MaterialComponents
     - MDFInternationalization
     - MDFTextAccessibility
@@ -185,6 +188,7 @@ SPEC CHECKSUMS:
   IQKeyboardToolbarManager: 242e858cc74e06e00aa989bea1355b24d4397854
   IQTextInputViewNotification: 3b9fb27a16e7ee8958cc9092cfb07a1a9e1fd559
   IQTextView: ae13b4922f22e6f027f62c557d9f4f236b19d5c7
+  lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
   MaterialComponents: 1a9b2d9d45b1601ae544de85089adc4c464306d4
   MDFInternationalization: d697c55307816222a55685c4ccb1044ffb030c12
   MDFTextAccessibility: f4bb4cc2194286651b59a215fdeaa0e05dc90ba5
@@ -197,6 +201,6 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   UIDrawer: 1bfbc152fee69f6809a41508000cf1b9bd4b1738
 
-PODFILE CHECKSUM: 768b2c10306889b80baf1b8305433ccd335537f7
+PODFILE CHECKSUM: 10035b9d12bf20ba08aa19030217274720ca083b
 
 COCOAPODS: 1.16.2

@@ -167,12 +167,12 @@
 		<string>segoe_bold.ttf</string>
 		<string>segoe_regular.ttf</string>
 		<string>segoe_italic.ttf</string>
-        <string>Fraunces_72pt-Light.ttf</string>
-        <string>Fraunces_72pt-Black.ttf</string>
-        <string>Fraunces_72pt-Italic.ttf</string>
-        <string>Fraunces_72pt-Bold.ttf</string>
-        <string>Fraunces_72pt-Regular.ttf</string>
-        <string>Fraunces_72pt-Thin.ttf</string>
+		<string>Fraunces_72pt-Light.ttf</string>
+		<string>Fraunces_72pt-Black.ttf</string>
+		<string>Fraunces_72pt-Italic.ttf</string>
+		<string>Fraunces_72pt-Bold.ttf</string>
+		<string>Fraunces_72pt-Regular.ttf</string>
+		<string>Fraunces_72pt-Thin.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

@@ -306,32 +306,36 @@ class CommonClass: NSObject {
 
         darkview.removeFromSuperview()
 
-        darkview = UIView(frame: UIScreen.main.bounds)
+        let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?
+            .windows
+            .first(where: { $0.isKeyWindow })
+
+        // UIScreen.main.bounds is stale on resizable/foldable windows, so size to the window.
+        let fullFrame = window?.bounds ?? userView.window?.bounds ?? UIScreen.main.bounds
+
+        darkview = UIView(frame: fullFrame)
+        darkview.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         darkview.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         darkview.isUserInteractionEnabled = true   // รับ Touch ทั้งหมด
 
         let loaderView = NVActivityIndicatorView(
             frame: CGRect(
-                x: UIScreen.main.bounds.midX - 20,
-                y: UIScreen.main.bounds.midY - 20,
+                x: fullFrame.midX - 20,
+                y: fullFrame.midY - 20,
                 width: 40,
                 height: 40
             )
         )
+        loaderView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
 
         loaderView.type = .circleStrokeSpin
         loaderView.color = .white
 
         darkview.addSubview(loaderView)
 
-        if let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first?
-            .windows
-            .first(where: { $0.isKeyWindow }) {
-
-            window.addSubview(darkview)
-        }
+        window?.addSubview(darkview)
 
         loaderView.startAnimating()
     }
