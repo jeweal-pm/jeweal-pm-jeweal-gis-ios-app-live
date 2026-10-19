@@ -279,6 +279,7 @@
 		D9E42ACB2563D44A0051D714 /* LanguageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E42ACA2563D44A0051D714 /* LanguageController.swift */; };
 		D9E7A9D0270C24D9005CC79D /* RepairDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E7A9CF270C24D9005CC79D /* RepairDesign.swift */; };
 		D9F0369C2589C950001211B4 /* CheckOutPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F0369B2589C950001211B4 /* CheckOutPage.swift */; };
+		F1A000010000000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F1A000020000000000000001 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -657,6 +658,7 @@
 		D9E42ACA2563D44A0051D714 /* LanguageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageController.swift; sourceTree = "<group>"; };
 		D9E7A9CF270C24D9005CC79D /* RepairDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDesign.swift; sourceTree = "<group>"; };
 		D9F0369B2589C950001211B4 /* CheckOutPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckOutPage.swift; sourceTree = "<group>"; };
+		F1A000020000000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FF99DFA7C84BDAED7A4B55A9 /* Pods-GIS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GIS.debug.xcconfig"; path = "Target Support Files/Pods-GIS/Pods-GIS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1193,6 +1195,7 @@
 				D968C9AB2538699700D45A90 /* Assets.xcassets */,
 				D968C9AD2538699700D45A90 /* LaunchScreen.storyboard */,
 				D968C9B02538699700D45A90 /* Info.plist */,
+				F1A000020000000000000001 /* GoogleService-Info.plist */,
 				74DBCA572865CCF500175D37 /* invdata.storyboard */,
 				74C1471728BF3D5500301C55 /* diamondModule.storyboard */,
 				748577B028DB092E0040E439 /* reserveBoard.storyboard */,
@@ -1490,6 +1493,7 @@
 				520E96CE2A5C1C9C00F58DBC /* confirmquote.xib in Resources */,
 				74B10EF729E00D2900FA7A37 /* reserveOrderBoard.storyboard in Resources */,
 				521A75F62A05131C00C8777F /* transactions.storyboard in Resources */,
+				F1A000010000000000000001 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2209,7 +2213,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 86;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2223,7 +2227,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.10;
+				MARKETING_VERSION = 4.0.11;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2245,7 +2249,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 84;
+				CURRENT_PROJECT_VERSION = 86;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2259,7 +2263,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.10;
+				MARKETING_VERSION = 4.0.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

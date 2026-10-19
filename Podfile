@@ -15,6 +15,10 @@ target 'GIS' do
   pod 'SVGKit'
   pod 'SKCountryPicker'
   pod 'lottie-ios'
+  pod 'FirebaseCore'
+  pod 'FirebaseAuth'
+  pod 'FirebaseDatabase'
+  pod 'FirebaseRemoteConfig'
 
   target 'GISTests' do
     inherit! :search_paths

@@ -138,6 +138,8 @@
 	<string>Our App uses camera for scanning stocks</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Our app needs access to the microphone to enable speech recognition.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>GIS saves a shared Stock Take QR code to Photos when you choose Save QR code.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Our App uses files for uploading Images</string>
 	<key>NSSiriUsageDescription</key>

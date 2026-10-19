@@ -234,10 +234,12 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
         sender.showAnimation{
             let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
             if let home = storyBoard.instantiateViewController(withIdentifier: "HomePage1") as? HomePage {
-                guard let fName = self.mFirstName, let lName = self.mLastName.text else {
-                    return
-                }
-                UserDefaults.standard.set("\(fName) \(lName)", forKey: "userName")
+                // mFirstName is a UILabel.  Saving the label itself through
+                // interpolation stores UIKit's debug description ("<UILabel…")
+                // instead of the person's Profile name.
+                let profileName = self.mFirstName.text?
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                UserDefaults.standard.set(profileName, forKey: "userName")
                 self.navigationController?.setViewControllers([home], animated:true)
                 
             }
@@ -366,7 +368,14 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
                             print("🟡 [Profile] All Keys: \(mData.allKeys)")
                             
-                            self.mFirstName.text = "\(mData.value(forKey: "first_name") ?? "")" + " \(mData.value(forKey: "last_name") ?? "")"
+                            let profileName = "\(mData.value(forKey: "first_name") ?? "")" + " \(mData.value(forKey: "last_name") ?? "")"
+                            self.mFirstName.text = profileName
+                            // Keep a clean text value available to every
+                            // feature that needs to identify the signed-in user.
+                            UserDefaults.standard.set(
+                                profileName.trimmingCharacters(in: .whitespacesAndNewlines),
+                                forKey: "userName"
+                            )
                             let flashImageURL = "\(mData.value(forKey: "flash_image") ?? "")"
                             UserDefaults.standard.set(flashImageURL, forKey: "flash_image")
                             print("🎨 [LanguageController] flash_image = \(flashImageURL)")
