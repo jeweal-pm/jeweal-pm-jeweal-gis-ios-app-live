@@ -14,6 +14,50 @@ import IntentsUI
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        // A custom invite can launch GIS from a terminated state. Preserve it
+        // here; `openURLContexts` handles the same link while GIS is running.
+        if let url = connectionOptions.urlContexts.first?.url {
+            handleSharedStockTakeLink(url)
+        }
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        handleSharedStockTakeLink(url)
+    }
+
+    private func handleSharedStockTakeLink(_ url: URL) {
+        guard url.scheme?.lowercased() == "gisstocktake",
+              url.host?.lowercased() == "join",
+              let roomID = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?
+                .first(where: { $0.name == "room" })?
+                .value?
+                .uppercased(),
+              roomID.range(of: "^[A-Z0-9]{8}$", options: .regularExpression) != nil
+        else { return }
+
+        // Keep the invite through any initial navigation/login transition.
+        UserDefaults.standard.set(roomID, forKey: "GISPendingStockTakeRoomID")
+        // Do not push Stock Take over Login. LanguageController consumes this
+        // pending invite only after the user has completed the normal login
+        // and entered the app.
+        // If GIS is already open at Home, the user is authenticated and can
+        // join immediately without being sent through Login again.
+        DispatchQueue.main.async { [weak self] in
+            guard let self,
+                  let navigation = self.window?.rootViewController as? UINavigationController,
+                  navigation.topViewController is HomePage
+            else { return }
+            self.navigateToSharedStockTake(roomID: roomID)
+        }
+    }
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         print("Received user activity: \(userActivity.activityType)")
 
@@ -137,6 +181,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             print("Error: Could not instantiate StockTake view controller")
         }
+    }
+
+    private func navigateToSharedStockTake(roomID: String) {
+        let storyboard = UIStoryboard(name: "stockBoard", bundle: nil)
+        guard let navController = window?.rootViewController as? UINavigationController,
+              let stockTakeVC = storyboard.instantiateViewController(withIdentifier: "StockTakePage") as? StockTakePage
+        else {
+            return
+        }
+        stockTakeVC.pendingSharedRoomID = roomID
+        navController.pushViewController(stockTakeVC, animated: true)
     }
     
     func navigateToInventory(with id: String) {

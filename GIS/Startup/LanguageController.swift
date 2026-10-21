@@ -241,7 +241,7 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                     .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 UserDefaults.standard.set(profileName, forKey: "userName")
                 self.navigationController?.setViewControllers([home], animated:true)
-                
+
             }
         }
     }

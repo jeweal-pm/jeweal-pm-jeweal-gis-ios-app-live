@@ -57,8 +57,8 @@ private enum GISMinimumVersionGate {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
 
-        print("minimumVersion = \(minimumVersion)")
-        print("currentVersion = \(currentVersion)")
+//        print("minimumVersion = \(minimumVersion)")
+//        print("currentVersion = \(currentVersion)")
         
         guard !minimumVersion.isEmpty,
               !storeURL.isEmpty,
@@ -66,7 +66,7 @@ private enum GISMinimumVersionGate {
               let url = URL(string: storeURL)
         else { return }
 
-        print("storeURL = \(storeURL)")
+//        print("storeURL = \(storeURL)")
         
         let forceUpdate = remoteConfig["force_update_ios"].boolValue
         let reminderDays = max(1, remoteConfig["update_remind_days"].numberValue.intValue)

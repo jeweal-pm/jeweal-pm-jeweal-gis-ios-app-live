@@ -34,6 +34,7 @@ private enum StockTakeCollaborationError: LocalizedError {
     case missingStockID
     case sharingEnded
     case onlyHostCanEndSharing
+    case saveAlreadyClaimed
 
     var errorDescription: String? {
         switch self {
@@ -47,6 +48,8 @@ private enum StockTakeCollaborationError: LocalizedError {
             return "The host has continued this Stock Take alone. This shared room is now closed."
         case .onlyHostCanEndSharing:
             return "Only the host can end helper scanning for this room."
+        case .saveAlreadyClaimed:
+            return "Another participant is already saving this shared Stock Take."
         }
     }
 }
@@ -54,7 +57,12 @@ private enum StockTakeCollaborationError: LocalizedError {
 private struct StockTakeCollaborationRoom {
     let id: String
     let totalQuantity: Int
+    /// The host's complete Stock Take source list. Helpers must use this
+    /// exact snapshot rather than independently refreshing their own API data.
+    let inventorySnapshot: [String: Any]
     let mode: String
+    let saveStatus: String
+    let savedByName: String
 }
 
 private struct StockTakeCollaborationMember {
@@ -83,6 +91,7 @@ private struct StockTakeCollaborationRecord {
     let source: String
     let createdAt: Int
     let createdBy: String
+    let scannerName: String
 
     init(kind: StockTakeCollaborationRecordKind, item: NSDictionary) {
         let stockID = "\(item["stock_id"] ?? item["stockId"] ?? "")"
@@ -99,6 +108,7 @@ private struct StockTakeCollaborationRecord {
         self.source = "\(item["scan_source"] ?? "rfid")"
         self.createdAt = Int(Date().timeIntervalSince1970 * 1000)
         self.createdBy = Auth.auth().currentUser?.uid ?? ""
+        self.scannerName = StockTakeCollaborationService.shared.scannerDisplayName
     }
 
     init?(key: String, value: [String: Any]) {
@@ -119,6 +129,7 @@ private struct StockTakeCollaborationRecord {
         self.source = value["source"] as? String ?? "rfid"
         self.createdAt = Int("\(value["createdAt"] ?? 0)") ?? 0
         self.createdBy = value["createdBy"] as? String ?? ""
+        self.scannerName = value["scannerName"] as? String ?? "Scanner"
     }
 
     var dictionary: NSMutableDictionary {
@@ -143,7 +154,8 @@ private struct StockTakeCollaborationRecord {
             "locationID": locationID,
             "source": source,
             "createdAt": createdAt,
-            "createdBy": createdBy
+            "createdBy": createdBy,
+            "scannerName": scannerName
         ]
         if let weight = weight { value["weight"] = weight }
         return value
@@ -195,15 +207,23 @@ private final class StockTakeCollaborationService {
     }
 
     static func inviteText(for roomID: String) -> String {
-        "GISSTOCKTAKE://ROOM/\(roomID)"
+        "gisstocktake://join?room=\(roomID)"
     }
 
     static func roomID(from text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let prefix = "GISSTOCKTAKE://ROOM/"
-        let raw = trimmed.uppercased().hasPrefix(prefix)
-            ? String(trimmed.dropFirst(prefix.count))
-            : trimmed
+        let legacyPrefix = "GISSTOCKTAKE://ROOM/"
+        let raw: String
+        if trimmed.uppercased().hasPrefix(legacyPrefix) {
+            raw = String(trimmed.dropFirst(legacyPrefix.count))
+        } else if let components = URLComponents(string: trimmed),
+                  components.scheme?.lowercased() == "gisstocktake",
+                  components.host?.lowercased() == "join",
+                  let room = components.queryItems?.first(where: { $0.name == "room" })?.value {
+            raw = room
+        } else {
+            raw = trimmed
+        }
         let normalized = raw.uppercased().replacingOccurrences(of: " ", with: "")
         guard normalized.range(of: "^[A-Z0-9]{8}$", options: .regularExpression) != nil else {
             return nil
@@ -220,7 +240,11 @@ private final class StockTakeCollaborationService {
         return encoded.isEmpty ? UUID().uuidString : encoded
     }
 
-    func createRoom(totalQuantity: Int, completion: @escaping (Result<String, Error>) -> Void) {
+    func createRoom(
+        totalQuantity: Int,
+        inventorySnapshot: [String: Any],
+        completion: @escaping (Result<String, Error>) -> Void
+    ) {
         ensureAuthenticated { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -232,8 +256,13 @@ private final class StockTakeCollaborationService {
                     "createdAt": ServerValue.timestamp(),
                     "createdBy": userID,
                     "totalQuantity": totalQuantity,
+                    // The snapshot is immutable after creation and is loaded
+                    // once by every helper before scanning begins.
+                    "inventorySnapshot": inventorySnapshot,
                     "status": "active",
                     "mode": "shared",
+                    "saveStatus": "active",
+                    "savedByName": "",
                     "members": [
                         userID: self.memberValue(role: "host", status: "Ready")
                     ]
@@ -300,7 +329,61 @@ private final class StockTakeCollaborationService {
                     lhs.isHost == rhs.isHost ? lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending : lhs.isHost
                 }
             let mode = value["mode"] as? String ?? "shared"
-            listener(StockTakeCollaborationRoom(id: roomID, totalQuantity: total, mode: mode), records, members)
+            let saveStatus = value["saveStatus"] as? String ?? "active"
+            let savedByName = value["savedByName"] as? String ?? ""
+            let inventorySnapshot = value["inventorySnapshot"] as? [String: Any] ?? [:]
+            listener(
+                StockTakeCollaborationRoom(
+                    id: roomID,
+                    totalQuantity: total,
+                    inventorySnapshot: inventorySnapshot,
+                    mode: mode,
+                    saveStatus: saveStatus,
+                    savedByName: savedByName
+                ),
+                records,
+                members
+            )
+        }
+    }
+
+    /// Atomically reserves Save for one participant. Every device checks this
+    /// same room node, so another helper cannot submit an outdated duplicate.
+    func claimSave(roomID: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let userID = Auth.auth().currentUser?.uid ?? ""
+        let roomRef = root.child(roomID)
+        roomRef.runTransactionBlock { currentData in
+            guard var room = currentData.value as? [String: Any],
+                  room["mode"] as? String != "solo",
+                  (room["saveStatus"] as? String ?? "active") == "active"
+            else { return TransactionResult.abort() }
+            room["saveStatus"] = "saving"
+            room["savedBy"] = userID
+            room["savedByName"] = self.scannerDisplayName
+            room["saveStartedAt"] = ServerValue.timestamp()
+            currentData.value = room
+            return TransactionResult.success(withValue: currentData)
+        } andCompletionBlock: { error, committed, _ in
+            if let error = error { completion(.failure(error)) }
+            else if committed { completion(.success(())) }
+            else { completion(.failure(StockTakeCollaborationError.saveAlreadyClaimed)) }
+        }
+    }
+
+    func completeSave(roomID: String, success: Bool) {
+        let userID = Auth.auth().currentUser?.uid ?? ""
+        root.child(roomID).runTransactionBlock { currentData in
+            guard var room = currentData.value as? [String: Any],
+                  room["savedBy"] as? String == userID
+            else { return TransactionResult.abort() }
+            room["saveStatus"] = success ? "saved" : "active"
+            room["savedAt"] = ServerValue.timestamp()
+            if !success {
+                room["savedBy"] = ""
+                room["savedByName"] = ""
+            }
+            currentData.value = room
+            return TransactionResult.success(withValue: currentData)
         }
     }
 
@@ -353,34 +436,37 @@ private final class StockTakeCollaborationService {
             return
         }
 
-        // Run the transaction at the room level.  A transaction on a newly
-        // created, nested `items/<key>` path can be ignored by older Firebase
-        // iOS clients when that `items` node does not exist yet.  Updating the
-        // room dictionary makes the first shared scan just as reliable as all
-        // later scans, while preserving the single-write deduplication rule.
         let roomRef = root.child(roomID)
-        var sharingHasEnded = false
-        roomRef.runTransactionBlock { currentData in
-            guard var room = currentData.value as? [String: Any] else {
-                return TransactionResult.abort()
+        // Verify the room is still shared, then transact only the `items`
+        // child.  The host inventory snapshot can be thousands of records,
+        // so never rewrite it for every RFID read.
+        roomRef.child("mode").observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.exists() else {
+                completion(.failure(StockTakeCollaborationError.roomNotFound))
+                return
             }
-            if room["mode"] as? String == "solo" {
-                sharingHasEnded = true
-                return TransactionResult.abort()
+            guard snapshot.value as? String != "solo" else {
+                completion(.failure(StockTakeCollaborationError.sharingEnded))
+                return
             }
-            var items = room["items"] as? [String: Any] ?? [:]
-            if items[record.key] != nil {
-                return TransactionResult.abort()
+
+            roomRef.child("items").runTransactionBlock { currentData in
+                var items = currentData.value as? [String: Any] ?? [:]
+                if items[record.key] != nil {
+                    return TransactionResult.abort()
+                }
+                items[record.key] = record.firebaseValue
+                currentData.value = items
+                return TransactionResult.success(withValue: currentData)
+            } andCompletionBlock: { error, committed, _ in
+                if let error = error { completion(.failure(error)) }
+                // A duplicate is expected: the first participant's record
+                // already represents the shared item on both devices.
+                else if committed { completion(.success(())) }
+                else { completion(.success(())) }
             }
-            items[record.key] = record.firebaseValue
-            room["items"] = items
-            currentData.value = room
-            return TransactionResult.success(withValue: currentData)
-        } andCompletionBlock: { error, committed, _ in
-            if let error = error { completion(.failure(error)) }
-            else if sharingHasEnded { completion(.failure(StockTakeCollaborationError.sharingEnded)) }
-            else if committed { completion(.success(())) }
-            else { completion(.success(())) }
+        } withCancel: { error in
+            completion(.failure(error))
         }
     }
 
@@ -434,9 +520,7 @@ private final class StockTakeCollaborationService {
     }
 }
 
-/// Presents a room QR code with the standard iOS share sheet and a direct
-/// Save Image action. Both actions include the room code so the helper can
-/// still join manually if camera access is unavailable.
+/// Presents a room QR code. Sharing includes the image and a direct GIS link.
 private final class SharedStockTakeInviteViewController: UIViewController {
     private let roomID: String
     private let qrImage: UIImage
@@ -453,81 +537,141 @@ private final class SharedStockTakeInviteViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Join Stock Take"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .clear
 
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(shareInvite)),
-            UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down"), style: .plain, target: self, action: #selector(saveQRCode))
-        ]
+        let dimmingView = UIView()
+        dimmingView.translatesAutoresizingMaskIntoConstraints = false
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.42)
+
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = .systemBackground
+        card.layer.cornerRadius = 28
+        card.layer.cornerCurve = .continuous
+        card.clipsToBounds = true
+
+        let header = UIView()
+        header.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = "Join Stock Take"
+        titleLabel.textColor = .label
+        titleLabel.font = .systemFont(ofSize: 21, weight: .bold)
+
+        let closeButton = UIButton(type: .system)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton.tintColor = .label
+        closeButton.backgroundColor = .systemBackground
+        closeButton.layer.cornerRadius = 23
+        closeButton.layer.borderWidth = 1
+        closeButton.layer.borderColor = UIColor.separator.cgColor
+        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+
+        let headerDivider = UIView()
+        headerDivider.translatesAutoresizingMaskIntoConstraints = false
+        headerDivider.backgroundColor = .separator
 
         let imageView = UIImageView(image: qrImage)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.accessibilityLabel = "Stock Take room QR code"
 
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Scan this QR code in Stock Take, or enter:\n\(roomID)"
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
+        let instructionLabel = UILabel()
+        instructionLabel.translatesAutoresizingMaskIntoConstraints = false
+        instructionLabel.text = "Scan this QR code in Stock Take, or enter:"
+        instructionLabel.numberOfLines = 2
+        instructionLabel.textAlignment = .center
+        instructionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+
+        // Keep the join code in a dedicated label.  Combining it with the
+        // instruction allowed UIKit to truncate the final line as an ellipsis.
+        let roomCodeLabel = UILabel()
+        roomCodeLabel.translatesAutoresizingMaskIntoConstraints = false
+        roomCodeLabel.text = roomID
+        roomCodeLabel.numberOfLines = 1
+        roomCodeLabel.lineBreakMode = .byClipping
+        roomCodeLabel.textAlignment = .center
+        roomCodeLabel.font = .monospacedSystemFont(ofSize: 21, weight: .bold)
+        roomCodeLabel.adjustsFontSizeToFitWidth = true
+        roomCodeLabel.minimumScaleFactor = 0.7
 
         let shareButton = UIButton(type: .system)
         shareButton.translatesAutoresizingMaskIntoConstraints = false
-        shareButton.setTitle("Share QR code", for: .normal)
+        shareButton.setTitle("  Share QR code", for: .normal)
+        shareButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
         shareButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        shareButton.tintColor = .white
+        // Keep the share action aligned with the currently selected GIS theme.
+        shareButton.backgroundColor = UIColor(named: "themeColor") ?? UIColor(hex: "#00A38D")
+        shareButton.layer.cornerRadius = 22
         shareButton.addTarget(self, action: #selector(shareInvite), for: .touchUpInside)
 
-        let saveButton = UIButton(type: .system)
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
-        saveButton.setTitle("Save QR code", for: .normal)
-        saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        saveButton.addTarget(self, action: #selector(saveQRCode), for: .touchUpInside)
-
-        let buttons = UIStackView(arrangedSubviews: [shareButton, saveButton])
-        buttons.translatesAutoresizingMaskIntoConstraints = false
-        buttons.axis = .horizontal
-        buttons.distribution = .fillEqually
-        buttons.spacing = 12
-
-        view.addSubview(imageView)
-        view.addSubview(label)
-        view.addSubview(buttons)
+        view.addSubview(dimmingView)
+        view.addSubview(card)
+        card.addSubview(header)
+        header.addSubview(titleLabel)
+        header.addSubview(closeButton)
+        card.addSubview(headerDivider)
+        card.addSubview(imageView)
+        card.addSubview(instructionLabel)
+        card.addSubview(roomCodeLabel)
+        card.addSubview(shareButton)
+        let preferredCardWidth = card.widthAnchor.constraint(equalToConstant: 360)
+        preferredCardWidth.priority = .defaultHigh
         NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -72),
+            dimmingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dimmingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            dimmingView.topAnchor.constraint(equalTo: view.topAnchor),
+            dimmingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            card.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            card.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            card.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 24),
+            card.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -24),
+            preferredCardWidth,
+            header.topAnchor.constraint(equalTo: card.topAnchor),
+            header.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            header.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            header.heightAnchor.constraint(equalToConstant: 70),
+            titleLabel.centerXAnchor.constraint(equalTo: header.centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: header.centerYAnchor),
+            closeButton.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -14),
+            closeButton.centerYAnchor.constraint(equalTo: header.centerYAnchor),
+            closeButton.widthAnchor.constraint(equalToConstant: 46),
+            closeButton.heightAnchor.constraint(equalToConstant: 46),
+            headerDivider.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            headerDivider.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            headerDivider.topAnchor.constraint(equalTo: header.bottomAnchor),
+            headerDivider.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale),
+            imageView.centerXAnchor.constraint(equalTo: card.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: headerDivider.bottomAnchor, constant: 24),
             imageView.widthAnchor.constraint(equalToConstant: 260),
             imageView.heightAnchor.constraint(equalToConstant: 260),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 28),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -28),
-            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 24),
-            buttons.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 36),
-            buttons.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -36),
-            buttons.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 28),
-            buttons.heightAnchor.constraint(equalToConstant: 44)
+            instructionLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 28),
+            instructionLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -28),
+            instructionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 24),
+            roomCodeLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 28),
+            roomCodeLabel.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -28),
+            roomCodeLabel.topAnchor.constraint(equalTo: instructionLabel.bottomAnchor, constant: 4),
+            shareButton.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 28),
+            shareButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -28),
+            shareButton.topAnchor.constraint(equalTo: roomCodeLabel.bottomAnchor, constant: 28),
+            shareButton.heightAnchor.constraint(equalToConstant: 48),
+            shareButton.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -28)
         ])
     }
 
     @objc private func shareInvite() {
         let invite = StockTakeCollaborationService.inviteText(for: roomID)
         let sheet = UIActivityViewController(activityItems: [qrImage, invite], applicationActivities: nil)
-        sheet.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItems?.first
+        sheet.popoverPresentationController?.sourceView = view
+        sheet.popoverPresentationController?.sourceRect = view.bounds
         present(sheet, animated: true)
     }
 
-    @objc private func saveQRCode() {
-        UIImageWriteToSavedPhotosAlbum(qrImage, self, #selector(qrCode(_:didFinishSavingWithError:contextInfo:)), nil)
-    }
-
-    @objc private func qrCode(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
-        let alert = UIAlertController(
-            title: error == nil ? "QR code saved" : "Unable to save QR code",
-            message: error == nil ? "The QR code was saved to Photos." : error?.localizedDescription,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+    @objc private func close() {
+        dismiss(animated: true)
     }
 }
 
@@ -1216,12 +1360,34 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private let collaboration = StockTakeCollaborationService.shared
     private var hasChosenStockTakeMode = false
     private var collaborationRoomID: String?
+    /// Set by a `gisstocktake://join?room=...` link before this page appears.
+    var pendingSharedRoomID: String?
     private var isRoomQRScannerActive = false
     private var lastPublishedCollaboratorStatus = ""
     private var isCurrentCollaboratorHost = false
+    private var collaborativeMembers: [StockTakeCollaborationMember] = []
+    private var collaborativeRecords: [StockTakeCollaborationRecord] = []
+    private var appliedCollaborativeSnapshotRoomID: String?
+    private weak var pendingCollaborativeStartButton: UIButton?
+    private var sharedRoomSaveStatus = "active"
+    private var sharedRoomSavedByName = ""
     private weak var collaborationMemberStrip: UIView?
     private weak var collaborationMemberStack: UIStackView?
-    private weak var referenceCollaborationButton: UIButton?
+    private weak var collaborationManageButton: UIButton?
+    private var collaborationMemberStripLeadingConstraint: NSLayoutConstraint?
+
+    private var isSharedStockTakeEnabled: Bool {
+        // During rollout, an absent backend value keeps the feature available.
+        // An explicit false / 0 is the only way to turn it off.
+        guard UserDefaults.standard.object(forKey: "stock_take_collaboration_active") != nil else {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: "stock_take_collaboration_active")
+    }
+
+    private var allowsDisconnectedTestScan: Bool {
+        isSharedStockTakeEnabled && isScannerTestMode
+    }
     
     // MARK: - Reference UI (programmatic overlay)
     // This intentionally covers the legacy storyboard summary/bottom layout so
@@ -1309,17 +1475,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         save.addTarget(self, action: #selector(referenceSaveTapped), for: .touchUpInside)
         header.addSubview(save)
 
-        let collaborationButton = UIButton(type: .system)
-        collaborationButton.translatesAutoresizingMaskIntoConstraints = false
-        collaborationButton.setImage(UIImage(systemName: "person.2.slash"), for: .normal)
-        collaborationButton.tintColor = UIColor(hex: "#00A38D")
-        collaborationButton.accessibilityLabel = "Shared Stock Take options"
-        collaborationButton.isHidden = true
-        // This legacy header icon is deliberately hidden; the visible Manage
-        // button in the member strip owns the shared-scan action.
-        header.addSubview(collaborationButton)
-        referenceCollaborationButton = collaborationButton
-
         NSLayoutConstraint.activate([
             header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             header.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -1331,10 +1486,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             back.heightAnchor.constraint(equalToConstant: 32),
             title.centerXAnchor.constraint(equalTo: header.centerXAnchor),
             title.centerYAnchor.constraint(equalTo: header.centerYAnchor),
-            collaborationButton.trailingAnchor.constraint(equalTo: save.leadingAnchor, constant: -12),
-            collaborationButton.centerYAnchor.constraint(equalTo: header.centerYAnchor),
-            collaborationButton.widthAnchor.constraint(equalToConstant: 32),
-            collaborationButton.heightAnchor.constraint(equalToConstant: 32),
             save.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
             save.centerYAnchor.constraint(equalTo: header.centerYAnchor),
             save.widthAnchor.constraint(equalToConstant: 32),
@@ -1351,12 +1502,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         hideLegacySummaryCards()
 
         // Summary overlay. It sits between the search area and bottom bar.
-        let summary = UIView()
+        // Shared mode adds the collaborator strip above the five cards.  Keep
+        // this section vertically scrollable so Unscanned is never hidden
+        // under the fixed bottom controls on smaller devices.
+        let summary = UIScrollView()
         // Figma reference: the area around the cards is #FAFAFA.
         summary.backgroundColor = UIColor(hex: "#FAFAFA")
         summary.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(summary)
         referenceSummaryOverlay = summary
+        summary.alwaysBounceVertical = true
+        summary.showsVerticalScrollIndicator = false
         // Summary cards are interactive. The legacy storyboard has buttons
         // underneath these cards with different hit areas/actions, so letting
         // touches pass through causes the wrong Stock Take result screen to open.
@@ -1364,14 +1520,41 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         // This compact strip is hidden during the normal single-person flow.
         // It becomes the live roster only after a shared room is active.
+        let summaryContent = UIView()
+        summaryContent.translatesAutoresizingMaskIntoConstraints = false
+        summary.addSubview(summaryContent)
+
+        let collaboratorRow = UIView()
+        collaboratorRow.translatesAutoresizingMaskIntoConstraints = false
+        collaboratorRow.backgroundColor = UIColor(hex: "#F4F8F7")
+        collaboratorRow.layer.cornerRadius = 10
+        collaboratorRow.isHidden = true
+        // Keep the roster outside the vertical scroll view.  It remains pinned
+        // under the search bar while only the summary cards scroll below it.
+        view.addSubview(collaboratorRow)
+        collaborationMemberStrip = collaboratorRow
+
+        let manageSharedScan = UIButton(type: .system)
+        manageSharedScan.translatesAutoresizingMaskIntoConstraints = false
+        manageSharedScan.setTitle("Manage\nshared scan", for: .normal)
+        manageSharedScan.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
+        manageSharedScan.titleLabel?.numberOfLines = 2
+        manageSharedScan.titleLabel?.textAlignment = .center
+        manageSharedScan.setTitleColor(.white, for: .normal)
+        manageSharedScan.backgroundColor = UIColor(hex: "#00A38D")
+        manageSharedScan.layer.cornerRadius = 8
+        manageSharedScan.accessibilityLabel = "Manage shared scan"
+        manageSharedScan.isHidden = true
+        manageSharedScan.addTarget(self, action: #selector(showCollaborationOptions(_:)), for: .touchUpInside)
+        collaboratorRow.addSubview(manageSharedScan)
+        collaborationManageButton = manageSharedScan
+
         let collaboratorStrip = UIScrollView()
         collaboratorStrip.translatesAutoresizingMaskIntoConstraints = false
         collaboratorStrip.showsHorizontalScrollIndicator = false
-        collaboratorStrip.backgroundColor = UIColor(hex: "#F4F8F7")
-        collaboratorStrip.layer.cornerRadius = 10
-        collaboratorStrip.isHidden = true
-        summary.addSubview(collaboratorStrip)
-        collaborationMemberStrip = collaboratorStrip
+        collaboratorRow.addSubview(collaboratorStrip)
+        let collaboratorStripLeading = collaboratorStrip.leadingAnchor.constraint(equalTo: manageSharedScan.trailingAnchor, constant: 8)
+        collaborationMemberStripLeadingConstraint = collaboratorStripLeading
 
         let collaboratorStack = UIStackView()
         collaboratorStack.axis = .horizontal
@@ -1382,10 +1565,23 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         collaborationMemberStack = collaboratorStack
 
         NSLayoutConstraint.activate([
-            collaboratorStrip.topAnchor.constraint(equalTo: summary.topAnchor, constant: 8),
-            collaboratorStrip.leadingAnchor.constraint(equalTo: summary.leadingAnchor, constant: 16),
-            collaboratorStrip.trailingAnchor.constraint(equalTo: summary.trailingAnchor, constant: -16),
-            collaboratorStrip.heightAnchor.constraint(equalToConstant: 58),
+            summaryContent.leadingAnchor.constraint(equalTo: summary.contentLayoutGuide.leadingAnchor),
+            summaryContent.trailingAnchor.constraint(equalTo: summary.contentLayoutGuide.trailingAnchor),
+            summaryContent.topAnchor.constraint(equalTo: summary.contentLayoutGuide.topAnchor),
+            summaryContent.bottomAnchor.constraint(equalTo: summary.contentLayoutGuide.bottomAnchor),
+            summaryContent.widthAnchor.constraint(equalTo: summary.frameLayoutGuide.widthAnchor),
+            collaboratorRow.topAnchor.constraint(equalTo: summary.topAnchor, constant: 8),
+            collaboratorRow.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collaboratorRow.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            collaboratorRow.heightAnchor.constraint(equalToConstant: 58),
+            manageSharedScan.leadingAnchor.constraint(equalTo: collaboratorRow.leadingAnchor, constant: 8),
+            manageSharedScan.centerYAnchor.constraint(equalTo: collaboratorRow.centerYAnchor),
+            manageSharedScan.widthAnchor.constraint(equalToConstant: 104),
+            manageSharedScan.heightAnchor.constraint(equalToConstant: 46),
+            collaboratorStripLeading,
+            collaboratorStrip.trailingAnchor.constraint(equalTo: collaboratorRow.trailingAnchor, constant: -8),
+            collaboratorStrip.topAnchor.constraint(equalTo: collaboratorRow.topAnchor),
+            collaboratorStrip.bottomAnchor.constraint(equalTo: collaboratorRow.bottomAnchor),
             collaboratorStack.leadingAnchor.constraint(equalTo: collaboratorStrip.contentLayoutGuide.leadingAnchor, constant: 8),
             collaboratorStack.trailingAnchor.constraint(equalTo: collaboratorStrip.contentLayoutGuide.trailingAnchor, constant: -8),
             collaboratorStack.topAnchor.constraint(equalTo: collaboratorStrip.contentLayoutGuide.topAnchor, constant: 6),
@@ -1398,9 +1594,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         stack.spacing = 8 // Figma spacing between summary cards
         stack.distribution = .fill
         stack.translatesAutoresizingMaskIntoConstraints = false
-        summary.addSubview(stack)
+        summaryContent.addSubview(stack)
 
-        let summaryStackTop = stack.topAnchor.constraint(equalTo: summary.topAnchor)
+        let summaryStackTop = stack.topAnchor.constraint(equalTo: summaryContent.topAnchor)
         referenceSummaryStackTopConstraint = summaryStackTop
 
         let definitions: [(String, String, UIColor, String, Selector)] = [
@@ -1438,8 +1634,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             // Unscanned as the visual gap before the footer.
             summary.bottomAnchor.constraint(equalTo: bottomTop, constant: -bottomBarHeight),
             summaryStackTop,
-            stack.leadingAnchor.constraint(equalTo: summary.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: summary.trailingAnchor, constant: -16)
+            stack.leadingAnchor.constraint(equalTo: summaryContent.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: summaryContent.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: summaryContent.bottomAnchor, constant: -16)
         ])
 
         // Cover only the legacy storyboard separator lines that sit in the
@@ -2245,6 +2442,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             && !isSaveInProgress
             && !hasSuccessfulSave
             && !canStopAfterPause
+            && sharedRoomSaveStatus == "active"
 
         let saveButtons = header.subviews.compactMap { $0 as? UIButton }
 
@@ -2320,7 +2518,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 for: .normal
             )
             button.isEnabled = false
-        } else if connected || isScannerTestMode {
+        } else if connected || allowsDisconnectedTestScan {
             // READY or PAUSED: Play active/teal.
             button.backgroundColor = tealColor
             button.setImage(
@@ -3019,6 +3217,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
         if let summary = referenceSummaryOverlay {
             view.bringSubviewToFront(summary)
+        }
+        // The roster is intentionally a sibling of the scroll view so it
+        // remains fixed while cards move beneath it. Keep it above the
+        // summary whenever UIKit relays out the reference overlays.
+        if let collaboratorStrip = collaborationMemberStrip {
+            view.bringSubviewToFront(collaboratorStrip)
         }
         if let mask = referenceLegacyLineMask {
             view.bringSubviewToFront(mask)
@@ -3832,6 +4036,34 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // Build the reference Stock Take UI over the legacy storyboard cards.
         buildReferenceStockTakeOverlay()
         updateReferenceSummaryCards()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        consumePendingSharedRoomInvite()
+    }
+
+    private func consumePendingSharedRoomInvite() {
+        let pendingRoom = pendingSharedRoomID
+            ?? UserDefaults.standard.string(forKey: "GISPendingStockTakeRoomID")
+        guard let roomID = pendingRoom,
+              let normalizedRoomID = StockTakeCollaborationService.roomID(from: roomID),
+              collaborationRoomID == nil
+        else { return }
+
+        pendingSharedRoomID = nil
+        UserDefaults.standard.removeObject(forKey: "GISPendingStockTakeRoomID")
+
+        guard isSharedStockTakeEnabled else {
+            showStockTakeResultMessage(
+                success: false,
+                message: "Shared Stock Take is not enabled for this account."
+            )
+            return
+        }
+        requestCollaboratorName { [weak self] in
+            self?.joinCollaborativeRoom(normalizedRoomID)
+        }
     }
     
     
@@ -6475,48 +6707,141 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     private func chooseStockTakeMode(thenStart sender: UIButton) {
-        let alert = UIAlertController(
-            title: "Start Stock Take",
-            message: "Choose how this stock take will be scanned.",
-            preferredStyle: .alert
-        )
+        presentStockTakeModePicker(thenStart: sender)
+    }
 
-        alert.addAction(UIAlertAction(title: "Scan alone", style: .default) { [weak self] _ in
+    /// The system alert did not follow the GIS visual theme. This custom
+    /// picker keeps the existing scanning actions, while matching the themed
+    /// filled/outlined buttons used elsewhere in the app.
+    private func presentStockTakeModePicker(thenStart sender: UIButton) {
+        let themeColor = UIColor(named: "themeColor") ?? UIColor(hex: "#00A38D")
+        // Stock Take has programmatic header/summary/footer overlays that may
+        // be brought to front while scanning. Present this picker in the
+        // window, rather than the page view, so it always stays on top.
+        guard let hostView = view.window ?? view else { return }
+        let overlay = UIControl()
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.36)
+        overlay.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
+        hostView.addSubview(overlay)
+
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 24
+        card.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        overlay.addSubview(card)
+
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = "Start Stock Take"
+        title.font = .systemFont(ofSize: 24, weight: .bold)
+        title.textColor = .label
+        card.addSubview(title)
+
+        let message = UILabel()
+        message.translatesAutoresizingMaskIntoConstraints = false
+        message.text = "Choose how you want to scan this stock take."
+        message.font = .systemFont(ofSize: 15, weight: .regular)
+        message.textColor = .secondaryLabel
+        message.numberOfLines = 0
+        card.addSubview(message)
+
+        let buttons = UIStackView()
+        buttons.translatesAutoresizingMaskIntoConstraints = false
+        buttons.axis = .vertical
+        buttons.spacing = 12
+        buttons.distribution = .fillEqually
+        card.addSubview(buttons)
+
+        func makeButton(_ title: String, filled: Bool, action: @escaping () -> Void) -> UIButton {
+            let button = UIButton(type: .system)
+            button.setTitle(title, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+            button.layer.cornerRadius = 12
+            button.layer.borderWidth = filled ? 0 : 1.5
+            button.layer.borderColor = themeColor.cgColor
+            button.backgroundColor = filled ? themeColor : .white
+            button.setTitleColor(filled ? .white : themeColor, for: .normal)
+            button.heightAnchor.constraint(equalToConstant: 52).isActive = true
+            button.addAction(UIAction { _ in
+                overlay.removeFromSuperview()
+                action()
+            }, for: .touchUpInside)
+            return button
+        }
+
+        buttons.addArrangedSubview(makeButton("Scan alone", filled: true) { [weak self] in
             guard let self = self else { return }
             self.hasChosenStockTakeMode = true
             self.mStart(sender)
         })
 
-        alert.addAction(UIAlertAction(title: "Scan with a helper", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.requestCollaboratorName { [weak self] in
+        if isSharedStockTakeEnabled {
+            buttons.addArrangedSubview(makeButton("Scan with a helper", filled: true) { [weak self] in
                 guard let self = self else { return }
-                let total = Int(self.mTotalStocks.text ?? "0") ?? 0
-                self.collaboration.createRoom(totalQuantity: total) { result in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case let .success(roomID):
-                            self.collaborationRoomID = roomID
-                            self.lastPublishedCollaboratorStatus = ""
-                            self.hasChosenStockTakeMode = true
-                            self.observeCollaborativeRoom(roomID: roomID)
-                            self.showRoomInvite(roomID: roomID)
-                            self.mStart(sender)
-                        case let .failure(error):
-                            self.showCollaborationError(error)
+                self.requestCollaboratorName { [weak self] in
+                    guard let self = self else { return }
+                    let total = Int(self.mTotalStocks.text ?? "0") ?? 0
+                    let snapshot = self.sharedInventorySnapshot()
+                    self.collaboration.createRoom(totalQuantity: total, inventorySnapshot: snapshot) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case let .success(roomID):
+                                self.collaborationRoomID = roomID
+                                self.isCurrentCollaboratorHost = true
+                                self.lastPublishedCollaboratorStatus = ""
+                                self.hasChosenStockTakeMode = true
+                                self.pendingCollaborativeStartButton = sender
+                                self.appliedCollaborativeSnapshotRoomID = nil
+                                self.updateCollaborationControl()
+                                self.observeCollaborativeRoom(roomID: roomID)
+                                self.showRoomInvite(roomID: roomID)
+                            case let .failure(error):
+                                self.showCollaborationError(error)
+                            }
                         }
                     }
                 }
-            }
-        })
+            })
+            buttons.addArrangedSubview(makeButton("Join a shared scan", filled: false) { [weak self] in
+                self?.requestCollaboratorName { [weak self] in
+                    self?.showJoinRoomPrompt(thenStart: sender)
+                }
+            })
+        }
 
-        alert.addAction(UIAlertAction(title: "Join a shared scan", style: .default) { [weak self] _ in
-            self?.requestCollaboratorName { [weak self] in
-                self?.showJoinRoomPrompt(thenStart: sender)
-            }
-        })
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alert, animated: true)
+        let cancel = UIButton(type: .system)
+        cancel.translatesAutoresizingMaskIntoConstraints = false
+        cancel.setTitle("Cancel", for: .normal)
+        cancel.setTitleColor(.secondaryLabel, for: .normal)
+        cancel.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        cancel.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
+        card.addSubview(cancel)
+
+        NSLayoutConstraint.activate([
+            overlay.leadingAnchor.constraint(equalTo: hostView.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo: hostView.trailingAnchor),
+            overlay.topAnchor.constraint(equalTo: hostView.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo: hostView.bottomAnchor),
+            card.leadingAnchor.constraint(equalTo: overlay.leadingAnchor, constant: 28),
+            card.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -28),
+            card.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
+            title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 24),
+            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -24),
+            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 26),
+            message.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            message.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            message.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 12),
+            buttons.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            buttons.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            buttons.topAnchor.constraint(equalTo: message.bottomAnchor, constant: 24),
+            cancel.topAnchor.constraint(equalTo: buttons.bottomAnchor, constant: 10),
+            cancel.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            cancel.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            cancel.heightAnchor.constraint(equalToConstant: 44),
+            cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -16)
+        ])
     }
 
     private func requestCollaboratorName(completion: @escaping () -> Void) {
@@ -6610,10 +6935,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     self.lastPublishedCollaboratorStatus = ""
                     self.hasChosenStockTakeMode = true
                     self.isRoomQRScannerActive = false
+                    self.pendingCollaborativeStartButton = sender
+                    self.appliedCollaborativeSnapshotRoomID = nil
                     self.observeCollaborativeRoom(roomID: roomID)
-                    if let sender = sender {
-                        self.mStart(sender)
-                    }
                 case let .failure(error):
                     self.isRoomQRScannerActive = false
                     self.showCollaborationError(error)
@@ -6624,22 +6948,114 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     private func showRoomInvite(roomID: String) {
         let inviteText = StockTakeCollaborationService.inviteText(for: roomID)
-        let alert = UIAlertController(
-            title: "Helper scanning enabled",
-            message: "Room code: \(roomID)\n\nShare the QR code or this room code with the helper. Both devices will show the same results.",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Show QR code", style: .default) { [weak self] _ in
-            self?.showRoomQRCode(roomID: roomID)
-        })
-        alert.addAction(UIAlertAction(title: "Share invite", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            let activity = UIActivityViewController(activityItems: [inviteText], applicationActivities: nil)
-            activity.popoverPresentationController?.sourceView = self.view
-            self.present(activity, animated: true)
-        })
-        alert.addAction(UIAlertAction(title: "Done", style: .cancel))
-        present(alert, animated: true)
+        presentHelperInvitePicker(roomID: roomID, inviteText: inviteText)
+    }
+
+    private func presentHelperInvitePicker(roomID: String, inviteText: String) {
+        let themeColor = UIColor(named: "themeColor") ?? UIColor(hex: "#00A38D")
+        guard let hostView = view.window ?? view else { return }
+        let overlay = UIControl()
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.36)
+        overlay.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
+        hostView.addSubview(overlay)
+
+        let card = UIView()
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 24
+        overlay.addSubview(card)
+
+        let title = UILabel()
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.text = "Helper scanning enabled"
+        title.font = .systemFont(ofSize: 23, weight: .bold)
+        title.textColor = .label
+        card.addSubview(title)
+
+        let room = UILabel()
+        room.translatesAutoresizingMaskIntoConstraints = false
+        room.text = "Room code: \(roomID)"
+        room.font = .systemFont(ofSize: 18, weight: .semibold)
+        room.textColor = .secondaryLabel
+        card.addSubview(room)
+
+        let message = UILabel()
+        message.translatesAutoresizingMaskIntoConstraints = false
+        message.text = "Share the QR code or this room code with a helper. Everyone in this room will see the same scan results."
+        message.font = .systemFont(ofSize: 15, weight: .regular)
+        message.textColor = .secondaryLabel
+        message.numberOfLines = 0
+        card.addSubview(message)
+
+        func makeButton(_ text: String, filled: Bool, action: @escaping () -> Void) -> UIButton {
+            let button = UIButton(type: .system)
+            button.setTitle(text, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+            button.layer.cornerRadius = 12
+            button.layer.borderWidth = filled ? 0 : 1.5
+            button.layer.borderColor = themeColor.cgColor
+            button.backgroundColor = filled ? themeColor : .white
+            button.setTitleColor(filled ? .white : themeColor, for: .normal)
+            button.heightAnchor.constraint(equalToConstant: 52).isActive = true
+            button.addAction(UIAction { _ in
+                overlay.removeFromSuperview()
+                action()
+            }, for: .touchUpInside)
+            return button
+        }
+
+        let buttons = UIStackView(arrangedSubviews: [
+            makeButton("Show QR code", filled: true) { [weak self] in
+                self?.showRoomQRCode(roomID: roomID)
+            },
+            makeButton("Share invite", filled: false) { [weak self] in
+                guard let self = self else { return }
+                let activity = UIActivityViewController(activityItems: [inviteText], applicationActivities: nil)
+                activity.popoverPresentationController?.sourceView = self.view
+                self.present(activity, animated: true)
+            }
+        ])
+        buttons.translatesAutoresizingMaskIntoConstraints = false
+        buttons.axis = .vertical
+        buttons.spacing = 12
+        buttons.distribution = .fillEqually
+        card.addSubview(buttons)
+
+        let done = UIButton(type: .system)
+        done.translatesAutoresizingMaskIntoConstraints = false
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.secondaryLabel, for: .normal)
+        done.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        done.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
+        card.addSubview(done)
+
+        NSLayoutConstraint.activate([
+            overlay.leadingAnchor.constraint(equalTo: hostView.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo: hostView.trailingAnchor),
+            overlay.topAnchor.constraint(equalTo: hostView.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo: hostView.bottomAnchor),
+            card.leadingAnchor.constraint(equalTo: overlay.leadingAnchor, constant: 28),
+            card.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -28),
+            card.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
+            title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 24),
+            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -24),
+            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 26),
+            room.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            room.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            room.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 12),
+            message.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            message.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            message.topAnchor.constraint(equalTo: room.bottomAnchor, constant: 22),
+            buttons.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            buttons.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            buttons.topAnchor.constraint(equalTo: message.bottomAnchor, constant: 24),
+            done.leadingAnchor.constraint(equalTo: title.leadingAnchor),
+            done.trailingAnchor.constraint(equalTo: title.trailingAnchor),
+            done.topAnchor.constraint(equalTo: buttons.bottomAnchor, constant: 10),
+            done.heightAnchor.constraint(equalToConstant: 44),
+            done.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -16)
+        ])
     }
 
     private func showRoomQRCode(roomID: String) {
@@ -6648,18 +7064,60 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
         let controller = SharedStockTakeInviteViewController(roomID: roomID, qrImage: image)
-        present(UINavigationController(rootViewController: controller), animated: true)
+        controller.modalPresentationStyle = .overFullScreen
+        controller.modalTransitionStyle = .crossDissolve
+        present(controller, animated: true)
     }
 
     private func makeRoomQRCode(roomID: String) -> UIImage? {
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(StockTakeCollaborationService.inviteText(for: roomID).utf8)
-        filter.correctionLevel = "M"
+        // High correction keeps the room QR readable after placing the GIS
+        // brand icon in its centre.
+        filter.correctionLevel = "H"
         guard let output = filter.outputImage else { return nil }
         let scaled = output.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
         let context = CIContext()
         guard let image = context.createCGImage(scaled, from: scaled.extent) else { return nil }
-        return UIImage(cgImage: image)
+        let qrImage = UIImage(cgImage: image)
+        guard let logo = primaryGISAppIcon() else { return qrImage }
+        let renderer = UIGraphicsImageRenderer(size: qrImage.size)
+        return renderer.image { _ in
+            qrImage.draw(in: CGRect(origin: .zero, size: qrImage.size))
+            let side = qrImage.size.width * 0.15
+            let rect = CGRect(
+                x: (qrImage.size.width - side) / 2,
+                y: (qrImage.size.height - side) / 2,
+                width: side,
+                height: side
+            )
+            // Preserve a generous white quiet zone for QR readability, while
+            // clipping the AppIcon itself to a circle rather than its square
+            // asset bounds.
+            let logoBackground = rect.insetBy(dx: -4, dy: -4)
+            UIColor.white.setFill()
+            UIBezierPath(ovalIn: logoBackground).fill()
+            guard let graphicsContext = UIGraphicsGetCurrentContext() else { return }
+            graphicsContext.saveGState()
+            UIBezierPath(ovalIn: rect).addClip()
+            logo.draw(in: rect)
+            graphicsContext.restoreGState()
+        }
+    }
+
+    /// Resolve the primary application icon from the installed bundle rather
+    /// than a separate branding asset, so the QR always uses the GIS AppIcon.
+    private func primaryGISAppIcon() -> UIImage? {
+        let iconDictionary = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any]
+        let primaryIcon = iconDictionary?["CFBundlePrimaryIcon"] as? [String: Any]
+        let iconNames = primaryIcon?["CFBundleIconFiles"] as? [String] ?? []
+        for name in iconNames.reversed() {
+            if let icon = UIImage(named: name) {
+                return icon
+            }
+        }
+        // This covers builds where Xcode exposes the asset catalog name.
+        return UIImage(named: "AppIcon") ?? UIImage(named: "gislogo_ic")
     }
 
     private func showCollaborationError(_ error: Error) {
@@ -6675,6 +7133,18 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     
     @IBAction func mStart(_ sender: UIButton) {
         if !hasChosenStockTakeMode {
+            // When Shared Scan is explicitly disabled by the backend, do not
+            // interrupt the normal RFID flow with a mode-selection popup.
+            // Start remains available only after an RFID reader is connected.
+            guard isSharedStockTakeEnabled else {
+                guard isAnyRFIDConnected || atidTransportConnected else {
+                    updateScannerControls()
+                    return
+                }
+                hasChosenStockTakeMode = true
+                mStart(sender)
+                return
+            }
             chooseStockTakeMode(thenStart: sender)
             return
         }
@@ -6706,7 +7176,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         let atidTransportReady = atidTransportConnected && atidPeripheral?.state == .connected
 
-        if isScannerTestMode && !isAnyRFIDConnected && !atidTransportReady {
+        if allowsDisconnectedTestScan && !isAnyRFIDConnected && !atidTransportReady {
             view.endEditing(true)
             mPowerView.isHidden = true
             isStoppedState = false
@@ -7936,6 +8406,34 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return
         }
 
+        // Reserve the room before building the existing save request. The
+        // Realtime Database transaction makes this mutually exclusive across
+        // every helper's device.
+        if let roomID = collaborationRoomID {
+            guard sharedRoomSaveStatus == "active" else {
+                let owner = sharedRoomSavedByName.isEmpty ? "another participant" : sharedRoomSavedByName
+                showStockTakeResultMessage(success: false, message: "This shared Stock Take was saved by \(owner).")
+                return
+            }
+            collaboration.claimSave(roomID: roomID) { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success:
+                        self.beginStockTakeSave(scannedQty: scannedQty)
+                    case let .failure(error):
+                        self.showCollaborationError(error)
+                        self.updateScannerControls()
+                    }
+                }
+            }
+            return
+        }
+
+        beginStockTakeSave(scannedQty: scannedQty)
+    }
+
+    private func beginStockTakeSave(scannedQty: Int) {
         isSaveInProgress = true
 
 
@@ -7985,6 +8483,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         saveActivityIndicator = nil
 
         isSaveInProgress = false
+
+        if !success, let roomID = collaborationRoomID {
+            collaboration.completeSave(roomID: roomID, success: false)
+        }
         
         mMoreIcon.image = UIImage(named: success ? "save_icg" : "save_ic")
         mMoreLabel.textColor = UIColor(named: success ? "theme6A" : "themeColor")
@@ -8681,6 +9183,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
             
             if let code = response.value(forKey: "code") as? Int, code == 200 {
+                // A helper must keep the host's frozen source list. A late
+                // local API response would otherwise replace it and make the
+                // two devices show different Total / Unscanned items.
+                guard self.collaborationRoomID == nil else {
+                    print("🧪 [SharedStockTake] Ignored local inventory refresh while using a shared room")
+                    return
+                }
                 let apiTotalQty = response.value(forKey: "total_qty")
                 let apiTotalWeight = response.value(forKey: "total_weight")
                 let apiTotalSold = response.value(forKey: "total_sold")
@@ -8881,9 +9390,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         let urlPath =  mUploadStocks
         
         let combinedConflictUnknown = conflictUnknownSavePayload()
-        print("🔥 STOCK TAKE CONFLICT/UNKNOWN SAVE COUNT = \\(combinedConflictUnknown.count)")
+        print("🔥 STOCK TAKE CONFLICT/UNKNOWN SAVE COUNT = \(combinedConflictUnknown.count)")
 
-        let  mParams:[String:Any] = [
+        var mParams:[String:Any] = [
             "unscanned":mSAVEUNSCANNED,
             "scanned":mSAVESCANNED,
             "unknown":combinedConflictUnknown,
@@ -8897,9 +9406,20 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             "unknown_qty": combinedConflictUnknown.count,
             "voucher_id":voucherId,
             "filter":mFilterData]
+
+        if let sharedPayload = sharedStockTakeSavePayload() {
+            mParams["shared_stock_take"] = sharedPayload
+        }
         
 
         print("StockTakeCreate Payload = \(mParams)")
+        if let shared = mParams["shared_stock_take"] {
+            let sharedJSON = (try? JSONSerialization.data(withJSONObject: shared, options: [.prettyPrinted, .sortedKeys]))
+                .flatMap { String(data: $0, encoding: .utf8) } ?? "\(shared)"
+            print("🧪 [SharedStockTake][2-SavePayload] shared_stock_take present = true\n\(sharedJSON)")
+        } else {
+            print("🧪 [SharedStockTake][2-SavePayload] shared_stock_take present = false (normal single-user save)")
+        }
         if Reachability.isConnectedToNetwork() == true {
             // Save must freeze RFID input so the payload cannot change mid-request.
             if ZebraRFIDService.shared.isInventoryRunning {
@@ -8962,6 +9482,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
                 print("🔥 STOCK TAKE SAVE RESPONSE = \(jsonResult)")
                 print("🔥 STOCK TAKE SAVE CODE = \(responseCode.map(String.init) ?? "nil")")
+                print("🧪 [SharedStockTake][3-SaveResponse] http = \(response.response?.statusCode ?? -1) | code = \(responseCode.map(String.init) ?? "nil") | error = \(String(describing: jsonResult["error"])) | message = \(String(describing: jsonResult["message"])) | room = \(self.collaborationRoomID ?? "none")")
 
                 if responseCode == 200 {
                     // Keep the current result visible exactly like the design
@@ -8971,6 +9492,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     self.updateScannerControls()
                     self.hasSuccessfulSave = true
                     self.hasSaveFailed = false
+                    if let roomID = self.collaborationRoomID {
+                        self.collaboration.completeSave(roomID: roomID, success: true)
+                    }
                     self.stopSaveIndicator(success: true)
                     self.resetStockTakeModeForNextSession()
 
@@ -9014,6 +9538,50 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
         
         
+    }
+
+    /// This audit data is additive: the existing save fields remain unchanged,
+    /// while the backend receives every participant and shared scan record.
+    private func sharedStockTakeSavePayload() -> [String: Any]? {
+        guard let roomID = collaborationRoomID else { return nil }
+        let recordsByMember = Dictionary(grouping: collaborativeRecords, by: \.createdBy)
+        let participants: [[String: Any]] = collaborativeMembers.map { member in
+            let records = recordsByMember[member.id] ?? []
+            let scanned = records.filter { $0.kind == .scanned }.count
+            let conflict = records.filter { $0.kind == .conflict }.count
+            let unknown = records.filter { $0.kind == .unknown }.count
+            return [
+                "participant_id": member.id,
+                "participant_name": member.name,
+                "role": member.isHost ? "host" : "helper",
+                "scan_status": member.status,
+                "scanned_qty": scanned,
+                "conflict_qty": conflict,
+                "unknown_qty": unknown,
+                "total_qty": scanned + conflict + unknown
+            ]
+        }
+        let itemAudit: [[String: Any]] = collaborativeRecords.map { record in
+            [
+                "stock_id": record.stockID,
+                "sku": record.sku,
+                "result": record.kind.rawValue,
+                "quantity": record.quantity,
+                "weight": record.weight ?? NSNull(),
+                "scanned_by_id": record.createdBy,
+                "scanned_by_name": record.scannerName,
+                "source": record.source,
+                "scanned_at": record.createdAt
+            ]
+        }
+        return [
+            "room_id": roomID,
+            "mode": "multi_device",
+            "participants": participants,
+            "item_audit": itemAudit,
+            "saved_by_id": Auth.auth().currentUser?.uid ?? "",
+            "saved_by_name": collaboration.scannerDisplayName
+        ]
     }
     
     private func hasStockTakeData() -> Bool {
@@ -10253,12 +10821,99 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
+    /// Firebase only accepts JSON-like values. The API response can contain
+    /// Foundation bridge types, so normalize it before saving the host's
+    /// source list for helpers.
+    private func firebaseSafeValue(_ value: Any) -> Any? {
+        if value is NSNull { return nil }
+        if let value = value as? String { return value }
+        if let value = value as? NSNumber { return value }
+        if let dictionary = value as? NSDictionary {
+            var result = [String: Any]()
+            for (key, item) in dictionary {
+                guard let key = key as? String,
+                      let safeItem = firebaseSafeValue(item)
+                else { continue }
+                result[key] = safeItem
+            }
+            return result
+        }
+        if let array = value as? NSArray {
+            return array.compactMap { firebaseSafeValue($0) }
+        }
+        return String(describing: value)
+    }
+
+    private func firebaseSafeDictionaries(from values: [NSDictionary]) -> [[String: Any]] {
+        values.compactMap { firebaseSafeValue($0) as? [String: Any] }
+    }
+
+    /// Captures the exact list the host sees. It includes full inventory data
+    /// (RFID/EPC keys), summary data, and sold items so manual, camera, and
+    /// RFID scans all classify identically on every joined device.
+    private func sharedInventorySnapshot() -> [String: Any] {
+        let inventory = mInventoryData.compactMap { $0 as? NSDictionary }
+        let status = mStatusData.compactMap { $0 as? NSDictionary }
+        return [
+            "schemaVersion": 1,
+            "inventory": firebaseSafeDictionaries(from: inventory),
+            "status": firebaseSafeDictionaries(from: status),
+            "sold": firebaseSafeDictionaries(from: stockTakeSoldData),
+            "totalWeightG": stockTakeTotalWeightG,
+            "totalSold": stockTakeTotalSold
+        ]
+    }
+
+    private func snapshotDictionaries(_ value: Any?) -> [NSDictionary] {
+        let values = value as? [Any] ?? []
+        return values.compactMap { rawValue in
+            if let dictionary = rawValue as? NSDictionary {
+                return NSMutableDictionary(dictionary: dictionary)
+            }
+            if let dictionary = rawValue as? [String: Any] {
+                return NSMutableDictionary(dictionary: dictionary)
+            }
+            return nil
+        }
+    }
+
+    private func applySharedInventorySnapshot(
+        _ snapshot: [String: Any],
+        for room: StockTakeCollaborationRoom
+    ) {
+        guard appliedCollaborativeSnapshotRoomID != room.id else { return }
+
+        let inventory = snapshotDictionaries(snapshot["inventory"])
+        let status = snapshotDictionaries(snapshot["status"])
+        let sold = snapshotDictionaries(snapshot["sold"])
+
+        // Older rooms created before this update do not contain a source
+        // snapshot. Leave their local data untouched, but new rooms always do.
+        guard !inventory.isEmpty || !status.isEmpty else { return }
+
+        mInventoryData = inventory as NSArray
+        mStatusData = NSMutableArray(array: status)
+        stockTakeSoldData = sold
+        stockTakeTotalWeightG = numericValue(snapshot["totalWeightG"] ?? 0)
+        stockTakeTotalSold = numericValue(snapshot["totalSold"] ?? 0)
+        hasStockTakeAPISummary = true
+        rebuildStockMap(inventory)
+        appliedCollaborativeSnapshotRoomID = room.id
+    }
+
     private func applyCollaborativeRoom(
         _ room: StockTakeCollaborationRoom,
         records: [StockTakeCollaborationRecord],
         members: [StockTakeCollaborationMember]
     ) {
         guard collaborationRoomID == room.id else { return }
+
+        collaborativeMembers = members
+        collaborativeRecords = records
+        sharedRoomSaveStatus = room.saveStatus
+        sharedRoomSavedByName = room.savedByName
+
+        applySharedInventorySnapshot(room.inventorySnapshot, for: room)
 
         let currentUserID = Auth.auth().currentUser?.uid ?? ""
         let currentUserIsHost = members.contains { $0.id == currentUserID && $0.isHost }
@@ -10268,6 +10923,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         if room.mode == "solo", !currentUserIsHost {
             endSharedModeBecauseHostContinuedAlone()
             return
+        }
+
+        // A successful shared save completes the whole room, so every helper
+        // immediately loses the ability to submit the same count again.
+        if room.saveStatus == "saved" {
+            hasSuccessfulSave = true
         }
 
         if room.totalQuantity >= 0 {
@@ -10303,13 +10964,24 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mCONFLICT = uniqueElementsFrom(array: mCONFLICT)
         mStatus()
         renderCollaboratorStrip(members: members, records: records)
+
+        // Do not let a helper start RFID scanning against a different local
+        // API response. The shared host snapshot is now loaded, so it is safe
+        // to start the scanner on either device.
+        if let startButton = pendingCollaborativeStartButton {
+            pendingCollaborativeStartButton = nil
+            mStart(startButton)
+        }
     }
 
     private func updateCollaborationControl() {
-        // The actionable control is rendered as the clearly-labelled Manage
-        // button in the host's member strip. Keep the small header glyph out
-        // of the interaction path so it cannot be obscured by the legacy UI.
-        referenceCollaborationButton?.isHidden = true
+        let canManage = collaborationRoomID != nil && isCurrentCollaboratorHost
+        collaborationManageButton?.isHidden = !canManage
+        collaborationManageButton?.isEnabled = canManage
+        collaborationManageButton?.alpha = canManage ? 1 : 0
+        // When this device is a helper, remove the host-only button's reserved
+        // space so the participant cards use the full width of the strip.
+        collaborationMemberStripLeadingConstraint?.constant = canManage ? 8 : -104
     }
 
     @objc private func showCollaborationOptions() {
@@ -10328,7 +11000,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             message: "Share the room with a helper, or continue this Stock Take alone.",
             preferredStyle: .actionSheet
         )
-        sheet.addAction(UIAlertAction(title: "Share or save QR code", style: .default) { [weak self] _ in
+        sheet.addAction(UIAlertAction(title: "Share QR code", style: .default) { [weak self] _ in
             self?.showRoomQRCode(roomID: roomID)
         })
         sheet.addAction(UIAlertAction(title: "Continue alone", style: .destructive) { [weak self] _ in
@@ -10368,6 +11040,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         collaborationRoomID = nil
         isCurrentCollaboratorHost = false
         lastPublishedCollaboratorStatus = ""
+        appliedCollaborativeSnapshotRoomID = nil
+        pendingCollaborativeStartButton = nil
+        collaborativeMembers.removeAll()
+        collaborativeRecords.removeAll()
+        sharedRoomSaveStatus = "active"
+        sharedRoomSavedByName = ""
         collaborationMemberStrip?.isHidden = true
         referenceSummaryStackTopConstraint?.constant = 0
         updateCollaborationControl()
@@ -10399,10 +11077,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             view.removeFromSuperview()
         }
 
-        if isCurrentCollaboratorHost {
-            stack.addArrangedSubview(makeCollaboratorManageButton())
-        }
-
         for member in members {
             let memberRecords = records.filter { $0.createdBy == member.id }
             let scanned = memberRecords.filter { $0.kind == .scanned }.count
@@ -10417,22 +11091,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 unknown: unknown
             ))
         }
-    }
-
-    private func makeCollaboratorManageButton() -> UIButton {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Manage\nshared scan", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
-        button.titleLabel?.numberOfLines = 2
-        button.titleLabel?.textAlignment = .center
-        button.tintColor = .white
-        button.backgroundColor = UIColor(hex: "#00A38D")
-        button.layer.cornerRadius = 8
-        button.widthAnchor.constraint(equalToConstant: 104).isActive = true
-        button.accessibilityLabel = "Manage shared Stock Take"
-        button.addTarget(self, action: #selector(showCollaborationOptions(_:)), for: .touchUpInside)
-        return button
     }
 
     private func makeCollaboratorCard(

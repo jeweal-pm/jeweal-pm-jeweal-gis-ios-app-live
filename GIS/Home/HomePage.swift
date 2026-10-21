@@ -109,6 +109,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     // The source artwork is free to use under the Pixabay Content License:
     // https://pixabay.com/vectors/santa-sleigh-santa-with-reindeer-9991964/
     private var isHolidayWelcomePlaying = false
+    private var isOpeningPendingSharedStockTake = false
 
     /// Keeps the home menu as a two-column grid. When Diamond is unavailable,
     /// the next menu tile moves into its position instead of stretching Inventory.
@@ -400,7 +401,18 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 
                             let faroActive = "\(mData["faro_active"] ?? "0")" == "1"
                                 UserDefaults.standard.set(faroActive, forKey: "faro_active")
-                            
+
+                            // The backend controls whether this account may use
+                            // a shared, multi-device Stock Take. Keep the default
+                            // closed so existing users keep the normal solo flow.
+                            // Keep Shared Stock Take available while the backend
+                            // rollout is in progress. It is only disabled when
+                            // the backend explicitly returns "0".
+                            let sharedStockTakeActive = mData["stock_take_collaboration_active"] == nil
+                                || "\(mData["stock_take_collaboration_active"] ?? "0")" == "1"
+                            UserDefaults.standard.set(sharedStockTakeActive, forKey: "stock_take_collaboration_active")
+                            print("🧪 [SharedStockTake][1-Permission] raw stock_take_collaboration_active = \(String(describing: mData["stock_take_collaboration_active"])) | resolved = \(sharedStockTakeActive) | faro_active raw = \(String(describing: mData["faro_active"]))")
+
                             if let mPriceFormat = mData.value(forKey: "price_format") as? NSDictionary {
                                 if let mStoreCurrency = mPriceFormat.value(forKey: "currency") as? String {
                                     UserDefaults.standard.set(mStoreCurrency, forKey: "storeCurrency")
@@ -493,6 +505,8 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        openPendingSharedStockTakeIfNeeded()
+
         // Start only after Home is on screen, so its dimensions are final and
         // the overlay never flashes during the navigation transition.
         guard HomePage.pendingHolidayWelcome else { return }
@@ -501,6 +515,24 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
             self?.showHolidayWelcomeIfNeeded()
         }
+    }
+
+    /// A shared-room link can arrive before the login flow finishes. Home is
+    /// the common destination for every successful login path, so consume the
+    /// pending invite here and never show Stock Take over a login screen.
+    private func openPendingSharedStockTakeIfNeeded() {
+        guard !isOpeningPendingSharedStockTake,
+              let roomID = UserDefaults.standard.string(forKey: "GISPendingStockTakeRoomID"),
+              navigationController?.topViewController === self
+        else { return }
+
+        let stockBoard = UIStoryboard(name: "stockBoard", bundle: nil)
+        guard let stockTake = stockBoard.instantiateViewController(withIdentifier: "StockTakePage") as? StockTakePage else {
+            return
+        }
+        isOpeningPendingSharedStockTake = true
+        stockTake.pendingSharedRoomID = roomID
+        navigationController?.pushViewController(stockTake, animated: true)
     }
 
     private func showHolidayWelcomeIfNeeded() {
