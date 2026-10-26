@@ -672,3 +672,6 @@ Created by admin on 15/11/21.
 "Add shipping address" = "Добавить адрес доставки";
 "Select billing address" = "Выберите платежный адрес";
 "Select shipping address" = "Выберите адрес доставки";
+"Traceability" = "Прослеживаемость";
+"Transaction ID" = "ID транзакции";
+"Quantity" = "Количество";

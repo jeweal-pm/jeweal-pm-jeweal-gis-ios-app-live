@@ -677,3 +677,6 @@
 "Add shipping address" = "เพิ่มที่อยู่จัดส่ง";
 "Select billing address" = "เลือกที่อยู่สำหรับการเรียกเก็บเงิน";
 "Select shipping address" = "เลือกที่อยู่สำหรับจัดส่ง";
+"Traceability" = "การตรวจสอบย้อนกลับ";
+"Transaction ID" = "รหัสธุรกรรม";
+"Quantity" = "จำนวน";

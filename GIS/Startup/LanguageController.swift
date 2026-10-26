@@ -376,6 +376,15 @@ class LanguageController: UIViewController , UITableViewDelegate ,  UITableViewD
                                 profileName.trimmingCharacters(in: .whitespacesAndNewlines),
                                 forKey: "userName"
                             )
+                            // GIS user id (needed by Stock Take shared scanning report).
+                            let gisUserID = "\(mData.value(forKey: "user_id") ?? "")"
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            if gisUserID.isEmpty {
+                                // Never keep a previous account's id.
+                                UserDefaults.standard.removeObject(forKey: "user_id")
+                            } else {
+                                UserDefaults.standard.set(gisUserID, forKey: "user_id")
+                            }
                             let flashImageURL = "\(mData.value(forKey: "flash_image") ?? "")"
                             UserDefaults.standard.set(flashImageURL, forKey: "flash_image")
                             print("🎨 [LanguageController] flash_image = \(flashImageURL)")

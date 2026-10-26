@@ -68,12 +68,15 @@ private struct StockTakeCollaborationRoom {
 private struct StockTakeCollaborationMember {
     let id: String
     let name: String
+    /// GIS user_id of this member (empty for members on older app builds).
+    let userId: String
     let isHost: Bool
     let status: String
 
     init(id: String, value: [String: Any]) {
         self.id = id
         self.name = value["name"] as? String ?? "Scanner"
+        self.userId = value["userId"] as? String ?? ""
         self.isHost = value["role"] as? String == "host"
         self.status = value["status"] as? String ?? "Ready"
     }
@@ -171,8 +174,12 @@ private final class StockTakeCollaborationService {
     private let root = Database.database(url: "https://gis-stock-take-default-rtdb.asia-southeast1.firebasedatabase.app")
         .reference()
         .child("stockTakeRooms")
-    private var observerHandle: DatabaseHandle?
+    private var observerHandles: [(DatabaseReference, DatabaseHandle)] = []
     private var observedRoomID: String?
+    private var observedRoom: StockTakeCollaborationRoom?
+    private var observedRecords: [String: StockTakeCollaborationRecord] = [:]
+    private var observedMembers: [String: StockTakeCollaborationMember] = [:]
+    private var roomListener: ((StockTakeCollaborationRoom, [StockTakeCollaborationRecord], [StockTakeCollaborationMember]) -> Void)?
 
     private init() {}
 
@@ -254,6 +261,7 @@ private final class StockTakeCollaborationService {
                 let userID = Auth.auth().currentUser?.uid ?? ""
                 let room: [String: Any] = [
                     "createdAt": ServerValue.timestamp(),
+                    "lastActive": ServerValue.timestamp(),
                     "createdBy": userID,
                     "totalQuantity": totalQuantity,
                     // The snapshot is immutable after creation and is loaded
@@ -291,7 +299,12 @@ private final class StockTakeCollaborationService {
                         completion(.failure(StockTakeCollaborationError.sharingEnded))
                         return
                     }
-                    self.upsertCurrentMember(roomID: roomID, role: "helper", status: "Ready", completion: completion)
+                    self.upsertCurrentMember(roomID: roomID, role: "helper", status: "Ready") { result in
+                        if case .success = result {
+                            self.touchRoom(roomID)
+                        }
+                        completion(result)
+                    }
                 } withCancel: { error in
                     completion(.failure(error))
                 }
@@ -305,46 +318,112 @@ private final class StockTakeCollaborationService {
     ) {
         stopObserving()
         observedRoomID = roomID
+        roomListener = listener
         let roomRef = root.child(roomID)
-        observerHandle = roomRef.observe(.value) { snapshot in
+        // Load the host's inventory snapshot once. Observing the entire room
+        // for every RFID scan redownloads that large snapshot to every helper.
+        roomRef.observeSingleEvent(of: .value) { [weak self] snapshot in
+            guard let self = self, self.observedRoomID == roomID else { return }
             guard let value = snapshot.value as? [String: Any] else { return }
             let total = Int("\(value["totalQuantity"] ?? 0)") ?? 0
-            // Realtime Database bridges nested JSON dictionaries as [String: Any].
-            // Do not cast directly to [String: [String: Any]] or live changes
-            // can be silently read as an empty list on another device.
             let recordValues = value["items"] as? [String: Any] ?? [:]
-            let records = recordValues.compactMap { key, rawValue -> StockTakeCollaborationRecord? in
+            self.observedRecords = Dictionary(uniqueKeysWithValues: recordValues.compactMap { key, rawValue -> (String, StockTakeCollaborationRecord)? in
                 guard let item = rawValue as? [String: Any] else { return nil }
-                return StockTakeCollaborationRecord(key: key, value: item)
-            }
-                .sorted { lhs, rhs in
-                    lhs.createdAt == rhs.createdAt ? lhs.key < rhs.key : lhs.createdAt < rhs.createdAt
-                }
+                guard let record = StockTakeCollaborationRecord(key: key, value: item) else { return nil }
+                return (key, record)
+            })
             let memberValues = value["members"] as? [String: Any] ?? [:]
-            let members = memberValues.compactMap { key, rawValue -> StockTakeCollaborationMember? in
+            self.observedMembers = Dictionary(uniqueKeysWithValues: memberValues.compactMap { key, rawValue -> (String, StockTakeCollaborationMember)? in
                 guard let member = rawValue as? [String: Any] else { return nil }
-                return StockTakeCollaborationMember(id: key, value: member)
-            }
-                .sorted { lhs, rhs in
-                    lhs.isHost == rhs.isHost ? lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending : lhs.isHost
-                }
+                return (key, StockTakeCollaborationMember(id: key, value: member))
+            })
             let mode = value["mode"] as? String ?? "shared"
             let saveStatus = value["saveStatus"] as? String ?? "active"
             let savedByName = value["savedByName"] as? String ?? ""
             let inventorySnapshot = value["inventorySnapshot"] as? [String: Any] ?? [:]
-            listener(
-                StockTakeCollaborationRoom(
-                    id: roomID,
-                    totalQuantity: total,
-                    inventorySnapshot: inventorySnapshot,
-                    mode: mode,
-                    saveStatus: saveStatus,
-                    savedByName: savedByName
-                ),
-                records,
-                members
+            self.observedRoom = StockTakeCollaborationRoom(
+                id: roomID,
+                totalQuantity: total,
+                inventorySnapshot: inventorySnapshot,
+                mode: mode,
+                saveStatus: saveStatus,
+                savedByName: savedByName
             )
+            self.emitObservedRoom()
+            self.observeLiveRoomChanges(roomRef)
         }
+    }
+
+    private func observeLiveRoomChanges(_ roomRef: DatabaseReference) {
+        let itemsRef = roomRef.child("items")
+        let itemAdded = itemsRef.observe(.childAdded) { [weak self] snapshot in
+            guard let self,
+                  let item = snapshot.value as? [String: Any],
+                  let record = StockTakeCollaborationRecord(key: snapshot.key, value: item)
+            else { return }
+            // Existing records were loaded in the one-time snapshot above.
+            guard self.observedRecords[snapshot.key] == nil else { return }
+            self.observedRecords[snapshot.key] = record
+            self.emitObservedRoom()
+        }
+        observerHandles.append((itemsRef, itemAdded))
+
+        let itemChanged = itemsRef.observe(.childChanged) { [weak self] snapshot in
+            guard let self,
+                  let item = snapshot.value as? [String: Any],
+                  let record = StockTakeCollaborationRecord(key: snapshot.key, value: item)
+            else { return }
+            self.observedRecords[snapshot.key] = record
+            self.emitObservedRoom()
+        }
+        observerHandles.append((itemsRef, itemChanged))
+
+        let membersRef = roomRef.child("members")
+        let membersHandle = membersRef.observe(.value) { [weak self] snapshot in
+            guard let self else { return }
+            let values = snapshot.value as? [String: Any] ?? [:]
+            self.observedMembers = Dictionary(uniqueKeysWithValues: values.compactMap { key, rawValue -> (String, StockTakeCollaborationMember)? in
+                guard let member = rawValue as? [String: Any] else { return nil }
+                return (key, StockTakeCollaborationMember(id: key, value: member))
+            })
+            self.emitObservedRoom()
+        }
+        observerHandles.append((membersRef, membersHandle))
+
+        observeRoomField("mode", in: roomRef)
+        observeRoomField("saveStatus", in: roomRef)
+        observeRoomField("savedByName", in: roomRef)
+    }
+
+    private func observeRoomField(_ field: String, in roomRef: DatabaseReference) {
+        let fieldRef = roomRef.child(field)
+        let handle = fieldRef.observe(.value) { [weak self] snapshot in
+            guard let self, let room = self.observedRoom else { return }
+            let mode = field == "mode" ? (snapshot.value as? String ?? room.mode) : room.mode
+            let saveStatus = field == "saveStatus" ? (snapshot.value as? String ?? room.saveStatus) : room.saveStatus
+            let savedByName = field == "savedByName" ? (snapshot.value as? String ?? room.savedByName) : room.savedByName
+            self.observedRoom = StockTakeCollaborationRoom(
+                id: room.id,
+                totalQuantity: room.totalQuantity,
+                inventorySnapshot: room.inventorySnapshot,
+                mode: mode,
+                saveStatus: saveStatus,
+                savedByName: savedByName
+            )
+            self.emitObservedRoom()
+        }
+        observerHandles.append((fieldRef, handle))
+    }
+
+    private func emitObservedRoom() {
+        guard let room = observedRoom else { return }
+        let records = observedRecords.values.sorted {
+            $0.createdAt == $1.createdAt ? $0.key < $1.key : $0.createdAt < $1.createdAt
+        }
+        let members = observedMembers.values.sorted {
+            $0.isHost == $1.isHost ? $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending : $0.isHost
+        }
+        roomListener?(room, records, members)
     }
 
     /// Atomically reserves Save for one participant. Every device checks this
@@ -361,6 +440,7 @@ private final class StockTakeCollaborationService {
             room["savedBy"] = userID
             room["savedByName"] = self.scannerDisplayName
             room["saveStartedAt"] = ServerValue.timestamp()
+            room["lastActive"] = ServerValue.timestamp()
             currentData.value = room
             return TransactionResult.success(withValue: currentData)
         } andCompletionBlock: { error, committed, _ in
@@ -378,6 +458,7 @@ private final class StockTakeCollaborationService {
             else { return TransactionResult.abort() }
             room["saveStatus"] = success ? "saved" : "active"
             room["savedAt"] = ServerValue.timestamp()
+            room["lastActive"] = ServerValue.timestamp()
             if !success {
                 room["savedBy"] = ""
                 room["savedByName"] = ""
@@ -388,14 +469,23 @@ private final class StockTakeCollaborationService {
     }
 
     func updateCurrentMemberStatus(_ status: String, roomID: String) {
-        upsertCurrentMember(roomID: roomID, role: nil, status: status, completion: { _ in })
+        upsertCurrentMember(roomID: roomID, role: nil, status: status) { [weak self] result in
+            if case .success = result {
+                self?.touchRoom(roomID)
+            }
+        }
     }
 
     func stopObserving() {
-        guard let roomID = observedRoomID, let handle = observerHandle else { return }
-        root.child(roomID).removeObserver(withHandle: handle)
-        observerHandle = nil
+        observerHandles.forEach { reference, handle in
+            reference.removeObserver(withHandle: handle)
+        }
+        observerHandles.removeAll()
         observedRoomID = nil
+        observedRoom = nil
+        observedRecords.removeAll()
+        observedMembers.removeAll()
+        roomListener = nil
     }
 
     func continueAlone(roomID: String, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -415,6 +505,7 @@ private final class StockTakeCollaborationService {
                     }
                     room["mode"] = "solo"
                     room["sharingEndedAt"] = ServerValue.timestamp()
+                    room["lastActive"] = ServerValue.timestamp()
                     currentData.value = room
                     return TransactionResult.success(withValue: currentData)
                 } andCompletionBlock: { error, committed, _ in
@@ -462,7 +553,10 @@ private final class StockTakeCollaborationService {
                 if let error = error { completion(.failure(error)) }
                 // A duplicate is expected: the first participant's record
                 // already represents the shared item on both devices.
-                else if committed { completion(.success(())) }
+                else if committed {
+                    self.touchRoom(roomID)
+                    completion(.success(()))
+                }
                 else { completion(.success(())) }
             }
         } withCancel: { error in
@@ -481,9 +575,17 @@ private final class StockTakeCollaborationService {
         }
     }
 
+    /// GIS `user_id` returned by Mobile/getProfile (saved in LanguageController).
+    /// The backend needs it to find the user; the Firebase uid cannot be mapped.
+    var gisUserID: String {
+        UserDefaults.standard.string(forKey: "user_id")?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+
     private func memberValue(role: String, status: String) -> [String: Any] {
         [
             "name": scannerDisplayName,
+            "userId": gisUserID,
             "role": role,
             "status": status,
             "lastActive": ServerValue.timestamp()
@@ -512,6 +614,13 @@ private final class StockTakeCollaborationService {
         } withCancel: { error in
             completion(.failure(error))
         }
+    }
+
+    /// A scheduled Firebase cleanup uses this timestamp to remove inactive
+    /// rooms. Update it only for meaningful collaboration activity, never for
+    /// passive observers, so room reads and writes remain small.
+    private func touchRoom(_ roomID: String) {
+        root.child(roomID).child("lastActive").setValue(ServerValue.timestamp())
     }
 
     private func makeRoomID() -> String {
@@ -1230,6 +1339,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // single inventory response across notifications, or combine several
     // responses in one. Keep the remaining bytes until a full frame arrives.
     private var atidReceiveBuffer = Data()
+    /// Reassembles the AT388 ASCII record stream (see ATIDTextStreamParser).
+    private var atidTextParser = ATIDTextStreamParser()
     private var atidPendingCharacteristicServices = 0
     private var atidConnectStartedAt: CFAbsoluteTime = 0
     private var atidPeripheralIdentifiers = Set<UUID>()
@@ -1270,10 +1381,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     // sufficient and can inflate Unknown.
     private var atidScannedTags = Set<String>()
 
-    // Lets Start/Pause/Stop work with no scanner connected so the Stock Take flow can be
-    // tested without hardware. Set to false before releasing.
+    // Production flow: Play is enabled only after an RFID reader connects.
+    // Keep the test path disabled so a room cannot appear to be scanning
+    // before the user deliberately connects a device and presses Play.
     private var testScannerRunning = false
-    private let isScannerTestMode = true
+    private let isScannerTestMode = false
 
     // ── AT388 RF Power Configuration ──
     // The AT388 raw BLE protocol uses command 0xB6 to set TX power.
@@ -1368,25 +1480,31 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private var collaborativeMembers: [StockTakeCollaborationMember] = []
     private var collaborativeRecords: [StockTakeCollaborationRecord] = []
     private var appliedCollaborativeSnapshotRoomID: String?
-    private weak var pendingCollaborativeStartButton: UIButton?
     private var sharedRoomSaveStatus = "active"
     private var sharedRoomSavedByName = ""
+    private weak var referenceSaveButton: UIButton?
     private weak var collaborationMemberStrip: UIView?
     private weak var collaborationMemberStack: UIStackView?
     private weak var collaborationManageButton: UIButton?
     private var collaborationMemberStripLeadingConstraint: NSLayoutConstraint?
 
     private var isSharedStockTakeEnabled: Bool {
-        // During rollout, an absent backend value keeps the feature available.
-        // An explicit false / 0 is the only way to turn it off.
-        guard UserDefaults.standard.object(forKey: "stock_take_collaboration_active") != nil else {
-            return true
-        }
-        return UserDefaults.standard.bool(forKey: "stock_take_collaboration_active")
+        // Shared Stock Take is available to every GIS account.
+        true
     }
 
     private var allowsDisconnectedTestScan: Bool {
         isSharedStockTakeEnabled && isScannerTestMode
+    }
+
+    /// True until this session has chosen alone / helper / join. While true, Play
+    /// stays tappable even without an RFID reader so the popup can be shown;
+    /// afterwards Play follows the normal "reader connected" rule.
+    private var needsStockTakeModeChoice: Bool {
+        isSharedStockTakeEnabled
+            && !hasChosenStockTakeMode
+            && collaborationRoomID == nil
+            && !isStoppedState
     }
     
     // MARK: - Reference UI (programmatic overlay)
@@ -1474,6 +1592,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         save.alpha = 1.0
         save.addTarget(self, action: #selector(referenceSaveTapped), for: .touchUpInside)
         header.addSubview(save)
+        referenceSaveButton = save
 
         NSLayoutConstraint.activate([
             header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -2444,17 +2563,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             && !canStopAfterPause
             && sharedRoomSaveStatus == "active"
 
-        let saveButtons = header.subviews.compactMap { $0 as? UIButton }
-
-        for button in saveButtons {
-            if button.frame.maxX > header.bounds.width * 0.75 {
-                button.tintColor = saveEnabled
-                    ? UIColor(hex: "#00A38D")
-                    : UIColor(hex: "#D2D2D2")
-                button.alpha = 1.0
-                button.isEnabled = saveEnabled
-            }
-        }
+        referenceSaveButton?.tintColor = saveEnabled
+            ? UIColor(hex: "#00A38D")
+            : UIColor(hex: "#D2D2D2")
+        referenceSaveButton?.alpha = 1.0
+        referenceSaveButton?.isEnabled = saveEnabled
     }
 
     private func updateReferencePlayButton() {
@@ -2518,8 +2631,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 for: .normal
             )
             button.isEnabled = false
-        } else if connected || allowsDisconnectedTestScan {
-            // READY or PAUSED: Play active/teal.
+        } else if connected || allowsDisconnectedTestScan || needsStockTakeModeChoice {
+            // READY or PAUSED: Play active/teal.  Before the scan mode is chosen
+            // it is also active without a reader, to open the mode popup.
             button.backgroundColor = tealColor
             button.setImage(
                 UIImage(systemName: "play.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal),
@@ -2975,6 +3089,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
 
     @objc private func referencePlayTapped() {
+        // First Play of a session asks how to scan (alone / helper / join).
+        // Choosing an option only sets the mode or enters the room; the reader
+        // starts on the next Play tap.
+        if needsStockTakeModeChoice {
+            presentStockTakeModePicker()
+            return
+        }
         let button = UIButton(type: .system)
         mStart(button)
     }
@@ -3771,6 +3892,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     @objc
     func tagRead(_ notification: Notification) {
 
+        // Some readers can deliver one or more buffered callbacks after Stop.
+        // Never count those callbacks while the reader is paused/completed.
+        guard ZebraRFIDService.shared.isInventoryRunning, !isStoppedState else { return }
+
         guard let value = notification.object as? String else { return }
 
         // IMPORTANT: Always decode at the StockTakePage boundary too.
@@ -4264,6 +4389,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidBLECharacteristic = nil
         atidNotifyReady = false
         atidReceiveBuffer.removeAll(keepingCapacity: false)
+        atidTextParser.reset()
         atidPendingCharacteristicServices = 0
         atidReaderReady = false
         atidInventoryRunning = false
@@ -4370,6 +4496,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         atidReaderReady = false
         atidNotifyReady = false
         atidReceiveBuffer.removeAll(keepingCapacity: false)
+        atidTextParser.reset()
         atidPendingCharacteristicServices = 0
         atidBLECharacteristic = nil
         atidBLEService = nil
@@ -4513,7 +4640,21 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // split it at an arbitrary byte boundary.
         atidReceiveBuffer.append(data)
 
-        var parsedFrame = false
+        // Diagnostic: exact bytes received from the AT388 (hex + printable
+        // ASCII) so the wire format / chunk boundaries can be verified.
+        let wireAscii = String(data.map { ($0 >= 0x20 && $0 < 0x7F) ? Character(UnicodeScalar($0)) : "." })
+        print("🔬 AT388 WIRE len=\(data.count) hex=\(data.map { String(format: "%02X", $0) }.joined(separator: " ")) ascii=\(wireAscii)")
+
+        // ASCII record stream ("~eT<hex>\r\n"): reassemble by line. Decoding each
+        // 20-byte notification on its own produced the fragment tags (Unknown spam).
+        if atidReceiveBuffer.first != 0xA0, ATIDTextStreamParser.isTextChunk(data) {
+            atidReceiveBuffer.removeAll(keepingCapacity: false)
+            for payload in atidTextParser.feed(data) {
+                handleATIDTag(payload, rssi: 0, phase: 0)
+            }
+            return
+        }
+
         while true {
             var bytes = [UInt8](atidReceiveBuffer)
             guard !bytes.isEmpty else { break }
@@ -4545,30 +4686,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
             let frameData = atidReceiveBuffer.prefix(totalLength)
             atidReceiveBuffer.removeFirst(totalLength)
-            parsedFrame = true
-
             if let epc = parseATIDInventoryFrame(Data(frameData)) {
                 handleATIDTag(epc, rssi: 0, phase: 0)
-            }
-        }
-
-        if parsedFrame || !atidReceiveBuffer.isEmpty { return }
-
-        // Fallback for firmware that emits legacy ASCII/hex notifications.
-        // This is used only when the incoming payload is not framed at all.
-        if let text = String(data: data, encoding: .utf8) {
-            let cleaned = text
-                .replacingOccurrences(of: "\0", with: "")
-                .components(separatedBy: .whitespacesAndNewlines)
-                .joined()
-            let hex = cleaned.filter { $0.isHexDigit }.uppercased()
-            if hex.count >= 8 {
-                handleATIDTag(hex, rssi: 0, phase: 0)
             }
         }
     }
 
     private func handleATIDTag(_ rawTag: String, rssi: Float, phase: Float) {
+        guard atidInventoryRunning, !isStoppedState else { return }
         let raw = rawTag
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .uppercased()
@@ -4591,11 +4716,24 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             }
         }
 
-        // Decode each candidate using StockIdDecoder.
+        // The AT388 0x89 frame is PC + EPC + one trailing RSSI byte. RSSI
+        // changes on every read, so also try each candidate without that last
+        // byte. This can only add matches; Zebra's getTagId() has no RSSI.
+        if isHex {
+            for candidate in candidates where candidate.count > 2 {
+                candidates.append(String(candidate.dropLast(2)))
+            }
+        }
+
+        // Decode each candidate using StockIdDecoder. Only these decoded
+        // values may become Unknown below: a hex fragment that merely looks
+        // like a numeric ID must not be reported as an unknown stock.
         let rawCandidates = candidates
+        var decodedCandidates: [String] = []
         for candidate in rawCandidates {
-            if let decoded = StockIdDecoder.decode(candidate) {
-                candidates.append(decoded.uppercased())
+            if let decoded = StockIdDecoder.decode(candidate)?.uppercased() {
+                decodedCandidates.append(decoded)
+                candidates.append(decoded)
             }
         }
 
@@ -4608,6 +4746,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 uniqueCandidates.append(normalized)
             }
         }
+
+        print("📡 AT388 TAG raw =", raw, "| decoded =", decodedCandidates)
 
         // AT388 can report the same physical EPC with changing PC/RSSI
         // metadata. Treat any previously processed normalized candidate as
@@ -4649,11 +4789,13 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // ── No candidate matched stockMap ──
         // Check valid stock IDs, including Europe alphanumeric tags such as LH59064.
         // Otherwise, discard as environmental noise.
-        let decodedCandidate = uniqueCandidates.first(where: isValidStockScanIdentifier)
+        let decodedKeys = decodedCandidates.map(normalizedStockLookupKey)
+        let decodedCandidate = decodedKeys.first(where: isValidStockScanIdentifier)
 
         if let stockID = decodedCandidate {
             // Looks like a valid stock ID — check sold data first.
             let lookupKey = normalizedStockLookupKey(stockID)
+            guard !isRFIDNoiseRead(lookupKey) else { return }
             let now = Date()
             if let lastRead = recentRFIDReads[lookupKey],
                now.timeIntervalSince(lastRead) < rfidReadDebounceInterval {
@@ -5060,6 +5202,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     }
     
     func addData(_ data: String) {
+        guard bluetoothService?.scannerIsRunning == 1, !isStoppedState else { return }
         var time = "", rssi = "", bctype = ""
         var data = data
         if data.contains(find: ",t=") {
@@ -6305,6 +6448,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
     func getRFIDData(data: String, source: String = "zebra") {
 
+        let isReaderRunning: Bool
+        if source == "atid" {
+            isReaderRunning = atidInventoryRunning
+        } else {
+            isReaderRunning = ZebraRFIDService.shared.isInventoryRunning
+                || bluetoothService?.scannerIsRunning == 1
+        }
+        // Final gate for packets that were already in a reader callback queue
+        // when Pause/Stop was pressed.
+        guard isReaderRunning, !isStoppedState else { return }
+
         // FINAL SAFETY NET:
         // Never compare the RAW Zebra encoded value with stock_id/SKU.
         // Decode first, then normalize, then lookup.
@@ -6335,6 +6489,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         // O(1) lookup. The map contains stock_id/SKU plus any RFID/EPC aliases.
         guard let item = stockMap[lookupKey] else {
+
+            // A 1-2 character read ("1", "67", "S0") is a fragment/noise, not a tag.
+            // It must not be counted, otherwise Unknown + Scanned + Conflict no
+            // longer equals the number of tags read.
+            guard !isRFIDNoiseRead(lookupKey) else {
+                print("🚫 Ignore short RFID read =", lookupKey)
+                return
+            }
 
             print("UNKNOWN RFID =", lookupKey)
             recordUnknownStock(stockID: lookupKey, source: "rfid")
@@ -6586,6 +6748,10 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
 
         mUnscannedStocks.text = "\(max(total - scanned, 0))"
 
+        // Reconciliation: every tag read must land in exactly one bucket.
+        let tagTally = mScannedData.count + mCONF.count + mUNK.count
+        print("🧮 TAG TALLY scanned=\(mScannedData.count) conflict=\(mCONF.count) unknown=\(mUNK.count) → total tags=\(tagTally)")
+
         print("========== STATUS ==========")
         print("Total =", total)
         print("Scanned =", scanned)
@@ -6706,79 +6872,25 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mStartQRcode()
     }
 
-    private func chooseStockTakeMode(thenStart sender: UIButton) {
-        presentStockTakeModePicker(thenStart: sender)
-    }
+    /// Standard system alert (neutral, uncoloured buttons) for choosing how this
+    /// stock take will be scanned.
+    private func presentStockTakeModePicker() {
+        let alert = UIAlertController(
+            title: "Start Stock Take",
+            message: "Choose how this stock take will be scanned.",
+            preferredStyle: .alert
+        )
 
-    /// The system alert did not follow the GIS visual theme. This custom
-    /// picker keeps the existing scanning actions, while matching the themed
-    /// filled/outlined buttons used elsewhere in the app.
-    private func presentStockTakeModePicker(thenStart sender: UIButton) {
-        let themeColor = UIColor(named: "themeColor") ?? UIColor(hex: "#00A38D")
-        // Stock Take has programmatic header/summary/footer overlays that may
-        // be brought to front while scanning. Present this picker in the
-        // window, rather than the page view, so it always stays on top.
-        guard let hostView = view.window ?? view else { return }
-        let overlay = UIControl()
-        overlay.translatesAutoresizingMaskIntoConstraints = false
-        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.36)
-        overlay.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
-        hostView.addSubview(overlay)
-
-        let card = UIView()
-        card.translatesAutoresizingMaskIntoConstraints = false
-        card.backgroundColor = .white
-        card.layer.cornerRadius = 24
-        card.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        overlay.addSubview(card)
-
-        let title = UILabel()
-        title.translatesAutoresizingMaskIntoConstraints = false
-        title.text = "Start Stock Take"
-        title.font = .systemFont(ofSize: 24, weight: .bold)
-        title.textColor = .label
-        card.addSubview(title)
-
-        let message = UILabel()
-        message.translatesAutoresizingMaskIntoConstraints = false
-        message.text = "Choose how you want to scan this stock take."
-        message.font = .systemFont(ofSize: 15, weight: .regular)
-        message.textColor = .secondaryLabel
-        message.numberOfLines = 0
-        card.addSubview(message)
-
-        let buttons = UIStackView()
-        buttons.translatesAutoresizingMaskIntoConstraints = false
-        buttons.axis = .vertical
-        buttons.spacing = 12
-        buttons.distribution = .fillEqually
-        card.addSubview(buttons)
-
-        func makeButton(_ title: String, filled: Bool, action: @escaping () -> Void) -> UIButton {
-            let button = UIButton(type: .system)
-            button.setTitle(title, for: .normal)
-            button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-            button.layer.cornerRadius = 12
-            button.layer.borderWidth = filled ? 0 : 1.5
-            button.layer.borderColor = themeColor.cgColor
-            button.backgroundColor = filled ? themeColor : .white
-            button.setTitleColor(filled ? .white : themeColor, for: .normal)
-            button.heightAnchor.constraint(equalToConstant: 52).isActive = true
-            button.addAction(UIAction { _ in
-                overlay.removeFromSuperview()
-                action()
-            }, for: .touchUpInside)
-            return button
-        }
-
-        buttons.addArrangedSubview(makeButton("Scan alone", filled: true) { [weak self] in
-            guard let self = self else { return }
-            self.hasChosenStockTakeMode = true
-            self.mStart(sender)
+        alert.addAction(UIAlertAction(title: "Scan alone", style: .default) { [weak self] _ in
+            // This only selects the intended flow.  The reader still starts
+            // solely from Play after an RFID device is connected.
+            self?.hasChosenStockTakeMode = true
+            // Re-evaluate Play: without a connected reader it is now disabled.
+            self?.updateScannerControls()
         })
 
         if isSharedStockTakeEnabled {
-            buttons.addArrangedSubview(makeButton("Scan with a helper", filled: true) { [weak self] in
+            alert.addAction(UIAlertAction(title: "Scan with a helper", style: .default) { [weak self] _ in
                 guard let self = self else { return }
                 self.requestCollaboratorName { [weak self] in
                     guard let self = self else { return }
@@ -6792,9 +6904,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                                 self.isCurrentCollaboratorHost = true
                                 self.lastPublishedCollaboratorStatus = ""
                                 self.hasChosenStockTakeMode = true
-                                self.pendingCollaborativeStartButton = sender
                                 self.appliedCollaborativeSnapshotRoomID = nil
                                 self.updateCollaborationControl()
+                                self.updateScannerControls()
                                 self.observeCollaborativeRoom(roomID: roomID)
                                 self.showRoomInvite(roomID: roomID)
                             case let .failure(error):
@@ -6804,44 +6916,15 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     }
                 }
             })
-            buttons.addArrangedSubview(makeButton("Join a shared scan", filled: false) { [weak self] in
+            alert.addAction(UIAlertAction(title: "Join a shared scan", style: .default) { [weak self] _ in
                 self?.requestCollaboratorName { [weak self] in
-                    self?.showJoinRoomPrompt(thenStart: sender)
+                    self?.showJoinRoomPrompt()
                 }
             })
         }
 
-        let cancel = UIButton(type: .system)
-        cancel.translatesAutoresizingMaskIntoConstraints = false
-        cancel.setTitle("Cancel", for: .normal)
-        cancel.setTitleColor(.secondaryLabel, for: .normal)
-        cancel.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        cancel.addAction(UIAction { _ in overlay.removeFromSuperview() }, for: .touchUpInside)
-        card.addSubview(cancel)
-
-        NSLayoutConstraint.activate([
-            overlay.leadingAnchor.constraint(equalTo: hostView.leadingAnchor),
-            overlay.trailingAnchor.constraint(equalTo: hostView.trailingAnchor),
-            overlay.topAnchor.constraint(equalTo: hostView.topAnchor),
-            overlay.bottomAnchor.constraint(equalTo: hostView.bottomAnchor),
-            card.leadingAnchor.constraint(equalTo: overlay.leadingAnchor, constant: 28),
-            card.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -28),
-            card.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
-            title.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 24),
-            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -24),
-            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 26),
-            message.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            message.trailingAnchor.constraint(equalTo: title.trailingAnchor),
-            message.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 12),
-            buttons.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            buttons.trailingAnchor.constraint(equalTo: title.trailingAnchor),
-            buttons.topAnchor.constraint(equalTo: message.bottomAnchor, constant: 24),
-            cancel.topAnchor.constraint(equalTo: buttons.bottomAnchor, constant: 10),
-            cancel.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            cancel.trailingAnchor.constraint(equalTo: title.trailingAnchor),
-            cancel.heightAnchor.constraint(equalToConstant: 44),
-            cancel.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -16)
-        ])
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
 
     private func requestCollaboratorName(completion: @escaping () -> Void) {
@@ -6871,7 +6954,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         present(alert, animated: true)
     }
 
-    private func showJoinRoomPrompt(thenStart sender: UIButton) {
+    private func showJoinRoomPrompt() {
         let alert = UIAlertController(
             title: "Join shared Stock Take",
             message: "Scan the shared QR code with the camera, or enter the room code.",
@@ -6890,16 +6973,16 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 self?.showCollaborationError(StockTakeCollaborationError.invalidRoomCode)
                 return
             }
-            self.joinCollaborativeRoom(roomID, thenStart: sender)
+            self.joinCollaborativeRoom(roomID)
         })
         alert.addAction(UIAlertAction(title: "Scan QR", style: .default) { [weak self] _ in
-            self?.presentSharedRoomQRScanner(thenStart: sender)
+            self?.presentSharedRoomQRScanner()
         })
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
     }
 
-    private func presentSharedRoomQRScanner(thenStart sender: UIButton) {
+    private func presentSharedRoomQRScanner() {
         // This has to happen before presenting the camera: otherwise iOS can
         // leave the alert's text-field keyboard over the scanner.
         view.endEditing(true)
@@ -6917,7 +7000,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 self.showCollaborationError(StockTakeCollaborationError.invalidRoomCode)
                 return
             }
-            self.joinCollaborativeRoom(roomID, thenStart: sender)
+            self.joinCollaborativeRoom(roomID)
         }
         // Wait for the UIAlertController dismissal transaction to finish.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
@@ -6925,7 +7008,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
     }
 
-    private func joinCollaborativeRoom(_ roomID: String, thenStart sender: UIButton? = nil) {
+    private func joinCollaborativeRoom(_ roomID: String) {
         collaboration.joinRoom(roomID) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -6935,8 +7018,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     self.lastPublishedCollaboratorStatus = ""
                     self.hasChosenStockTakeMode = true
                     self.isRoomQRScannerActive = false
-                    self.pendingCollaborativeStartButton = sender
                     self.appliedCollaborativeSnapshotRoomID = nil
+                    self.updateScannerControls()
                     self.observeCollaborativeRoom(roomID: roomID)
                 case let .failure(error):
                     self.isRoomQRScannerActive = false
@@ -7132,22 +7215,17 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     
     
     @IBAction func mStart(_ sender: UIButton) {
-        if !hasChosenStockTakeMode {
-            // When Shared Scan is explicitly disabled by the backend, do not
-            // interrupt the normal RFID flow with a mode-selection popup.
-            // Start remains available only after an RFID reader is connected.
-            guard isSharedStockTakeEnabled else {
-                guard isAnyRFIDConnected || atidTransportConnected else {
-                    updateScannerControls()
-                    return
-                }
-                hasChosenStockTakeMode = true
-                mStart(sender)
-                return
-            }
-            chooseStockTakeMode(thenStart: sender)
+        // Keep the mode choice at the shared scanner entry point as well as
+        // the reference Play button. This covers every Start control (including
+        // a storyboard button) and ensures a freshly cleared session always
+        // asks Solo / Helper / Join before it can start reader inventory.
+        if needsStockTakeModeChoice {
+            presentStockTakeModePicker()
             return
         }
+
+        // Play is only a reader control once a mode has been selected. Creating
+        // or joining a room never starts inventory automatically.
         // Ignore rapid repeated Play/Pause taps. This is intentionally kept
         // at the scanner entry point so both the reference Play button and
         // any existing storyboard button are protected by the same guard.
@@ -7906,7 +7984,14 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mCONFLICT.removeAll()
         FINALCONFLICT.removeAll()
 
+        // Clearing starts a brand-new count.  Reset every reader's
+        // de-duplication state so the same physical tags can be read again
+        // without disconnecting/reconnecting the RFID device.
         recentRFIDReads.removeAll()
+        atidScannedTags.removeAll()
+        atidReceiveBuffer.removeAll(keepingCapacity: false)
+        atidTextParser.reset()
+        ZebraRFIDService.shared.resetInventorySession()
         updateScannerControls()
         mStatus()
     }
@@ -8580,7 +8665,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             if let peripheral = device.peripheral, isATIDPeripheral(peripheral) {
                 let isCurrentATIDTransport = atidTransportConnected &&
                     atidPeripheral?.identifier == peripheral.identifier
-                connected = isATIDRFIDConnected || isCurrentATIDTransport
+                // Only the peripheral actually in use gets the checkmark;
+                // isATIDRFIDConnected is global and would tick every AT388 row.
+                connected = isCurrentATIDTransport
                 let preparing = isCurrentATIDTransport && !atidReaderReady
 
                 cell.configure(
@@ -8970,6 +9057,12 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     ///
     /// Pure-hex strings that could be encoded EPCs are rejected unless they
     /// contain at least one non-hex letter (G-Z).
+    /// RFID reads of only 1-2 characters are never real tags (they are leftovers of
+    /// partially received or mis-decoded records), so they are not recorded as Unknown.
+    func isRFIDNoiseRead(_ value: String) -> Bool {
+        value.trimmingCharacters(in: .whitespacesAndNewlines).count <= 2
+    }
+
     func isValidStockScanIdentifier(_ value: String) -> Bool {
         let normalized = value
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -9411,8 +9504,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             mParams["shared_stock_take"] = sharedPayload
         }
         
-
+        print("::::::::::::::::::::::::::::::::::::::::::::::")
         print("StockTakeCreate Payload = \(mParams)")
+        print("::::::::::::::::::::::::::::::::::::::::::::::")
         if let shared = mParams["shared_stock_take"] {
             let sharedJSON = (try? JSONSerialization.data(withJSONObject: shared, options: [.prettyPrinted, .sortedKeys]))
                 .flatMap { String(data: $0, encoding: .utf8) } ?? "\(shared)"
@@ -9493,6 +9587,9 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                     self.hasSuccessfulSave = true
                     self.hasSaveFailed = false
                     if let roomID = self.collaborationRoomID {
+                        // Stop the host immediately; Firebase then delivers
+                        // the same completed state to every helper.
+                        self.stopScanningForSharedSave()
                         self.collaboration.completeSave(roomID: roomID, success: true)
                     }
                     self.stopSaveIndicator(success: true)
@@ -9553,6 +9650,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             return [
                 "participant_id": member.id,
                 "participant_name": member.name,
+                "user_id": member.userId,
                 "role": member.isHost ? "host" : "helper",
                 "scan_status": member.status,
                 "scanned_qty": scanned,
@@ -9561,6 +9659,8 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 "total_qty": scanned + conflict + unknown
             ]
         }
+        let userIDsByMember = Dictionary(collaborativeMembers.map { ($0.id, $0.userId) },
+                                         uniquingKeysWith: { first, _ in first })
         let itemAudit: [[String: Any]] = collaborativeRecords.map { record in
             [
                 "stock_id": record.stockID,
@@ -9570,6 +9670,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
                 "weight": record.weight ?? NSNull(),
                 "scanned_by_id": record.createdBy,
                 "scanned_by_name": record.scannerName,
+                "scanned_by_user_id": userIDsByMember[record.createdBy] ?? "",
                 "source": record.source,
                 "scanned_at": record.createdAt
             ]
@@ -9580,6 +9681,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
             "participants": participants,
             "item_audit": itemAudit,
             "saved_by_id": Auth.auth().currentUser?.uid ?? "",
+            "saved_by_user_id": collaboration.gisUserID,
             "saved_by_name": collaboration.scannerDisplayName
         ]
     }
@@ -10926,9 +11028,11 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         }
 
         // A successful shared save completes the whole room, so every helper
-        // immediately loses the ability to submit the same count again.
+        // immediately loses the ability to submit the same count again and
+        // all connected readers are stopped.
         if room.saveStatus == "saved" {
             hasSuccessfulSave = true
+            stopScanningForSharedSave()
         }
 
         if room.totalQuantity >= 0 {
@@ -10965,13 +11069,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         mStatus()
         renderCollaboratorStrip(members: members, records: records)
 
-        // Do not let a helper start RFID scanning against a different local
-        // API response. The shared host snapshot is now loaded, so it is safe
-        // to start the scanner on either device.
-        if let startButton = pendingCollaborativeStartButton {
-            pendingCollaborativeStartButton = nil
-            mStart(startButton)
-        }
     }
 
     private func updateCollaborationControl() {
@@ -10982,6 +11079,29 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         // When this device is a helper, remove the host-only button's reserved
         // space so the participant cards use the full width of the strip.
         collaborationMemberStripLeadingConstraint?.constant = canManage ? 8 : -104
+    }
+
+    /// Firebase notifies every member when the host has saved.  Stop locally
+    /// on each device as well as disabling the controls, so a queued reader
+    /// packet cannot keep adding items after the room is complete.
+    private func stopScanningForSharedSave() {
+        testScannerRunning = false
+        canStopAfterPause = false
+        isStoppedState = true
+        atidStartRequested = false
+
+        if ZebraRFIDService.shared.isInventoryRunning {
+            ZebraRFIDService.shared.stopInventory()
+        }
+        #if !targetEnvironment(simulator) && canImport(EARfidFramework)
+        if atidInventoryRunning {
+            stopATIDInventory()
+        }
+        #endif
+        if bluetoothService?.scannerIsRunning == 1 {
+            stopRFID()
+        }
+        updateScannerControls()
     }
 
     @objc private func showCollaborationOptions() {
@@ -11041,7 +11161,6 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         isCurrentCollaboratorHost = false
         lastPublishedCollaboratorStatus = ""
         appliedCollaborativeSnapshotRoomID = nil
-        pendingCollaborativeStartButton = nil
         collaborativeMembers.removeAll()
         collaborativeRecords.removeAll()
         sharedRoomSaveStatus = "active"
@@ -11049,6 +11168,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
         collaborationMemberStrip?.isHidden = true
         referenceSummaryStackTopConstraint?.constant = 0
         updateCollaborationControl()
+        updateScannerControls()
     }
 
     private func endSharedModeBecauseHostContinuedAlone() {

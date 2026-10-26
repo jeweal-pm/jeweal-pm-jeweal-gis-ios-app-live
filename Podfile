@@ -19,6 +19,7 @@ target 'GIS' do
   pod 'FirebaseAuth'
   pod 'FirebaseDatabase'
   pod 'FirebaseRemoteConfig'
+  pod 'FirebaseStorage'
 
   target 'GISTests' do
     inherit! :search_paths

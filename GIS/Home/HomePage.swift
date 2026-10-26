@@ -9,6 +9,7 @@ import UIKit
 import DropDown
 import Lottie
 import Alamofire
+import FirebaseStorage
 
 
 
@@ -101,10 +102,12 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     private weak var traceMenuTile: UIView?
     private let wallpaperImageView = UIImageView()
 
-    // The holiday welcome plays on app launch, after each login and after a store switch,
+    // The Halloween welcome plays on app launch, after each login and after a store switch,
     // not when returning from another menu. Login screens set this flag before Home is shown.
     static var pendingHolidayWelcome = true
     private weak var holidayAnimationView: LottieAnimationView?
+    private let holidayAnimationStoragePath = "seasonal/halloween/home-intro.json"
+    private let holidayAnimationCacheFileName = "halloween-home-intro.json"
     // Stops two runs overlapping.
     // The source artwork is free to use under the Pixabay Content License:
     // https://pixabay.com/vectors/santa-sleigh-santa-with-reindeer-9991964/
@@ -402,16 +405,10 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                             let faroActive = "\(mData["faro_active"] ?? "0")" == "1"
                                 UserDefaults.standard.set(faroActive, forKey: "faro_active")
 
-                            // The backend controls whether this account may use
-                            // a shared, multi-device Stock Take. Keep the default
-                            // closed so existing users keep the normal solo flow.
-                            // Keep Shared Stock Take available while the backend
-                            // rollout is in progress. It is only disabled when
-                            // the backend explicitly returns "0".
-                            let sharedStockTakeActive = mData["stock_take_collaboration_active"] == nil
-                                || "\(mData["stock_take_collaboration_active"] ?? "0")" == "1"
-                            UserDefaults.standard.set(sharedStockTakeActive, forKey: "stock_take_collaboration_active")
-                            print("🧪 [SharedStockTake][1-Permission] raw stock_take_collaboration_active = \(String(describing: mData["stock_take_collaboration_active"])) | resolved = \(sharedStockTakeActive) | faro_active raw = \(String(describing: mData["faro_active"]))")
+                            // Shared Stock Take is available for every GIS account;
+                            // it no longer depends on a per-account POS setting.
+                            UserDefaults.standard.removeObject(forKey: "stock_take_collaboration_active")
+                            print("🧪 [SharedStockTake][1-Permission] enabled for all accounts | faro_active raw = \(String(describing: mData["faro_active"]))")
 
                             if let mPriceFormat = mData.value(forKey: "price_format") as? NSDictionary {
                                 if let mStoreCurrency = mPriceFormat.value(forKey: "currency") as? String {
@@ -509,9 +506,14 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 
         // Start only after Home is on screen, so its dimensions are final and
         // the overlay never flashes during the navigation transition.
-        guard HomePage.pendingHolidayWelcome else { return }
+        // Display the Home animation only from October 28 through November 1
+        // in the device's local time zone. Outside this period it stays hidden.
+        guard isHalloweenWelcomePeriod,
+              HomePage.pendingHolidayWelcome
+        else { return }
         HomePage.pendingHolidayWelcome = false
 
+        refreshHolidayAnimationCache()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
             self?.showHolidayWelcomeIfNeeded()
         }
@@ -536,9 +538,10 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     }
 
     private func showHolidayWelcomeIfNeeded() {
-        guard !isHolidayWelcomePlaying,
+        guard isHalloweenWelcomePeriod,
+              !isHolidayWelcomePlaying,
               view.window != nil,
-              let animation = LottieAnimation.asset("christmas_intro") else { return }
+              let animation = cachedHolidayAnimation() ?? LottieAnimation.asset("christmas_intro") else { return }
 
         isHolidayWelcomePlaying = true
 
@@ -563,6 +566,59 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                 self?.holidayAnimationView = nil
                 self?.isHolidayWelcomePlaying = false
             })
+        }
+    }
+
+    /// October 28 through November 1, inclusive, using the device's local calendar.
+    private var isHalloweenWelcomePeriod: Bool {
+        let components = Calendar.current.dateComponents([.month, .day], from: Date())
+        guard let month = components.month, let day = components.day else { return false }
+        return (month == 10 && day >= 28) || (month == 11 && day == 1)
+    }
+
+    /// Uses the completed download when it is available; the bundled animation
+    /// remains the offline fallback for a first visit or a failed download.
+    private func cachedHolidayAnimation() -> LottieAnimation? {
+        guard let data = try? Data(contentsOf: holidayAnimationCacheURL) else { return nil }
+        return try? LottieAnimation.from(data: data)
+    }
+
+    private var holidayAnimationCacheURL: URL {
+        let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        return cacheDirectory
+            .appendingPathComponent("seasonal-animations", isDirectory: true)
+            .appendingPathComponent(holidayAnimationCacheFileName)
+    }
+
+    /// Fetches the latest approved JSON in the background. It first writes to
+    /// a temporary file, so a failed download never replaces the working copy.
+    private func refreshHolidayAnimationCache() {
+        let fileManager = FileManager.default
+        let destinationURL = holidayAnimationCacheURL
+        let directoryURL = destinationURL.deletingLastPathComponent()
+        let temporaryURL = directoryURL.appendingPathComponent("\(holidayAnimationCacheFileName).download")
+
+        do {
+            try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+            if fileManager.fileExists(atPath: temporaryURL.path) {
+                try fileManager.removeItem(at: temporaryURL)
+            }
+        } catch {
+            return
+        }
+
+        let storageReference = Storage.storage().reference(withPath: holidayAnimationStoragePath)
+        storageReference.write(toFile: temporaryURL) { [weak self] url, error in
+            guard self != nil, error == nil, url != nil else { return }
+
+            do {
+                if fileManager.fileExists(atPath: destinationURL.path) {
+                    try fileManager.removeItem(at: destinationURL)
+                }
+                try fileManager.moveItem(at: temporaryURL, to: destinationURL)
+            } catch {
+                try? fileManager.removeItem(at: temporaryURL)
+            }
         }
     }
 

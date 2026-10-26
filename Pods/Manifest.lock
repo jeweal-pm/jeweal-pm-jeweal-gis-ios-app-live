@@ -46,6 +46,13 @@ PODS:
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
   - FirebaseRemoteConfigInterop (12.19.0)
   - FirebaseSharedSwift (12.19.0)
+  - FirebaseStorage (12.19.0):
+    - FirebaseAppCheckInterop (~> 12.19.0)
+    - FirebaseAuthInterop (~> 12.19.0)
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseCoreExtension (~> 12.19.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GTMSessionFetcher/Core (< 6.0, >= 3.4)
   - GoogleUtilities/AppDelegateSwizzler (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -204,6 +211,7 @@ DEPENDENCIES:
   - FirebaseCore
   - FirebaseDatabase
   - FirebaseRemoteConfig
+  - FirebaseStorage
   - IQKeyboardManagerSwift
   - lottie-ios
   - MaterialComponents/Snackbar
@@ -232,6 +240,7 @@ SPEC REPOS:
     - FirebaseRemoteConfig
     - FirebaseRemoteConfigInterop
     - FirebaseSharedSwift
+    - FirebaseStorage
     - GoogleUtilities
     - GTMSessionFetcher
     - IQKeyboardCore
@@ -283,6 +292,7 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfig: 93d0b4712662842bbea714375ec92f0411d567f6
   FirebaseRemoteConfigInterop: 90659b3cac8f6de884f2d930fbdbeb711533e142
   FirebaseSharedSwift: c91f36aeaa566e12b682caacc40d34c8303c3124
+  FirebaseStorage: 357354fbde2ba62983c0fe5d9cf10155046b5404
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   GTMSessionFetcher: a6d2b2aa203485893d4511ff64642dc811f7c09f
   IQKeyboardCore: 250a88dfc713b2ecbe1dce250811d054fc016959
@@ -309,6 +319,6 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   UIDrawer: 1bfbc152fee69f6809a41508000cf1b9bd4b1738
 
-PODFILE CHECKSUM: 61c4bc6da9bfb916a030b91efadec7793d8622fa
+PODFILE CHECKSUM: a9d6a92c6e48200860fed607c6406801d3bf3e31
 
 COCOAPODS: 1.16.2

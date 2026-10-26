@@ -98,6 +98,10 @@ class ZebraRFIDService: NSObject,
     private var pendingInventoryStart = false
     private var inventoryStartRetryCount = 0
     private var readerReadinessWorkItem: DispatchWorkItem?
+    // The SDK accepts Stop synchronously but the reader completes it on its
+    // own command queue. Starting again during that short window can leave an
+    // RFD reader silent until it is reconnected.
+    private var inventoryStopSettlingUntil: Date?
     
     var availableReaders = [srfidReaderInfo]()
     private var isPickerShowing = false
@@ -580,6 +584,25 @@ class ZebraRFIDService: NSObject,
             return
         }
 
+        // Do not overlap a new inventory command with the previous Stop.
+        // Keep the request so a quick Stop → Clear → Play works without
+        // disconnecting the reader.
+        if let settlingUntil = inventoryStopSettlingUntil,
+           settlingUntil > Date() {
+            pendingInventoryStart = true
+            let delay = settlingUntil.timeIntervalSinceNow
+            print("⏳ Waiting for Zebra inventory stop to settle before restart")
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                guard let self = self,
+                      self.pendingInventoryStart,
+                      !self.isInventoryRunning else { return }
+                self.pendingInventoryStart = false
+                self.startInventory()
+            }
+            return
+        }
+        inventoryStopSettlingUntil = nil
+
         // Do not send RFID configuration commands during the transport-only
         // phase. The SDK otherwise returns empty power/region information
         // even though the connection callback has already fired.
@@ -671,6 +694,13 @@ class ZebraRFIDService: NSObject,
 
     func stopInventory() {
 
+        // Cancel any queued start from a reader-readiness callback or a
+        // previous Stop → Start transition.
+        pendingInventoryStart = false
+        inventoryStartRetryCount = 0
+        inventoryStopSettlingUntil = Date().addingTimeInterval(0.5)
+        tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
+
         guard currentReaderID != -1 else {
             isInventoryRunning = false
             return
@@ -686,6 +716,14 @@ class ZebraRFIDService: NSObject,
         print("Stop Inventory =", result as Any)
         isInventoryRunning = false
         NotificationCenter.default.post(name: .zebraInventoryChanged, object: false)
+    }
+
+    /// A new Stock Take session must not inherit tag de-duplication state or
+    /// a queued inventory start from the previous session.
+    func resetInventorySession() {
+        pendingInventoryStart = false
+        inventoryStartRetryCount = 0
+        tagProcessingQueue.async { [weak self] in self?.scannedTags.removeAll() }
     }
 
     /// Apply the RFID regulatory region/country code selected in the Power sheet.

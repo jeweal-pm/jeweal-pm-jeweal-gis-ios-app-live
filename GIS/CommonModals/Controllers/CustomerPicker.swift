@@ -11,15 +11,15 @@ import Alamofire
 
 protocol GetCustomerDataDelegate {
     func mGetCustomerData(data : NSMutableDictionary)
-    
+
     func mCreateNewCustomer()
 }
 
 class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSource , UICollectionViewDelegate , UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, GetInventoryFiltersDelegate, UIViewControllerTransitioningDelegate{
-    
+
     @IBOutlet weak var mFilterHeader: UIView!
     @IBOutlet weak var mFilterView: UIView!
-    
+
     @IBOutlet weak var mCustomerImage: UIImageView!
     
     @IBOutlet weak var mCustomerName: UILabel!
@@ -87,6 +87,16 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
     private let speechRecongniger = SpeechRecognizer(localeIdentifier: "en-US")
     private var isSpeechRecongnitionOn = false
     
+    // Load a small page at a time so large customer lists stay responsive.
+    private let customerPageSize = 50
+    private var customerOffset = 0
+    private var isLoadingCustomers = false
+    private var hasMoreCustomers = true
+    private var customerSearchText = ""
+    private var customerSearchWorkItem: DispatchWorkItem?
+    private var customerRequest: DataRequest?
+    private var customerRequestID = UUID()
+
     override func viewWillAppear(_ animated: Bool) {
         self.view.backgroundColor = UIColor(named: "themeBackground")
         
@@ -267,28 +277,15 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
     }
     
     @IBAction func mSearchCustomer(_ sender: UITextField) {
-        
-        if sender.text == "" {
-            mIndex = 0
-            mCustomerData = NSMutableArray(array: mCustomerDataDefault)
-            mCustomerTableView.reloadData()
-        } else {
-            mIndex = 0
-            mCustomerData = NSMutableArray()
-            
-            for i in mCustomerDataDefault {
-                
-                if let mData = i as? NSDictionary,
-                   let mValue = mData.value(forKey: "name") as? String,
-                   let search = sender.text, mValue.lowercased().contains(search.lowercased()) {
-                    mCustomerData.add(mData)
-                    mCustomerTableView.reloadData()
-                }else{
-                    mCustomerTableView.reloadData()
-                }
-            }
+        customerSearchWorkItem?.cancel()
+        let searchText = sender.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.customerSearchText = searchText
+            self.mGetCustomers()
         }
-        
+        customerSearchWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -296,7 +293,12 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
         return mCustomerData.count
         
     }
-    
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard indexPath.row >= mCustomerData.count - 10 else { return }
+        loadNextCustomerPage()
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "CustomerSearchCell") as? CustomerSearchCell else {
             return UITableViewCell()
@@ -482,34 +484,53 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
     }
 
     func mGetCustomers(){
+        customerRequest?.cancel()
+        customerRequestID = UUID()
+        isLoadingCustomers = false
+        customerOffset = 0
+        hasMoreCustomers = true
+        mCustomerData.removeAllObjects()
+        mCustomerDataDefault = []
+        mCustomerTableView.reloadData()
+        loadNextCustomerPage()
+    }
+
+    private func loadNextCustomerPage() {
+        guard !isLoadingCustomers, hasMoreCustomers else { return }
+        isLoadingCustomers = true
+        let requestID = customerRequestID
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
         
         let urlPath = mGetCustomerList
         
-        let params:[String: Any] = ["search":"",
+        let params:[String: Any] = ["search": customerSearchText,
                                     "name":self.mNameId,
                                     "gender": mGenderId,
                                     "group":mGroupId,
                                     "minAge":mMinAge,
                                     "maxAge":mMaxAge,
                                     "country":mCountryId,
-                                    "limit":""]
+                                    "skip": customerOffset,
+                                    "limit": customerPageSize]
         
         guard Reachability.isConnectedToNetwork() == true else{
             CommonClass.showSnackBar(message: "No Internet Connection")
+            isLoadingCustomers = false
             return
         }
             
-        AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders2).responseJSON
+        customerRequest = AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders2).responseJSON
         { response in
+            guard self.customerRequestID == requestID else { return }
             
             if(response.error != nil){
-                
+                self.isLoadingCustomers = false
                 CommonClass.showSnackBar(message: "OOP's something went wrong!")
                 
             }else{
                 guard let jsonData = response.data else {
+                    self.isLoadingCustomers = false
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
@@ -517,6 +538,7 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
                 let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                 
                 guard let jsonResult = json as? NSDictionary else {
+                    self.isLoadingCustomers = false
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
@@ -524,21 +546,23 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
                 if jsonResult.value(forKey: "code") as? Int == 200 {
                     
                     if let data = jsonResult.value(forKey: "data") as? NSArray {
-                        
-                        self.mCustomerDataDefault = data
-                        if data.count == 0 {
-                            self.mCustomerData = NSMutableArray(array: data)
-                            self.mCustomerTableView.delegate = self
-                            self.mCustomerTableView.dataSource = self
-                            self.mCustomerTableView.reloadData()
-                            return
+                        self.isLoadingCustomers = false
+                        let receivedCustomers = data as! [Any]
+                        let existingIDs = Set(self.mCustomerData.compactMap { customer in
+                            (customer as? NSDictionary)?.value(forKey: "_id") as? String
+                        })
+                        let newCustomers = receivedCustomers.filter { customer in
+                            guard let id = (customer as? NSDictionary)?.value(forKey: "_id") as? String else { return true }
+                            return !existingIDs.contains(id)
                         }
-                        
-                        self.mCustomerData = NSMutableArray(array: data)
+                        self.hasMoreCustomers = data.count == self.customerPageSize && !newCustomers.isEmpty
+                        self.customerOffset += data.count
+                        self.mCustomerData.addObjects(from: newCustomers)
+                        self.mCustomerDataDefault = self.mCustomerData.copy() as? NSArray ?? []
                         self.mCustomerTableView.delegate = self
                         self.mCustomerTableView.dataSource = self
                         self.mCustomerTableView.reloadData()
-                        if let mData = data[0] as? NSDictionary {
+                        if self.customerOffset == data.count, let mData = data.firstObject as? NSDictionary {
                             if let id = mData.value(forKey: "_id") as? String {
                                 self.mCustomerId = id
                             }
@@ -568,9 +592,13 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
                                 self.mCountryState.text = ("\(cityName), \(conName)")
                             }
                         }
+                    } else {
+                        self.isLoadingCustomers = false
+                        self.hasMoreCustomers = false
                     }
                     
                 }else{
+                    self.isLoadingCustomers = false
                     if let error = jsonResult.value(forKey: "error") {
                         if "\(error)" == "Authorization has been expired" {
                             CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
@@ -658,29 +686,8 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
     }
     
     private func searchCustomer(key: String){
-        if key == "" {
-            
-            mIndex = 0
-            mCustomerData = NSMutableArray(array: mCustomerDataDefault)
-            mCustomerTableView.reloadData()
-            
-        }else {
-            mIndex = 0
-            mCustomerData = NSMutableArray()
-            for i in mCustomerDataDefault {
-                
-                if let mData = i as? NSDictionary {
-                    let mValue = "\(mData.value(forKey: "name") ?? "")"
-                    
-                    if mValue.lowercased().contains(key.lowercased()) {
-                        mCustomerData.add(mData)
-                        mCustomerTableView.reloadData()
-                    }else{
-                        mCustomerTableView.reloadData()
-                    }
-                }
-            }
-        }
+        customerSearchText = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        mGetCustomers()
     }
     
 }

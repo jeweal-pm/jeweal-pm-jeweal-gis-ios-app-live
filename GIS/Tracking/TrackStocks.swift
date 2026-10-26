@@ -161,6 +161,17 @@ class TrackStocks: UIViewController , UITableViewDelegate, UITableViewDataSource
     @IBOutlet weak var sTrackStoneDetailsTable: UITableView!
     private var sTrackStoneList: [[String: Any]] = []
     
+    // MARK: - Traceability tab (UI only, mock data until API is ready)
+    private let mTButton = UIButton(type: .system)
+    private let mTLabel = UILabel()
+    private let mTraceabilityView = TraceabilityView()
+    private var mTraceabilityConfigured = false
+    /// Set to true to show the Traceability tab once its API is ready.
+    private let mTraceabilityTabEnabled = false
+    private let mTabSelectedColor = UIColor.link
+    private let mTabNormalColor = UIColor(white: 0.33, alpha: 1)
+    private let mTabNormalUnderline = UIColor(white: 0.93, alpha: 1)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -193,12 +204,8 @@ class TrackStocks: UIViewController , UITableViewDelegate, UITableViewDataSource
         self.mAButton.setTitle("Activity".localizedString, for: .normal)
         
         mNoDataLABEL.text = "No Data Found!".localizedString
-        mPButton.setTitleColor(.link, for: .normal)
-        mPLabel.backgroundColor = .link
-        mALabel.backgroundColor = .white
-        mAButton.setTitleColor(.darkGray, for: .normal)
-        mProductView.isHidden = false
-        mActivityView.isHidden = true
+        configureTraceabilityTab()
+        mSelectTab(0)
         
         self.mBlockId.text = "--"
         self.mStockId.text = "--"
@@ -224,30 +231,61 @@ class TrackStocks: UIViewController , UITableViewDelegate, UITableViewDataSource
     }
     
     @IBAction func mProductClicked(_ sender: Any) {
-        mPButton.setTitleColor(UIColor(named:"themeLightText"), for: .normal)
-        mPLabel.backgroundColor = UIColor(named:"themeColor")
-        
-        mALabel.backgroundColor = UIColor(named:"themeExtraLightText1")
-        mAButton.setTitleColor(UIColor(named:"themeExtraLightText1"), for: .normal)
-        
-        mProductView.isHidden = false
-        mActivityView.isHidden = true
+        mSelectTab(0)
         mTrackProductDetails()
     }
     
     @IBAction func mActivityClicked(_ sender: Any) {
-        mAButton.setTitleColor(UIColor(named:"themeLightText"), for: .normal)
-        mALabel.backgroundColor = UIColor(named:"themeColor")
-        
-        mPLabel.backgroundColor = UIColor(named:"themeExtraLightText1")
-        mPButton.setTitleColor(UIColor(named:"themeExtraLightText1"), for: .normal)
-        mProductView.isHidden = true
-        mActivityView.isHidden = false
+        mSelectTab(1)
         mTrackProductHistory()
     }
     
+    @objc private func mTraceabilityClicked() {
+        mSelectTab(2)
+        // TODO: replace mock with API response once the Traceability endpoint is available.
+        mTraceabilityView.configure(with: TraceabilityData.mock)
+    }
     
+    /// 0 = Product, 1 = Activity, 2 = Traceability
+    private func mSelectTab(_ index: Int) {
+        let buttons = [mPButton, mAButton, mTButton]
+        let lines = [mPLabel, mALabel, mTLabel]
+        for i in 0..<buttons.count {
+            let selected = (i == index)
+            buttons[i]?.setTitleColor(selected ? mTabSelectedColor : mTabNormalColor, for: .normal)
+            lines[i]?.backgroundColor = selected ? mTabSelectedColor : mTabNormalUnderline
+        }
+        mProductView.isHidden = index != 0
+        mActivityView.isHidden = index != 1
+        mTraceabilityView.isHidden = index != 2
+    }
     
+    /// Adds the third "Traceability" tab to the storyboard's two-tab header and its content view.
+    private func configureTraceabilityTab() {
+        guard mTraceabilityTabEnabled else { return }
+        mTButton.setTitle("Traceability".localizedString, for: .normal)
+        guard !mTraceabilityConfigured,
+              let buttonStack = mPButton.superview as? UIStackView,
+              let lineStack = mPLabel.superview as? UIStackView,
+              let container = mProductView.superview else { return }
+        mTraceabilityConfigured = true
+        
+        mTButton.titleLabel?.font = mPButton.titleLabel?.font
+        mTButton.backgroundColor = mPButton.backgroundColor
+        mTButton.addTarget(self, action: #selector(mTraceabilityClicked), for: .touchUpInside)
+        buttonStack.addArrangedSubview(mTButton)
+        lineStack.addArrangedSubview(mTLabel)
+        
+        mTraceabilityView.translatesAutoresizingMaskIntoConstraints = false
+        mTraceabilityView.isHidden = true
+        container.addSubview(mTraceabilityView)
+        NSLayoutConstraint.activate([
+            mTraceabilityView.topAnchor.constraint(equalTo: mProductView.topAnchor),
+            mTraceabilityView.bottomAnchor.constraint(equalTo: mProductView.bottomAnchor),
+            mTraceabilityView.leadingAnchor.constraint(equalTo: mProductView.leadingAnchor),
+            mTraceabilityView.trailingAnchor.constraint(equalTo: mProductView.trailingAnchor)
+        ])
+    }
     
     
     

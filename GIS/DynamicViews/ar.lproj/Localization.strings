@@ -670,3 +670,6 @@ Created by admin on 15/11/21.
 "Add shipping address" = "أضف عنوان الشحن";
 "Select billing address" = "اختر عنوان الفواتير";
 "Select shipping address" = "حدد عنوان الشحن";
+"Traceability" = "إمكانية التتبع";
+"Transaction ID" = "معرّف المعاملة";
+"Quantity" = "الكمية";

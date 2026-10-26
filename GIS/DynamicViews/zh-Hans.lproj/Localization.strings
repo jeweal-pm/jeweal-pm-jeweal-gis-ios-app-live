@@ -678,3 +678,6 @@
 "Add shipping address" = "添加送货地址";
 "Select billing address" = "选择帐单地址";
 "Select shipping address" = "选择送货地址";
+"Traceability" = "可追溯性";
+"Transaction ID" = "交易编号";
+"Quantity" = "数量";

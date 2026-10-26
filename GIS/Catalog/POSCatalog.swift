@@ -170,6 +170,9 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     private var mSkipCount = 0
     private var mTotalData = 0
     private let mDataFetchLimit = 20
+    private var isLoadingNextCatalogPage = false
+    private var hasMoreCatalogPages = true
+    private var activeCatalogKeyword = ""
     @IBOutlet weak var mShowMoreButton: UIView!
     
     
@@ -184,6 +187,12 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     var faroMode: FaroMode = .search
     private var isSearching = false
     private var recentSearch: [String] = []
+
+    // The collection view asks for its item count before the first catalogue
+    // request has returned. Keep an explicit load state so an empty in-memory
+    // array is not mistaken for a genuine "no products" response.
+    private var isCatalogLoading = false
+    private var didFinishCatalogLoad = false
     
     // Expandable search bar
     private var expandableSearchBar: ExpandableSearchBar?
@@ -566,6 +575,19 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         mCatalogCollectionView.reloadData()
 
 //        CommonClass.showFullLoader(view: self.view)
+    }
+
+    private func beginCatalogLoad() {
+        isCatalogLoading = true
+        didFinishCatalogLoad = false
+        // Remove an old empty-state label while the next result is loading.
+        mCatalogCollectionView.clearBackground()
+    }
+
+    private func finishCatalogLoad(success: Bool) {
+        isCatalogLoading = false
+        didFinishCatalogLoad = success
+        isLoadingNextCatalogPage = false
     }
     
     
@@ -987,7 +1009,10 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         }else if collectionView == self.mCatalogCollectionView {
             
             count = mCatalogData.count
-            if count == 0 {
+            // Show the empty message only after a successful request has
+            // completed. Before that, the array is naturally empty while the
+            // catalogue is still loading.
+            if count == 0 && didFinishCatalogLoad && !isCatalogLoading {
                 collectionView.setError("No items available!")
             }else{
                 collectionView.clearBackground()
@@ -1761,6 +1786,13 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     }
     
     func mGetCatalogs(key : String){
+
+        if mSkipCount == 0 {
+            activeCatalogKeyword = key
+            hasMoreCatalogPages = true
+            mTotalData = 0
+        }
+        beginCatalogLoad()
         
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
@@ -1794,9 +1826,13 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             keyword: key
         )
         
-        if mSearchType == "inventory" && key.isEmpty{
-            params["skip"] = mSkipCount
-            params["limit"] = mDataFetchLimit
+        // The API supports pagination for Catalog as well as Inventory. The
+        // old code sent these values only for Inventory, so a large Catalog
+        // (for example Wamada's 34,000 products) could never load page two.
+        params["skip"] = mSkipCount
+        params["limit"] = mDataFetchLimit
+
+        if mSearchType == "inventory" && key.isEmpty {
             let mLocation = UserDefaults.standard.string(forKey: "location") ?? ""
             params["location_id"] = mLocation //test 27/07/26 17:17
             
@@ -1825,12 +1861,16 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 """)
                 print("POSCatalog mGetCatalogs response = \(response)")
                 guard response.error == nil else {
+                    self.finishCatalogLoad(success: false)
+                    self.mCatalogCollectionView.reloadData()
                     CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
                 
                 guard let jsonData = response.data else {
+                    self.finishCatalogLoad(success: false)
+                    self.mCatalogCollectionView.reloadData()
                     CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
@@ -1839,14 +1879,15 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 let json = try? JSONSerialization.jsonObject(with: jsonData, options: [])
                 
                 guard let jsonResult = json as? NSDictionary else {
+                    self.finishCatalogLoad(success: false)
+                    self.mCatalogCollectionView.reloadData()
                     CommonClass.stopLoader()
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
                     return
                 }
                 
                 if jsonResult.value(forKey: "code") as? Int == 200 {
-                    
-                    
+                    self.finishCatalogLoad(success: true)
                     self.handleCatalogResponse(
                         jsonResult,
                         keyword: key
@@ -1854,6 +1895,8 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
 
                     
                 }else{
+                    self.finishCatalogLoad(success: false)
+                    self.mCatalogCollectionView.reloadData()
                     CommonClass.stopLoader()
                     if let error = jsonResult.value(forKey: "error") as? String {
                         if error == "Authorization has been expired" {
@@ -1866,6 +1909,8 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             }
         }else{
             isSearching = false
+            finishCatalogLoad(success: false)
+            mCatalogCollectionView.reloadData()
             CommonClass.stopLoader()
             print("No Internet Connection stopLoader")
             CommonClass.showSnackBar(message: "No Internet Connection")
@@ -1874,26 +1919,36 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView == mCatalogCollectionView else { return }
+
         let contentOffsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let scrollViewHeight = scrollView.bounds.size.height
-        
-        // Check if you are near the bottom of the UICollectionView
-        if contentOffsetY + scrollViewHeight >= contentHeight && mSearchType == "inventory"{
-            // You have reached the bottom of the UICollectionView
-            // Add your code here to perform any actions when scrolled to the bottom.
-            if self.mSkipCount < self.mTotalData{
-                mShowMoreButton.isHidden = false
-            }
-        }else{
-            mShowMoreButton.isHidden = true
+
+        // Load the next page a little before the user reaches the end, for
+        // both Catalog and Inventory. This avoids requiring a separate
+        // "Show more" tap and keeps long catalogues continuously scrollable.
+        let nearBottom = contentHeight > scrollViewHeight
+            && contentOffsetY + scrollViewHeight >= contentHeight - 180
+        if nearBottom {
+            loadNextCatalogPageIfNeeded()
         }
+        mShowMoreButton.isHidden = true
     }
     
     @IBAction func mShowMore(_ sender: Any) {
         mShowMoreButton.isHidden = true
-//        mGetCatalogs(key: "")
-        self.performSearch("")
+        loadNextCatalogPageIfNeeded()
+    }
+
+    private func loadNextCatalogPageIfNeeded() {
+        guard !isCatalogLoading,
+              !isLoadingNextCatalogPage,
+              hasMoreCatalogPages,
+              mSkipCount > 0 else { return }
+
+        isLoadingNextCatalogPage = true
+        mGetCatalogs(key: activeCatalogKeyword)
     }
     
     @IBAction func mLeft(_ sender: Any) {
@@ -2093,6 +2148,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         guard !isSearching else { return }
 
         isSearching = true
+        beginCatalogLoad()
         
         if !recentSearch.contains(text) {
 
@@ -2230,6 +2286,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
             // FARO successful results bypass mGetCatalogs, so they must close
             // the full-screen loader themselves before showing the items.
             CommonClass.stopLoader()
+            self.finishCatalogLoad(success: true)
             self.mCatalogCollectionView.reloadData()
 
         }
@@ -2334,7 +2391,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
 
         }
 
-        if let total = jsonResult["totoal"] as? Int {
+        if let total = (jsonResult["total"] as? Int) ?? (jsonResult["totoal"] as? Int) {
             self.mTotalData = total
         }
 
@@ -2345,21 +2402,23 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
                 keyword: keyword
             )
 
-            if keyword.trimmingCharacters(in: .whitespaces).isEmpty &&
-                self.mSearchType == "inventory" {
-
-                self.mSkipCount += 20
-
-            } else {
-
-                self.mSkipCount = 0
-
-            }
+            // Advance by the actual response size. The final page can be
+            // smaller than the requested limit.
+            self.mSkipCount += data.count
+            self.hasMoreCatalogPages = self.mTotalData > 0
+                ? self.mSkipCount < self.mTotalData
+                : data.count >= self.mDataFetchLimit
 
         } else {
             print("handleCatalogResponse stopLoader")
             CommonClass.stopLoader()
-            self.mCatalogData.removeAllObjects()
+            // An empty first response is a real empty catalogue. An empty
+            // later response only means there are no further pages; retain
+            // products that have already been shown.
+            if self.mSkipCount == 0 {
+                self.mCatalogData.removeAllObjects()
+            }
+            self.hasMoreCatalogPages = false
             self.mCatalogCollectionView.reloadData()
 
         }
@@ -2371,8 +2430,7 @@ class POSCatalog: UIViewController, UICollectionViewDelegate, UICollectionViewDa
         keyword: String
     ) {
 
-        if !keyword.trim().isEmpty ||
-            self.mSkipCount == 0 {
+        if self.mSkipCount == 0 {
 
             self.mCatalogData.removeAllObjects()
 
