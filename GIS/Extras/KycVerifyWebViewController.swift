@@ -14,8 +14,37 @@ final class KycVerifyWebViewController: UIViewController, WKNavigationDelegate, 
     private let webView: WKWebView
     private let loader = UIActivityIndicatorView(style: .large)
     
-    /// Called once the screen is closed, so the caller can refresh the KYC status.
-    var onClose: (() -> Void)?
+    /// The same user agent Mobile Safari sends on this device and iOS version.
+    static func safariUserAgent(
+        systemVersion: String = UIDevice.current.systemVersion,
+        isPad: Bool = UIDevice.current.userInterfaceIdiom == .pad
+    ) -> String {
+        let osVersion = systemVersion.replacingOccurrences(of: ".", with: "_")
+        let device = isPad ? "iPad; CPU OS \(osVersion)" : "iPhone; CPU iPhone OS \(osVersion)"
+        return "Mozilla/5.0 (\(device) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            + "Version/\(systemVersion) Mobile/15E148 Safari/604.1"
+    }
+    
+    /// Ondato page for one verification: `<base>?id=<verification id>`.
+    static func verifyURL(id: String, base: String = mOndatoVerifyUrl) -> URL? {
+        let verificationId = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !verificationId.isEmpty, var components = URLComponents(string: base) else { return nil }
+        components.queryItems = [URLQueryItem(name: "id", value: verificationId)]
+        return components.url
+    }
+    
+    /// Page to open from the `create-kyc` response `data`: its `url`, or one built from its `id`.
+    static func verifyURL(from data: NSDictionary) -> URL? {
+        if let urlString = data["url"] as? String,
+           let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)),
+           url.scheme?.lowercased() == "https" {
+            return url
+        }
+        if let id = data["id"] as? String {
+            return verifyURL(id: id)
+        }
+        return nil
+    }
     
     init(url: URL) {
         startURL = url
@@ -25,6 +54,9 @@ final class KycVerifyWebViewController: UIViewController, WKNavigationDelegate, 
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         webView = WKWebView(frame: .zero, configuration: configuration)
+        // Ondato checks the browser name, and the default web view user agent has no
+        // "Version/x Safari/x" part, so it answers "your browser is not supported".
+        webView.customUserAgent = Self.safariUserAgent()
         
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .fullScreen
@@ -63,7 +95,7 @@ final class KycVerifyWebViewController: UIViewController, WKNavigationDelegate, 
     }
     
     @objc private func closeTapped() {
-        dismiss(animated: true) { [onClose] in onClose?() }
+        dismiss(animated: true)
     }
     
     // MARK: - WKNavigationDelegate

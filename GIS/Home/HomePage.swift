@@ -10,6 +10,7 @@ import DropDown
 import Lottie
 import Alamofire
 import FirebaseStorage
+import FirebaseRemoteConfig
 
 
 
@@ -106,7 +107,9 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     // not when returning from another menu. Login screens set this flag before Home is shown.
     static var pendingHolidayWelcome = true
     private weak var holidayAnimationView: LottieAnimationView?
-    private let holidayAnimationStoragePath = "seasonal/halloween/home-intro.json"
+    // The live GIS bucket stores the current seasonal animation at this
+    // stable path. Future festivals replace this one file in Firebase.
+    private let holidayAnimationStoragePath = "home-intro.json"
     private let holidayAnimationCacheFileName = "halloween-home-intro.json"
     // Stops two runs overlapping.
     // The source artwork is free to use under the Pixabay Content License:
@@ -506,16 +509,38 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
 
         // Start only after Home is on screen, so its dimensions are final and
         // the overlay never flashes during the navigation transition.
-        // Display the Home animation only from October 28 through November 1
-        // in the device's local time zone. Outside this period it stays hidden.
-        guard isHalloweenWelcomePeriod,
-              HomePage.pendingHolidayWelcome
-        else { return }
-        HomePage.pendingHolidayWelcome = false
+        guard HomePage.pendingHolidayWelcome else { return }
 
-        refreshHolidayAnimationCache()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-            self?.showHolidayWelcomeIfNeeded()
+        // Dates are managed from Firebase Remote Config. Fetching here makes
+        // a newly scheduled festival available as soon as Home is opened.
+        RemoteConfig.remoteConfig().fetchAndActivate { [weak self] _, _ in
+            DispatchQueue.main.async {
+                guard let self, self.isSeasonalHomeLottiePeriod else { return }
+
+                HomePage.pendingHolidayWelcome = false
+                self.loadAndShowHolidayWelcome(retriesLeft: 2)
+            }
+        }
+    }
+
+    /// Wait for the Storage download before displaying the Lottie.
+    /// This prevents an older local cache from playing first after
+    /// the design team replaces the file at the same Firebase path.
+    /// The first download right after a cold start can fail (network or
+    /// Firebase not ready yet) and nothing retried it, so the animation only
+    /// appeared after a re-login. Retry a couple of times before showing.
+    private func loadAndShowHolidayWelcome(retriesLeft: Int) {
+        refreshHolidayAnimationCache { [weak self] downloaded in
+            guard let self else { return }
+            if !downloaded, retriesLeft > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                    self?.loadAndShowHolidayWelcome(retriesLeft: retriesLeft - 1)
+                }
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+                self?.showHolidayWelcomeIfNeeded()
+            }
         }
     }
 
@@ -538,7 +563,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     }
 
     private func showHolidayWelcomeIfNeeded() {
-        guard isHalloweenWelcomePeriod,
+        guard isSeasonalHomeLottiePeriod,
               !isHolidayWelcomePlaying,
               view.window != nil,
               let animation = cachedHolidayAnimation() ?? LottieAnimation.asset("christmas_intro") else { return }
@@ -569,11 +594,38 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         }
     }
 
-    /// October 28 through November 1, inclusive, using the device's local calendar.
-    private var isHalloweenWelcomePeriod: Bool {
-        let components = Calendar.current.dateComponents([.month, .day], from: Date())
-        guard let month = components.month, let day = components.day else { return false }
-        return (month == 10 && day >= 28) || (month == 11 && day == 1)
+    /// Firebase Remote Config uses local-calendar ISO dates (YYYY-MM-DD).
+    /// The current Halloween dates are kept as a bootstrap fallback so an
+    /// empty value cannot accidentally hide the scheduled animation.
+    private var isSeasonalHomeLottiePeriod: Bool {
+        let remoteConfig = RemoteConfig.remoteConfig()
+        let configuredStartDate = remoteConfig["seasonal_home_lottie_start_date"].stringValue
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let configuredEndDate = remoteConfig["seasonal_home_lottie_end_date"].stringValue
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let startDate = configuredStartDate.isEmpty ? "2026-10-28" : configuredStartDate
+        let endDate = configuredEndDate.isEmpty ? "2026-11-01" : configuredEndDate
+        print("isSeasonalHomeLottiePeriod startDate = \(startDate)")
+        print("isSeasonalHomeLottiePeriod endDate = \(endDate)")
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = .current
+        formatter.isLenient = false
+        formatter.dateFormat = "yyyy-MM-dd"
+
+        guard let start = formatter.date(from: startDate),
+              let end = formatter.date(from: endDate),
+              start <= end
+        else { return false }
+
+        print("isSeasonalHomeLottiePeriod start = \(start)")
+        print("isSeasonalHomeLottiePeriod end = \(end)")
+
+        let today = Calendar.current.startOfDay(for: Date())
+        print("isSeasonalHomeLottiePeriod today = \(today)")
+        print("isSeasonalHomeLottiePeriod \(today) >= \(start) && \(today) <= \(end)")
+        return today >= start && today <= end
     }
 
     /// Uses the completed download when it is available; the bundled animation
@@ -590,9 +642,9 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
             .appendingPathComponent(holidayAnimationCacheFileName)
     }
 
-    /// Fetches the latest approved JSON in the background. It first writes to
-    /// a temporary file, so a failed download never replaces the working copy.
-    private func refreshHolidayAnimationCache() {
+    /// Downloads the current JSON before showing it. It first writes to a
+    /// temporary file, so a failed download never replaces the working copy.
+    private func refreshHolidayAnimationCache(completion: @escaping (Bool) -> Void) {
         let fileManager = FileManager.default
         let destinationURL = holidayAnimationCacheURL
         let directoryURL = destinationURL.deletingLastPathComponent()
@@ -604,20 +656,31 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
                 try fileManager.removeItem(at: temporaryURL)
             }
         } catch {
+            completion(false)
             return
         }
 
         let storageReference = Storage.storage().reference(withPath: holidayAnimationStoragePath)
+        print("storageReference = \(storageReference)")
         storageReference.write(toFile: temporaryURL) { [weak self] url, error in
-            guard self != nil, error == nil, url != nil else { return }
+            guard self != nil, error == nil, url != nil else {
+                completion(false)
+                return
+            }
 
             do {
+                print("storageReference temporaryURL = \(temporaryURL)")
                 if fileManager.fileExists(atPath: destinationURL.path) {
+                    print("storageReference removeItem = \(destinationURL)")
                     try fileManager.removeItem(at: destinationURL)
                 }
+                    print("storageReference moveItem = \(temporaryURL)")
                 try fileManager.moveItem(at: temporaryURL, to: destinationURL)
+                completion(true)
             } catch {
+                print("storageReference catch")
                 try? fileManager.removeItem(at: temporaryURL)
+                completion(false)
             }
         }
     }

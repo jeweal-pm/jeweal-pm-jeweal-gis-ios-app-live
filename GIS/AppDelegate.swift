@@ -29,7 +29,12 @@ private enum GISMinimumVersionGate {
         "ios_store_url": "" as NSString,
         "update_title": "Update available" as NSString,
         "update_message": "A newer version of GIS is available. Please update to continue." as NSString,
-        "update_remind_days": 3 as NSNumber
+        "update_remind_days": 3 as NSNumber,
+        // Firebase can override these for every festival. Keep the current
+        // Halloween window as a safe bootstrap fallback while Remote Config
+        // is unavailable or has not activated yet.
+        "seasonal_home_lottie_start_date": "2026-10-28" as NSString,
+        "seasonal_home_lottie_end_date": "2026-11-01" as NSString
     ]
 
     static func check() {

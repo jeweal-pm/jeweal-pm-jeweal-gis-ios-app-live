@@ -192,6 +192,8 @@
 		C553B6713028996B0000A8E4 /* FaroResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C553B670302899690000A8E4 /* FaroResultView.swift */; };
 		C553B673302899880000A8E4 /* FaroProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C553B672302899860000A8E4 /* FaroProductCard.swift */; };
 		C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */; };
+		C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A3561309837D10010F666 /* KycProfileBannerTests.swift */; };
+		C58A356430983CFA0010F666 /* KycVerifyWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -570,6 +572,8 @@
 		C553B670302899690000A8E4 /* FaroResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaroResultView.swift; sourceTree = "<group>"; };
 		C553B672302899860000A8E4 /* FaroProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaroProductCard.swift; sourceTree = "<group>"; };
 		C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockIdDecoder.swift; sourceTree = "<group>"; };
+		C58A3561309837D10010F666 /* KycProfileBannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KycProfileBannerTests.swift; sourceTree = "<group>"; };
+		C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KycVerifyWebViewController.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1227,6 +1231,7 @@
 				D968C9B92538699C00D45A90 /* GISTests.swift */,
 				7A1C00032F0000000000A001 /* TraceabilityTests.swift */,
 				D968C9BB2538699C00D45A90 /* Info.plist */,
+				C58A3561309837D10010F666 /* KycProfileBannerTests.swift */,
 			);
 			path = GISTests;
 			sourceTree = "<group>";
@@ -1264,6 +1269,7 @@
 				521A75F72A051B1200C8777F /* CustomerPaymentHistory.swift */,
 				528525872A6A9CF8005734C6 /* PartialPaymentHistory.swift */,
 				528525892A6AB741005734C6 /* PartialPaymentDetails.swift */,
+				C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */,
 			);
 			path = Extras;
 			sourceTree = "<group>";
@@ -1757,6 +1763,7 @@
 				D9BE79C7272D99810019DE9F /* RangeSeekSlider.swift in Sources */,
 				D9064A61260C84E300D856D1 /* POSMain.swift in Sources */,
 				D9DDC75726FC5342007108CC /* DepositPayment.swift in Sources */,
+				C58A356430983CFA0010F666 /* KycVerifyWebViewController.swift in Sources */,
 				C52C9AFD30494E9000F1D6F3 /* SoldStock.swift in Sources */,
 				D9064A66260C850C00D856D1 /* POSPayment.swift in Sources */,
 				D94D25E6278416F500F3093B /* QuickView.swift in Sources */,
@@ -1869,6 +1876,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D968C9BA2538699C00D45A90 /* GISTests.swift in Sources */,
+				C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */,
 				7A1C00042F0000000000A001 /* TraceabilityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2225,7 +2233,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 95;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2239,7 +2247,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.11;
+				MARKETING_VERSION = 4.0.13;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2261,7 +2269,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 95;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2275,7 +2283,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.11;
+				MARKETING_VERSION = 4.0.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gis247;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

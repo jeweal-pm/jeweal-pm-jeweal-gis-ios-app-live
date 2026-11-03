@@ -156,6 +156,14 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
     
     var mCustomerId = ""
     
+    /// Raw `kycStatus` from the customer list / customer API. `nil` means the
+    /// API did not return it, so no KYC banner is shown.
+    var mKycStatus: Any?
+    /// Raw `kycExpireDate` ("yyyy-MM-dd"). A past date means the documents expired.
+    var mKycExpireDate: Any?
+    private var mIsCreatingKyc = false
+    private var mKycBannerView: KycProfileBannerView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        
@@ -163,6 +171,10 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
                
         mCustomerName.text = mCName
+        // This translucent overlay sits on top of the whole info card and was
+        // swallowing every tap (including the KYC Verify button).
+        mDisableView.isUserInteractionEnabled = false
+        applyKycBanner()
         mCustomerImage.contentMode = .scaleAspectFill
         mEmailAddress.text = mCEmail
         
@@ -180,6 +192,100 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
     
     @IBAction func mBack(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    // MARK: - KYC status
+    
+    /// The vertical stack that holds the profile info card inside the scroll view.
+    private func kycBannerContainerStack() -> UIStackView? {
+        var current: UIView? = mGender
+        while let view = current {
+            if let stack = view as? UIStackView, stack.superview is UIScrollView {
+                return stack
+            }
+            current = view.superview
+        }
+        return nil
+    }
+    
+    /// Shows the KYC banner above the info card, and the verified shield after
+    /// the name when the customer's KYC is completed.
+    private func applyKycBanner() {
+        mKycBannerView?.removeFromSuperview()
+        mKycBannerView = nil
+        
+        let banner = KycProfileBanner(apiValue: mKycStatus, expireDate: mKycExpireDate)
+        updateNameShield(isVerified: banner == .completed)
+        
+        guard let banner, banner.showsBanner, let stack = kycBannerContainerStack() else { return }
+        let bannerView = KycProfileBannerView(banner: banner)
+        bannerView.onVerify = { [weak self] in self?.openOndatoVerify() }
+        stack.insertArrangedSubview(bannerView, at: 0)
+        mKycBannerView = bannerView
+    }
+    
+    private func updateNameShield(isVerified: Bool) {
+        // Drop a shield attachment left from an earlier pass.
+        let baseName = (mCustomerName.attributedText?.string ?? mCustomerName.text ?? "")
+            .replacingOccurrences(of: "\u{FFFC}", with: "")
+            .trimmingCharacters(in: .whitespaces)
+        guard isVerified, let shield = UIImage(named: "kyc_completed") else {
+            mCustomerName.text = baseName
+            return
+        }
+        let attachment = NSTextAttachment()
+        attachment.image = shield
+        attachment.bounds = CGRect(x: 0, y: -3, width: 18, height: 18)
+        let text = NSMutableAttributedString(string: baseName + " ", attributes: [
+            .font: mCustomerName.font as Any,
+            .foregroundColor: mCustomerName.textColor as Any
+        ])
+        text.append(NSAttributedString(attachment: attachment))
+        mCustomerName.attributedText = text
+    }
+    
+    /// Opens the Ondato verification page in an in-app web view.
+    private func openOndatoVerify() {
+        guard !mCustomerId.isEmpty, !mIsCreatingKyc else { return }
+        guard Reachability.isConnectedToNetwork() else {
+            CommonClass.showSnackBar(message: "No Internet Connection")
+            return
+        }
+        
+        // Same call as GIS web: create the verification, then open the returned page.
+        mIsCreatingKyc = true
+        CommonClass.showFullLoader(view: self.view)
+        AF.request(mCreateKyc, method: .post, parameters: ["id": mCustomerId],
+                   encoding: JSONEncoding.default, headers: sGisHeaders2).responseJSON { [weak self] response in
+            CommonClass.stopLoader()
+            guard let self else { return }
+            self.mIsCreatingKyc = false
+            
+            if response.response?.statusCode == 403 {
+                CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
+                return
+            }
+            let json = response.data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? NSDictionary }
+            #if DEBUG
+            print("create-kyc status = \(response.response?.statusCode ?? 0), body = \(json ?? [:])")
+            #endif
+            guard response.error == nil,
+                  let json,
+                  json["success"] as? Bool == true,
+                  let info = json["data"] as? NSDictionary,
+                  let url = KycVerifyWebViewController.verifyURL(from: info) else {
+                // The customer needs country, first/last name, email and phone before KYC;
+                // show the reason from the server when it sends one.
+                let reason = (json?["message"] as? String) ?? (json?["error"] as? String)
+                CommonClass.showSnackBar(message: reason?.isEmpty == false ? reason! : "OOP's something went wrong!")
+                return
+            }
+            // Profile data (and the KYC status) is reloaded in viewWillAppear on return.
+            let webViewController = KycVerifyWebViewController(url: url)
+            let navigationController = UINavigationController(rootViewController: webViewController)
+            navigationController.modalPresentationStyle = .fullScreen
+            self.present(navigationController, animated: true)
+        }
     }
     @objc func mHideOptions(){
         mMoreOptionsView.isHidden = true
@@ -336,6 +442,14 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
                     if jsonResult.value(forKey: "code") as? Int == 200 {
                         if let mData = jsonResult.value(forKey: "data") as? NSDictionary {
                             print("CUSTOMER_DATA =", mData)
+                            if let kycStatus = mData.value(forKey: "kycStatus") {
+                                self.mKycStatus = kycStatus
+                            }
+                            if let kycExpireDate = mData.value(forKey: "kycExpireDate") {
+                                self.mKycExpireDate = kycExpireDate
+                            }
+                            // Run after the name label is filled in below.
+                            DispatchQueue.main.async { self.applyKycBanner() }
                             if let mMiddleName =  mData.value(forKey: "mname") as? String {
                                 if mMiddleName != "" {
                                     self.mCustomerName.text = "\(mData.value(forKey: "title") ?? "") " + "\(mData.value(forKey: "fname") ?? "")" + " \(mMiddleName)" + " \(mData.value(forKey: "lname") ?? "")"
@@ -398,7 +512,10 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
                             ]
 
                             let oldBehavior = "\(mData.value(forKey: "group") ?? "")"
-                            self.mSource.text = behaviorMap[oldBehavior] ?? "--"
+                            // The API now sends the customer group (e.g. "Gold") here; only the
+                            // old behavior names are translated, anything else is shown as is.
+                            let groupText = oldBehavior.trimmingCharacters(in: .whitespacesAndNewlines)
+                            self.mSource.text = behaviorMap[groupText] ?? (groupText.isEmpty ? "--" : groupText)
 //                            self.mSource.text = "\(mData.value(forKey: "group") ?? "--")"
                             print("DEBUG_CUSTOMER_GROUP =", mData.value(forKey: "group") ?? "")
                             self.mSource1.text = "\(mData.value(forKey: "source") ?? "--")"
@@ -622,4 +739,172 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
         
     }
     
+}
+
+
+// MARK: - KYC banner
+
+/// KYC state shown on the customer Profile screen, derived from `kycStatus`.
+enum KycProfileBanner: Equatable {
+    case notVerified, rejected, expired, inProgress, approved, completed
+    
+    /// Returns `nil` when the API did not send `kycStatus` (nothing is shown) or
+    /// the value is unknown. An empty value means the customer was never verified.
+    init?(apiValue: Any?) {
+        self.init(apiValue: apiValue, expireDate: nil)
+    }
+    
+    /// Approved / Completed customers whose `kycExpireDate` is before `today`
+    /// are treated as expired so they can verify again.
+    init?(apiValue: Any?, expireDate: Any?, today: Date = Date()) {
+        guard let apiValue, !(apiValue is NSNull) else { return nil }
+        let text = "\(apiValue)".trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.isEmpty {
+            self = .notVerified
+            return
+        }
+        guard let status = KycStatus(apiValue: text) else { return nil }
+        switch status {
+        case .expired: self = .expired
+        case .rejected: self = .rejected
+        case .inProgress: self = .inProgress
+        case .approved: self = Self.isExpired(expireDate, today: today) ? .expired : .approved
+        case .completed: self = Self.isExpired(expireDate, today: today) ? .expired : .completed
+        }
+    }
+    
+    /// `kycExpireDate` is "yyyy-MM-dd" (a longer ISO string is cut to its date part).
+    static func isExpired(_ expireDate: Any?, today: Date = Date()) -> Bool {
+        guard let expireDate, !(expireDate is NSNull) else { return false }
+        let text = String("\(expireDate)".trimmingCharacters(in: .whitespacesAndNewlines).prefix(10))
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let date = formatter.date(from: text) else { return false }
+        return date < Calendar(identifier: .gregorian).startOfDay(for: today)
+    }
+    
+    /// Completed customers get a shield after the name instead of a banner.
+    var showsBanner: Bool { self != .completed }
+    
+    var showsVerifyButton: Bool {
+        switch self {
+        case .notVerified, .rejected, .expired: return true
+        case .inProgress, .approved, .completed: return false
+        }
+    }
+    
+    var iconName: String? {
+        switch self {
+        case .notVerified, .completed: return nil
+        case .rejected: return "kyc_rejected"
+        case .expired: return "kyc_expired"
+        case .inProgress: return "kyc_in_progress"
+        case .approved: return "kyc_approved"
+        }
+    }
+    
+    /// Localization keys: text in the normal color, then an optional red lead.
+    var messageKey: String {
+        switch self {
+        case .notVerified: return "This customer is not verified KYC yet"
+        case .rejected: return "Try again"
+        case .expired: return "The KYC verification has expired. Try again"
+        case .inProgress: return "Verification is in progress. Please wait."
+        case .approved: return "Verification approved. Wait to complete."
+        case .completed: return ""
+        }
+    }
+    
+    var redLeadKey: String? {
+        self == .rejected ? "KYC verification was rejected." : nil
+    }
+}
+
+/// Banner row under the profile header: status icon, message and a Verify button.
+final class KycProfileBannerView: UIView {
+    
+    var onVerify: (() -> Void)?
+    
+    init(banner: KycProfileBanner) {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = .white
+        layer.cornerRadius = 8
+        
+        let font = UIFont(name: "Segoe UI", size: 12) ?? UIFont.systemFont(ofSize: 12)
+        // Message color from the design (#A4A4A4).
+        let grayColor = UIColor(red: 164 / 255, green: 164 / 255, blue: 164 / 255, alpha: 1)
+        let redColor = UIColor(named: "themeRed") ?? .systemRed
+        
+        let iconView = UIImageView()
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.contentMode = .scaleAspectFit
+        if let iconName = banner.iconName {
+            iconView.image = UIImage(named: iconName)
+        }
+        iconView.isHidden = banner.iconName == nil
+        
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        let text = NSMutableAttributedString()
+        if let redLeadKey = banner.redLeadKey {
+            text.append(NSAttributedString(string: redLeadKey.localizedString + " ", attributes: [
+                .font: font, .foregroundColor: redColor
+            ]))
+        }
+        text.append(NSAttributedString(string: banner.messageKey.localizedString, attributes: [
+            .font: font, .foregroundColor: grayColor
+        ]))
+        label.attributedText = text
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
+        let verifyButton = UIButton(type: .system)
+        verifyButton.translatesAutoresizingMaskIntoConstraints = false
+        verifyButton.setTitle("Verify".localizedString, for: .normal)
+        verifyButton.setTitleColor(redColor, for: .normal)
+        verifyButton.titleLabel?.font = UIFont(name: "Segoe UI", size: 11) ?? UIFont.systemFont(ofSize: 11)
+        verifyButton.layer.borderWidth = 1
+        verifyButton.layer.borderColor = redColor.cgColor
+        verifyButton.layer.cornerRadius = 3
+        verifyButton.isHidden = !banner.showsVerifyButton
+        verifyButton.addTarget(self, action: #selector(verifyTapped), for: .touchUpInside)
+        
+        addSubview(iconView)
+        addSubview(label)
+        addSubview(verifyButton)
+        
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
+            
+            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 18),
+            iconView.heightAnchor.constraint(equalToConstant: 18),
+            
+            verifyButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            verifyButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            verifyButton.widthAnchor.constraint(equalToConstant: 58),
+            verifyButton.heightAnchor.constraint(equalToConstant: 24),
+            
+            label.leadingAnchor.constraint(
+                equalTo: banner.iconName == nil ? leadingAnchor : iconView.trailingAnchor,
+                constant: banner.iconName == nil ? 12 : 6),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            label.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: 8),
+            label.trailingAnchor.constraint(
+                equalTo: banner.showsVerifyButton ? verifyButton.leadingAnchor : trailingAnchor,
+                constant: -8)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func verifyTapped() {
+        onVerify?()
+    }
 }

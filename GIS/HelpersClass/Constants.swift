@@ -52,6 +52,10 @@ let mResetPassword = BaseUrl+"Auth/Mobile/forgotPassword"
 let mResetPin = BaseUrl+"Auth/Mobile/forgotPin"
 let mResendOTP = BaseUrl+"Webservice/resendtoken"
 let mGetCustomerList = BaseUrl + "Customer/customer/getList"
+// Creates an Ondato KYC verification for a customer; returns the page to open in the web view.
+let mCreateKyc = BaseUrl + "APP/profile/create-kyc"
+// Base address of the Ondato verification page (sandbox for now), used if the API returns only an id.
+let mOndatoVerifyUrl = "https://sandbox-idv.ondato.com/"
 let mGetCustomerById = BaseUrl + "App/customer/get"
 let mGenerateImageUrlAPI = BaseUrl + "App/customer/uploadImage"
 let mCreateCustomer = BaseUrl + "App/customer/create"

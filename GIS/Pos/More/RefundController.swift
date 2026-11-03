@@ -225,6 +225,26 @@ class RefundController: UIViewController, UIViewControllerTransitioningDelegate,
         mFetchCartItems()
     }
     
+    /// The purchase history returns `price` before the item discount, while
+    /// `totalamount` is what the customer actually paid. Refunding at `price`
+    /// over-refunds a discounted order, which shows up as a negative amount in
+    /// the Daily Sales Report and as an extra credit note. Use the paid amount
+    /// (per unit) as the refund price when it is available.
+    private func refundItemsUsingPaidAmount(_ items: NSArray) -> NSArray {
+        let adjusted = NSMutableArray()
+        for case let item as NSDictionary in items {
+            let mutableItem = NSMutableDictionary(dictionary: item)
+            let paidText = "\(item["totalamount"] ?? "")".replacingOccurrences(of: ",", with: "")
+            let qtyText = "\(item["qtyToBe"] ?? item["Qty"] ?? "1")"
+            if let paid = Double(paidText), paid > 0,
+               let qty = Double(qtyText), qty > 0 {
+                mutableItem["price"] = paid / qty
+            }
+            adjusted.add(mutableItem)
+        }
+        return adjusted
+    }
+    
     func mFetchCartItems(){
        
         let mParams = [ "order_id":mOrderId,"cartid":mCartId,"order_type": "pos_order"] as [String : Any]
@@ -233,7 +253,8 @@ class RefundController: UIViewController, UIViewControllerTransitioningDelegate,
             CommonClass.stopLoader()
             if status {
             if "\(response.value(forKey: "code") ?? "")" == "200" {
-                if let mData = response.value(forKey: "data") as? NSArray, mData.count > 0 {
+                if let mOrderData = response.value(forKey: "data") as? NSArray, mOrderData.count > 0 {
+                    let mData = self.refundItemsUsingPaidAmount(mOrderData)
                     
                     self.mCartDataMaster = mData
                     self.mCartData = NSMutableArray(array: mData)

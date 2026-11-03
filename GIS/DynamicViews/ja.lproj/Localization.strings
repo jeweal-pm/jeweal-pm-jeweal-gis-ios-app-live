@@ -688,3 +688,12 @@
 "Traceability" = "トレーサビリティ";
 "Transaction ID" = "取引ID";
 "Quantity" = "数量";
+
+"This customer is not verified KYC yet" = "このお客様はまだ KYC 認証が完了していません";
+"KYC verification was rejected." = "KYC 認証が却下されました。";
+"Try again" = "再試行";
+"The KYC verification has expired. Try again" = "KYC 認証の有効期限が切れました。再試行してください";
+"Verification is in progress. Please wait." = "認証を処理中です。しばらくお待ちください。";
+"Verification approved. Wait to complete." = "認証が承認されました。完了までお待ちください。";
+"Verify" = "認証する";
+"Verification is not available yet." = "現在、認証は利用できません。";

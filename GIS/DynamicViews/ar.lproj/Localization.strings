@@ -673,3 +673,12 @@ Created by admin on 15/11/21.
 "Traceability" = "إمكانية التتبع";
 "Transaction ID" = "معرّف المعاملة";
 "Quantity" = "الكمية";
+
+"This customer is not verified KYC yet" = "لم يتم التحقق من هذا العميل (KYC) بعد";
+"KYC verification was rejected." = "تم رفض التحقق (KYC).";
+"Try again" = "حاول مرة أخرى";
+"The KYC verification has expired. Try again" = "انتهت صلاحية التحقق (KYC). حاول مرة أخرى";
+"Verification is in progress. Please wait." = "التحقق قيد التنفيذ. يرجى الانتظار.";
+"Verification approved. Wait to complete." = "تمت الموافقة على التحقق. بانتظار الاكتمال.";
+"Verify" = "تحقق";
+"Verification is not available yet." = "التحقق غير متاح حاليًا.";

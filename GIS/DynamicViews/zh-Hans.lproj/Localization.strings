@@ -681,3 +681,12 @@
 "Traceability" = "可追溯性";
 "Transaction ID" = "交易编号";
 "Quantity" = "数量";
+
+"This customer is not verified KYC yet" = "该客户尚未完成 KYC 验证";
+"KYC verification was rejected." = "KYC 验证未通过。";
+"Try again" = "请重试";
+"The KYC verification has expired. Try again" = "KYC 验证已过期。请重试";
+"Verification is in progress. Please wait." = "验证进行中，请稍候。";
+"Verification approved. Wait to complete." = "验证已通过，等待完成。";
+"Verify" = "验证";
+"Verification is not available yet." = "暂时无法进行验证。";

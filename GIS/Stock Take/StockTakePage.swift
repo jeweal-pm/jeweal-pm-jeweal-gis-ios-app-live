@@ -31,6 +31,7 @@ private enum StockTakeCollaborationRecordKind: String {
 private enum StockTakeCollaborationError: LocalizedError {
     case invalidRoomCode
     case roomNotFound
+    case inviteExpired
     case missingStockID
     case sharingEnded
     case onlyHostCanEndSharing
@@ -42,6 +43,8 @@ private enum StockTakeCollaborationError: LocalizedError {
             return "Enter a valid room code or scan the room QR code."
         case .roomNotFound:
             return "This Stock Take room no longer exists. Ask the host to share it again."
+        case .inviteExpired:
+            return "This shared Stock Take QR code has expired. Ask the host to create a new room."
         case .missingStockID:
             return "The scanned item has no stock ID and cannot be shared."
         case .sharingEnded:
@@ -168,6 +171,7 @@ private struct StockTakeCollaborationRecord {
 private final class StockTakeCollaborationService {
     static let shared = StockTakeCollaborationService()
     private static let scannerNameDefaultsKey = "GISStockTakeCollaboratorName"
+    private let inviteValidityMilliseconds = 15 * 60 * 1000
 
     // This database was created after the iOS app registration, so keep the
     // regional endpoint explicit instead of relying on an older plist value.
@@ -262,6 +266,9 @@ private final class StockTakeCollaborationService {
                 let room: [String: Any] = [
                     "createdAt": ServerValue.timestamp(),
                     "lastActive": ServerValue.timestamp(),
+                    // The invite is deliberately short-lived. Once a helper
+                    // has joined, normal shared scanning is unaffected.
+                    "inviteExpiresAt": Int(Date().timeIntervalSince1970 * 1000) + self.inviteValidityMilliseconds,
                     "createdBy": userID,
                     "totalQuantity": totalQuantity,
                     // The snapshot is immutable after creation and is loaded
@@ -297,6 +304,11 @@ private final class StockTakeCollaborationService {
                     let room = snapshot.value as? [String: Any]
                     guard room?["mode"] as? String != "solo" else {
                         completion(.failure(StockTakeCollaborationError.sharingEnded))
+                        return
+                    }
+                    let expiry = Int("\(room?["inviteExpiresAt"] ?? 0)") ?? 0
+                    guard expiry > Int(Date().timeIntervalSince1970 * 1000) else {
+                        completion(.failure(StockTakeCollaborationError.inviteExpired))
                         return
                     }
                     self.upsertCurrentMember(roomID: roomID, role: "helper", status: "Ready") { result in
@@ -6877,7 +6889,7 @@ class StockTakePage: UIViewController, UITableViewDelegate , UITableViewDataSour
     private func presentStockTakeModePicker() {
         let alert = UIAlertController(
             title: "Start Stock Take",
-            message: "Choose how this stock take will be scanned.",
+            message: "Choose how to scan.",
             preferredStyle: .alert
         )
 

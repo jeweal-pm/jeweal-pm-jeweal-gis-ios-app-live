@@ -680,3 +680,12 @@
 "Traceability" = "การตรวจสอบย้อนกลับ";
 "Transaction ID" = "รหัสธุรกรรม";
 "Quantity" = "จำนวน";
+
+"This customer is not verified KYC yet" = "ลูกค้ารายนี้ยังไม่ได้ยืนยันตัวตน (KYC)";
+"KYC verification was rejected." = "การยืนยันตัวตน (KYC) ไม่ผ่าน";
+"Try again" = "ลองอีกครั้ง";
+"The KYC verification has expired. Try again" = "การยืนยันตัวตน (KYC) หมดอายุแล้ว ลองอีกครั้ง";
+"Verification is in progress. Please wait." = "กำลังตรวจสอบ โปรดรอสักครู่";
+"Verification approved. Wait to complete." = "อนุมัติการยืนยันตัวตนแล้ว รอให้เสร็จสมบูรณ์";
+"Verify" = "ยืนยัน";
+"Verification is not available yet." = "ยังไม่สามารถยืนยันตัวตนได้ในขณะนี้";

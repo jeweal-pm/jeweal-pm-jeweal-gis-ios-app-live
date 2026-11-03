@@ -584,3 +584,12 @@
 "Traceability" = "Traceability";
 "Transaction ID" = "Transaction ID";
 "Quantity" = "Quantity";
+
+"This customer is not verified KYC yet" = "This customer is not verified KYC yet";
+"KYC verification was rejected." = "KYC verification was rejected.";
+"Try again" = "Try again";
+"The KYC verification has expired. Try again" = "The KYC verification has expired. Try again";
+"Verification is in progress. Please wait." = "Verification is in progress. Please wait.";
+"Verification approved. Wait to complete." = "Verification approved. Wait to complete.";
+"Verify" = "Verify";
+"Verification is not available yet." = "Verification is not available yet.";
