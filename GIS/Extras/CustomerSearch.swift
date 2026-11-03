@@ -32,6 +32,36 @@ public class LocCell: UICollectionViewCell {
 
 
 
+/// KYC states returned in `kycStatus` by `customer/getList`.
+enum KycStatus {
+    case expired, completed, approved, rejected, inProgress
+    
+    init?(apiValue: Any?) {
+        guard let raw = apiValue as? String else { return nil }
+        // Ignore case, spaces, "_" and "-" so "In Progress" and "in_progress" both match.
+        let key = raw.lowercased().filter { $0.isLetter }
+        switch key {
+        case "expired": self = .expired
+        case "completed": self = .completed
+        case "approved": self = .approved
+        case "rejected": self = .rejected
+        // The API returns "pending" while verification is still in progress.
+        case "inprogress", "pending": self = .inProgress
+        default: return nil
+        }
+    }
+    
+    var icon: UIImage? {
+        switch self {
+        case .expired: return UIImage(named: "kyc_expired")
+        case .completed: return UIImage(named: "kyc_completed")
+        case .approved: return UIImage(named: "kyc_approved")
+        case .rejected: return UIImage(named: "kyc_rejected")
+        case .inProgress: return UIImage(named: "kyc_in_progress")
+        }
+    }
+}
+
 class CustomerSearchCell: UITableViewCell {
     
     
@@ -43,8 +73,45 @@ class CustomerSearchCell: UITableViewCell {
     @IBOutlet weak var mCountryState: UILabel!
     
     @IBOutlet weak var mContactNumber: UILabel!
+    
+    // KYC status icon shown at the trailing edge of the row.
+    private let mKycStatusIcon: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.isHidden = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+        // Small icon placed right after the customer name.
+        mView.addSubview(mKycStatusIcon)
+        NSLayoutConstraint.activate([
+            mKycStatusIcon.leadingAnchor.constraint(equalTo: mCustomerName.trailingAnchor, constant: 4),
+            mKycStatusIcon.centerYAnchor.constraint(equalTo: mCustomerName.centerYAnchor),
+            mKycStatusIcon.widthAnchor.constraint(equalToConstant: 18),
+            mKycStatusIcon.heightAnchor.constraint(equalToConstant: 18)
+        ])
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        mKycStatusIcon.isHidden = true
+        mKycStatusIcon.image = nil
+    }
+    
+    /// The list only marks customers whose KYC is verified (Completed and not
+    /// expired) with the green icon. Every other status is shown on the Profile.
+    func setKycStatus(_ status: Any?, expireDate: Any? = nil) {
+        guard KycProfileBanner(apiValue: status, expireDate: expireDate) == .completed,
+              let icon = KycStatus.completed.icon else {
+            mKycStatusIcon.isHidden = true
+            mKycStatusIcon.image = nil
+            return
+        }
+        mKycStatusIcon.image = icon
+        mKycStatusIcon.isHidden = false
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -378,6 +445,8 @@ class CustomerSearch: UIViewController , UITableViewDelegate ,UITableViewDataSou
         
       
        
+        cell.setKycStatus(mData.value(forKey: "kycStatus"), expireDate: mData.value(forKey: "kycExpireDate"))
+        
         if let profile = mData.value(forKey: "profile") {
             cell.mProfilrPicture.downlaodImageFromUrl(urlString: "\(profile)")
             cell.mProfilrPicture.contentMode = .scaleAspectFill
@@ -415,16 +484,22 @@ class CustomerSearch: UIViewController , UITableViewDelegate ,UITableViewDataSou
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var selectedKycStatus: Any?
+        var selectedKycExpireDate: Any?
         if let mData = mCustomerData[indexPath.row] as? NSDictionary {
             mIndex = indexPath.row
             if let id = mData.value(forKey: "_id") {
                 mCustomerId = "\(id)"
             }
+            selectedKycStatus = mData.value(forKey: "kycStatus")
+            selectedKycExpireDate = mData.value(forKey: "kycExpireDate")
         }
         self.dismiss(animated: true)
         let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
         if let mProfile = storyBoard.instantiateViewController(withIdentifier: "CustomerProfile") as? CustomerProfile {
             mProfile.mCustomerId = mCustomerId
+            mProfile.mKycStatus = selectedKycStatus
+            mProfile.mKycExpireDate = selectedKycExpireDate
             self.navigationController?.pushViewController(mProfile, animated:true)
         }
         self.mCustomerTableView.reloadData()
@@ -599,12 +674,10 @@ class CustomerSearch: UIViewController , UITableViewDelegate ,UITableViewDataSou
                                      "country":mCountryId,
                                      "skip": customerOffset,
                                      "limit": customerPageSize]
-        
         if Reachability.isConnectedToNetwork() == true {
             customerRequest = AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders2).responseJSON
             { response in
                 guard self.customerRequestID == requestID else { return }
-                
                 if response.response?.statusCode == 403 {
                     CommonClass.sessionExpired(isExpired: true, navigation: self.navigationController)
                 }
@@ -632,6 +705,7 @@ class CustomerSearch: UIViewController , UITableViewDelegate ,UITableViewDataSou
                         
                         
                         if let data = jsonResult.value(forKey: "data") as? NSArray {
+                            
                             self.isLoadingCustomers = false
                             let receivedCustomers = data as! [Any]
                             let existingIDs = Set(self.mCustomerData.compactMap { customer in

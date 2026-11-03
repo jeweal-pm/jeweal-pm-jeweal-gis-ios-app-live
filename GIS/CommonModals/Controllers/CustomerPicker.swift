@@ -309,6 +309,7 @@ class CustomerPicker: UIViewController , UITableViewDelegate ,UITableViewDataSou
         
         if let mData = mCustomerData[indexPath.row] as? [String: Any] {
             cell.mProfilrPicture.contentMode = .scaleAspectFill
+            cell.setKycStatus(mData["kycStatus"], expireDate: mData["kycExpireDate"])
             
             if let defaultCustomerId = UserDefaults.standard.string(forKey: "DEFAULTCUSTOMER"),
                "\(mData["_id"] ?? "")" == defaultCustomerId {

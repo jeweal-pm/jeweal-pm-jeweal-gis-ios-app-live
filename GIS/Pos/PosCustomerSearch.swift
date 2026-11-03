@@ -35,6 +35,15 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
     
     var mCustomerData = NSMutableArray()
     var mCustomerDataDefault = NSArray()
+    // Load a small page at a time so large customer lists stay responsive.
+    private let customerPageSize = 50
+    private var customerOffset = 0
+    private var isLoadingCustomers = false
+    private var hasMoreCustomers = true
+    private var customerSearchText = ""
+    private var customerSearchWorkItem: DispatchWorkItem?
+    private var customerRequest: DataRequest?
+    private var customerRequestID = UUID()
     var mNameArray = [String]()
     var mNameArrayId = [String]()
     
@@ -254,39 +263,33 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
     }
     
     @IBAction func mSearchCustomer(_ sender: UITextField) {
-        searchCustomer(key: sender.text ?? "")
+        // Wait for the user to pause typing before asking the server.
+        customerSearchWorkItem?.cancel()
+        let searchText = sender.text ?? ""
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.searchCustomer(key: searchText)
+        }
+        customerSearchWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
     }
     
+    // Only part of the list is loaded at a time, so search on the server.
     private func searchCustomer(key: String){
-        if key == "" {
-            
-            mIndex = 0
-            mCustomerData = NSMutableArray(array: mCustomerDataDefault)
-            mCustomerTableView.reloadData()
-            
-        }else {
-            mIndex = 0
-            mCustomerData = NSMutableArray()
-            for i in mCustomerDataDefault {
-                
-                if let mData = i as? NSDictionary {
-                    let mValue = "\(mData.value(forKey: "name") ?? "")"
-                    
-                    if mValue.lowercased().contains(key.lowercased()) {
-                        mCustomerData.add(mData)
-                        mCustomerTableView.reloadData()
-                    }else{
-                        mCustomerTableView.reloadData()
-                    }
-                }
-            }
-        }
+        mIndex = 0
+        customerSearchText = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        mGetCustomers()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return mCustomerData.count
         
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // Load the next page once the last loaded customer is reached.
+        guard indexPath.row == mCustomerData.count - 1 else { return }
+        loadNextCustomerPage()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -328,6 +331,8 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
                 else {
                     cell.mCustomerName.textColor = .black
                 }
+                
+                cell.setKycStatus(mData.value(forKey: "kycStatus"), expireDate: mData.value(forKey: "kycExpireDate"))
                 
                 if mData.value(forKey: "profile") != nil {
                     cell.mProfilrPicture.downlaodImageFromUrl(urlString: "\(mData.value(forKey: "profile") ?? "")")
@@ -375,6 +380,8 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
             let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
             if let mProfile = storyBoard.instantiateViewController(withIdentifier: "CustomerProfile") as? CustomerProfile {
                 mProfile.mCustomerId = mCustomerId
+                mProfile.mKycStatus = mData.value(forKey: "kycStatus")
+                mProfile.mKycExpireDate = mData.value(forKey: "kycExpireDate")
                 self.navigationController?.pushViewController(mProfile, animated:true)
                 self.mCustomerTableView.reloadData()
             }
@@ -509,32 +516,53 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
     
 
     func mGetCustomers(){
+        // Start over from the first page (initial load, filter or search change).
+        customerRequest?.cancel()
+        customerRequestID = UUID()
+        if isLoadingCustomers {
+            CommonClass.stopLoader()
+        }
+        isLoadingCustomers = false
+        customerOffset = 0
+        hasMoreCustomers = true
+        mCustomerData.removeAllObjects()
+        mCustomerDataDefault = []
+        mCustomerTableView.reloadData()
+        loadNextCustomerPage()
+    }
+    
+    private func loadNextCustomerPage() {
+        guard !isLoadingCustomers, hasMoreCustomers else { return }
         
         let urlPath = mGetCustomerList
         
-        let params:[String: Any] = ["search":"",
+        let params:[String: Any] = ["search":customerSearchText,
                                     "name":self.mNameId,
                                     "gender": mGenderId,
                                     "group":mGroupId,
                                     "minAge":mMinAge,
                                     "maxAge":mMaxAge,
                                     "country":mCountryId,
-                                    "limit":""]
+                                    "skip": customerOffset,
+                                    "limit": customerPageSize]
         
         guard Reachability.isConnectedToNetwork() == true else {
             CommonClass.showSnackBar(message: "No Internet Connection")
             return
         }
+        isLoadingCustomers = true
+        let requestID = customerRequestID
         CommonClass.showFullLoader(view: self.view)
-        AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders2).responseJSON
+        customerRequest = AF.request(urlPath, method:.post, parameters:params, encoding: JSONEncoding.default,headers: sGisHeaders2).responseJSON
         { response in
+            // A newer request replaced this one (filter/search changed).
+            guard self.customerRequestID == requestID else { return }
             CommonClass.stopLoader()
+            self.isLoadingCustomers = false
             
             if(response.error != nil){
                 
                 CommonClass.showSnackBar(message: "OOP's something went wrong!")
-                
-                
                 
             }else{
                 if let jsonData = response.data {
@@ -550,51 +578,54 @@ class PosCustomerSearch: UIViewController , UITableViewDelegate ,UITableViewData
                         
                         if jsonResult.value(forKey: "code") as? Int == 200 {
                             
-                            
-                            if jsonResult.value(forKey: "data") != nil {
-                                if let data = jsonResult.value(forKey: "data") as? NSArray {
-                                    self.mCustomerDataDefault = data
-                                    
-                                    if data.count == 0 {
-                                        self.mCustomerData = NSMutableArray(array: data)
-                                        self.mCustomerTableView.delegate = self
-                                        self.mCustomerTableView.dataSource = self
-                                        self.mCustomerTableView.reloadData()
-                                        return
+                            if let data = jsonResult.value(forKey: "data") as? NSArray {
+                                
+                                // Skip customers that are already in the list.
+                                let existingIDs = Set(self.mCustomerData.compactMap { customer in
+                                    (customer as? NSDictionary)?.value(forKey: "_id") as? String
+                                })
+                                let newCustomers = data.filter { customer in
+                                    guard let id = (customer as? NSDictionary)?.value(forKey: "_id") as? String else { return true }
+                                    return !existingIDs.contains(id)
+                                }
+                                let isFirstPage = self.customerOffset == 0
+                                self.hasMoreCustomers = data.count == self.customerPageSize && !newCustomers.isEmpty
+                                self.customerOffset += data.count
+                                self.mCustomerData.addObjects(from: newCustomers)
+                                self.mCustomerDataDefault = self.mCustomerData.copy() as? NSArray ?? []
+                                self.mCustomerTableView.delegate = self
+                                self.mCustomerTableView.dataSource = self
+                                self.mCustomerTableView.reloadData()
+                                
+                                if isFirstPage, let mData = data.firstObject as? NSDictionary {
+                                    if let id = mData.value(forKey: "_id") {
+                                        self.mCustomerId = "\(id)"
                                     }
                                     
-                                    self.mCustomerData = NSMutableArray(array: data)
-                                    self.mCustomerTableView.delegate = self
-                                    self.mCustomerTableView.dataSource = self
-                                    self.mCustomerTableView.reloadData()
-                                    if let mData = data[0] as? NSDictionary {
-                                        if let id = mData.value(forKey: "_id") {
-                                            self.mCustomerId = "\(id)"
-                                        }
+                                    if let fName = mData.value(forKey: "fname") {
+                                        self.mCustomerName.text =  "\(fName)"
                                         
-                                        if let fName = mData.value(forKey: "fname") {
-                                            self.mCustomerName.text =  "\(fName)"
-                                            
-                                        }
-                                        if let lName = mData.value(forKey: "lname") {
-                                            self.mCustomerName.text?.append(" \(lName)")
-                                            
-                                        }
-                                        if let pCode = mData.value(forKey: "phone_code") {
-                                            self.mContactNumber.text = "\(pCode)"
-                                        }
-                                        if let phone = mData.value(forKey: "phone") {
-                                            self.mContactNumber.text?.append(" \(phone)")
-                                        }
+                                    }
+                                    if let lName = mData.value(forKey: "lname") {
+                                        self.mCustomerName.text?.append(" \(lName)")
                                         
-                                        if let email = mData.value(forKey: "email_user"){
-                                            self.mEmailAddress.text = "\(email)"
-                                        }
-                                        if let cName = mData.value(forKey: "con_name") {
-                                            self.mCountryState.text = ("\(mData.value(forKey: "city_name") ?? "") , \(cName)")
-                                        }
+                                    }
+                                    if let pCode = mData.value(forKey: "phone_code") {
+                                        self.mContactNumber.text = "\(pCode)"
+                                    }
+                                    if let phone = mData.value(forKey: "phone") {
+                                        self.mContactNumber.text?.append(" \(phone)")
+                                    }
+                                    
+                                    if let email = mData.value(forKey: "email_user"){
+                                        self.mEmailAddress.text = "\(email)"
+                                    }
+                                    if let cName = mData.value(forKey: "con_name") {
+                                        self.mCountryState.text = ("\(mData.value(forKey: "city_name") ?? "") , \(cName)")
                                     }
                                 }
+                            } else {
+                                self.hasMoreCustomers = false
                             }
                             
                         } else {
