@@ -275,6 +275,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     
     var mInventoryData = NSMutableArray()
     var mSummaryData = NSArray()
+    var mSummarySearchStart: CFAbsoluteTime = 0 // TEMPORARY timing log
     
     var mIndexInv = -1
     var mIndexSum = -1
@@ -2685,8 +2686,10 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         let urlPath = sSummerySkuDetails
         print("mSummerySkuDetails URL:  \(urlPath)")
         print("mSummerySkuDetails URL:  \(params)")
+        let skuTimingStart = CFAbsoluteTimeGetCurrent() // TEMPORARY timing log
         AF.request(urlPath, method: .post, parameters: params, encoding: JSONEncoding.default, headers: sGisHeaders)
             .responseJSON { response in
+                print("IMGTIMING [2 sku details API] \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - skuTimingStart))s")
                 print("mSummerySkuDetails response:  \(response)")
                 guard let jsonData = response.data else {
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
@@ -2707,7 +2710,19 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                     case 200:
                         if let data = json["data"] as? NSDictionary {
                             if let image = data.value(forKey: "main_image") as? String {
-                                self.mSummaryImage.downlaodImageFromUrl(urlString: image)
+                                // TEMPORARY timing: same load as downlaodImageFromUrl, with a completion log.
+                                let imageTimingStart = CFAbsoluteTimeGetCurrent()
+                                let searchStart = self.mSummarySearchStart
+                                print("IMGTIMING [3 image] url=\(image)")
+                                self.mSummaryImage.sd_cancelCurrentImageLoad()
+                                self.mSummaryImage.sd_setImage(with: URL(string: image.trimmingCharacters(in: .whitespacesAndNewlines)),
+                                                               placeholderImage: UIImage(named: "placeholder"),
+                                                               options: [.retryFailed, .continueInBackground]) { img, error, cacheType, _ in
+                                    let now = CFAbsoluteTimeGetCurrent()
+                                    let size = img.map { "\(Int($0.size.width * $0.scale))x\(Int($0.size.height * $0.scale))px" } ?? "nil"
+                                    print("IMGTIMING [3 image] download=\(String(format: "%.2f", now - imageTimingStart))s cache=\(cacheType.rawValue) (0=none,1=disk,2=memory) size=\(size) error=\(error?.localizedDescription ?? "none")")
+                                    print("IMGTIMING [TOTAL search -> image shown] \(String(format: "%.2f", now - searchStart))s")
+                                }
                             }
                             self.mSKUForImage = "\(data.value(forKey: "SKU") ?? "--")"
                             
@@ -2762,11 +2777,14 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
       
         print("mGetInventorySummaryData urlPath: \(urlPath)")
         print("mGetInventorySummaryData params: \(params)")
+        let timingStart = CFAbsoluteTimeGetCurrent() // TEMPORARY timing log
+        mSummarySearchStart = timingStart
         if Reachability.isConnectedToNetwork() == true {
             CommonClass.showFullLoader(view: self.view)
             AF.request(urlPath, method:.post,parameters: params, encoding: JSONEncoding.default,  headers: sGisHeaders).responseJSON
             { response in
                 CommonClass.stopLoader()
+                print("IMGTIMING [1 search API] key='\(key)' \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - timingStart))s")
                 print("mGetInventorySummaryData response: \(response)")
                 if(response.error != nil){
                     CommonClass.showSnackBar(message: "OOP's something went wrong!")
