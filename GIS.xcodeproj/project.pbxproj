@@ -148,6 +148,9 @@
 		843A3A27272D9ED6002E4F0F /* CommonClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1E272D9ED6002E4F0F /* CommonClass.swift */; };
 		843A3A28272D9ED6002E4F0F /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1F272D9ED6002E4F0F /* APIManager.swift */; };
 		A1B2C3D4E5F6000000000001 /* GISCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000002 /* GISCore.swift */; };
+		A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */; };
+		A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000006 /* GISProfileView.swift */; };
+		A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */; };
 		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
 		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
 		ABA58CF7435AE3189D1EEF65 /* Pods_GIS_GISUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */; };
@@ -517,6 +520,9 @@
 		843A3A1E272D9ED6002E4F0F /* CommonClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonClass.swift; sourceTree = "<group>"; };
 		843A3A1F272D9ED6002E4F0F /* APIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6000000000002 /* GISCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISCore.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIMigrationHost.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000006 /* GISProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProfileView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProductDetailView.swift; sourceTree = "<group>"; };
 		84BAA40F2742603600FD8F37 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		84BAA4102742603B00FD8F37 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		84BAA414274260AB00FD8F37 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
@@ -1150,6 +1156,16 @@
 			path = Startup;
 			sourceTree = "<group>";
 		};
+		A1B2C3D4E5F6000000000009 /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */,
+				A1B2C3D4E5F6000000000006 /* GISProfileView.swift */,
+				A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */,
+			);
+			path = SwiftUI;
+			sourceTree = "<group>";
+		};
 		D968C9962538696A00D45A90 = {
 			isa = PBXGroup;
 			children = (
@@ -1201,6 +1217,7 @@
 				D9459159253D9E39003FA4C5 /* Inventory */,
 				D9459153253D9D76003FA4C5 /* Home */,
 				D953D51E2539864C00ACA584 /* Startup */,
+				A1B2C3D4E5F6000000000009 /* SwiftUI */,
 				D968C9A22538696B00D45A90 /* AppDelegate.swift */,
 				D92822F727719AFD0083F78C /* Test.storyboard */,
 				74A39BC82851BB270038C0DC /* tr.storyboard */,
@@ -1865,6 +1882,9 @@
 				742C106E2934B6D7004D7CE8 /* Utils.swift in Sources */,
 				843A3A28272D9ED6002E4F0F /* APIManager.swift in Sources */,
 				A1B2C3D4E5F6000000000001 /* GISCore.swift in Sources */,
+				A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */,
+				A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */,
+				A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */,
 				C5D053023029B3B300CBEA51 /* FaroSuggestions.swift in Sources */,
 				D953D5202539870D00ACA584 /* SplashController.swift in Sources */,
 				74BA46AF299AD51D00AE5243 /* MixAndMatchDiamond.swift in Sources */,

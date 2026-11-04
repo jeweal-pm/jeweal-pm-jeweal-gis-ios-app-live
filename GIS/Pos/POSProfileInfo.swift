@@ -127,11 +127,12 @@ class POSProfileInfo: UIViewController , UITableViewDelegate,UITableViewDataSour
     }
     
     @IBAction func mSettings(_ sender: Any) {
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        if let home = storyBoard.instantiateViewController(withIdentifier: "HomePage") as? HomePage {
-            tabBarController?.hidesBottomBarWhenPushed = true
-            self.navigationController?.pushViewController(home, animated:true)
-        }
+        GISSwiftUIMigrationHost.push(
+            GISSettingsView(onBack: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }),
+            from: self
+        )
     }
     
     @IBAction func mWishList(_ sender: Any) {
