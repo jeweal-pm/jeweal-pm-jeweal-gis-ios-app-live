@@ -125,14 +125,22 @@ class SearchInventory: UIViewController, UITableViewDelegate , UITableViewDataSo
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         if let mData = mSearchData[indexPath.row] as? NSDictionary {
-            let storyBoard: UIStoryboard = UIStoryboard(name: "invdata", bundle: nil)
-            if let home = storyBoard.instantiateViewController(withIdentifier: "InventoryDetails") as? InventoryDetails {
-                home.mData = mData
-                self.mFrom = ""
-                self.mKey = ""
-                self.navigationController?.pushViewController(home, animated:true)
-            }
+            mFrom = ""
+            mKey = ""
+            showProductDetail(mData)
         }
+    }
+
+    private func showProductDetail(_ data: NSDictionary) {
+        GISSwiftUIMigrationHost.push(
+            GISProductDetailView(
+                product: GISProductDetail(data: data),
+                onBack: { [weak self] in
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            ),
+            from: self
+        )
     }
     
     @IBAction func mSearchNow(_ sender: Any) {
@@ -201,11 +209,7 @@ class SearchInventory: UIViewController, UITableViewDelegate , UITableViewDataSo
                                     
                                     if self.mKey != "" {
                                         if let data = mData[0] as? NSDictionary {
-                                            let storyBoard: UIStoryboard = UIStoryboard(name: "invdata", bundle: nil)
-                                            if let home = storyBoard.instantiateViewController(withIdentifier: "InventoryDetails") as? InventoryDetails {
-                                                home.mData = data
-                                                self.navigationController?.pushViewController(home, animated:true)
-                                            }
+                                            self.showProductDetail(data)
                                         }
                                     }else{
                                         
