@@ -2915,10 +2915,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     @IBAction func mGetCustomerProfile(_ sender: Any) {
         self.mCustomerSearch.text = ""
         
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        if let mProfInfo = storyBoard.instantiateViewController(withIdentifier: "POSProfileInfo") as? POSProfileInfo {
-            self.navigationController?.pushViewController(mProfInfo, animated:true)
-        }
+        GISSwiftUIMigrationHost.pushProfile(from: self)
     }
     
     

@@ -6,9 +6,39 @@
 //
 
 import UIKit
+import AVFoundation
+import SafariServices
 import Alamofire
 import Security
 
+
+/// Frosted blur with different top (34pt) and bottom (58pt) corner radii, for iOS versions without Liquid Glass.
+private final class StoreCardBlurView: UIVisualEffectView {
+    private let cornerMask = CAShapeLayer()
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let rect = bounds
+        let top: CGFloat = 34, bottom: CGFloat = 58
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: rect.minX + top, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - top, y: rect.minY))
+        path.addArc(withCenter: CGPoint(x: rect.maxX - top, y: rect.minY + top), radius: top,
+                    startAngle: -.pi / 2, endAngle: 0, clockwise: true)
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - bottom))
+        path.addArc(withCenter: CGPoint(x: rect.maxX - bottom, y: rect.maxY - bottom), radius: bottom,
+                    startAngle: 0, endAngle: .pi / 2, clockwise: true)
+        path.addLine(to: CGPoint(x: rect.minX + bottom, y: rect.maxY))
+        path.addArc(withCenter: CGPoint(x: rect.minX + bottom, y: rect.maxY - bottom), radius: bottom,
+                    startAngle: .pi / 2, endAngle: .pi, clockwise: true)
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + top))
+        path.addArc(withCenter: CGPoint(x: rect.minX + top, y: rect.minY + top), radius: top,
+                    startAngle: .pi, endAngle: -.pi / 2, clockwise: true)
+        path.close()
+        cornerMask.path = path.cgPath
+        layer.mask = cornerMask
+    }
+}
 
 public class StoreItem: UITableViewCell {
     
@@ -17,9 +47,42 @@ public class StoreItem: UITableViewCell {
     @IBOutlet weak var mSelect: UIButton!
     public override func awakeFromNib() {
         super.awakeFromNib()
+        styleForGlassSheet()
     }
     public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
+    }
+
+    /// Rows sit directly on the glass sheet: transparent, name on the left and the
+    /// domain on the right (the storyboard splits the row into two equal white halves).
+    private func styleForGlassSheet() {
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+        clearBackgrounds(in: contentView)
+
+        guard let nameContainer = mStoreName.superview,
+              let domainContainer = mStoreDomain.superview else { return }
+        (nameContainer.superview as? UIStackView)?.distribution = .fill
+        (nameContainer.superview as? UIStackView)?.spacing = 8
+        // The fixed 40pt container heights would fight the 48pt row.
+        [nameContainer, domainContainer].forEach { container in
+            container.constraints
+                .filter { $0.firstAttribute == .height && $0.secondItem == nil }
+                .forEach { $0.isActive = false }
+        }
+        nameContainer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        domainContainer.setContentHuggingPriority(.required, for: .horizontal)
+        domainContainer.setContentCompressionResistancePriority(.required, for: .horizontal)
+        mStoreName.font = UIFont(name: "SegoeUI", size: 16) ?? .systemFont(ofSize: 16)
+        mStoreDomain.font = UIFont(name: "SegoeUI", size: 14) ?? .systemFont(ofSize: 14)
+        mStoreDomain.textAlignment = .right
+    }
+
+    private func clearBackgrounds(in view: UIView) {
+        view.subviews.forEach { subview in
+            subview.backgroundColor = .clear
+            clearBackgrounds(in: subview)
+        }
     }
     
     
@@ -78,9 +141,21 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     
     @IBOutlet weak var mStoreHeader: UILabel!
     private let mOrganizationButton = UIButton(type: .system)
+    // TestFlight test organization: intentionally has no stores.
+    private let storeSetupMockOrganizationID = "__store_setup_demo_no_stores__"
     private let mOrganizationSubtitle = UILabel()
-    
-    
+    // The overlay's dim colour is faded in/out while only the sheet slides.
+    private var storeSheetDimColor: UIColor?
+    private var isStoreSheetAnimating = false
+    // Distance from the header to the first row: larger while the organization subtitle is visible.
+    private var storeTableTopConstraint: NSLayoutConstraint?
+
+    /// False while the Organization/Store sheet is on screen or animating, so a
+    /// second tap on the organization button doesn't present it again.
+    var canPresentStoreSheet: Bool {
+        mStoreContentView.isHidden && !isStoreSheetAnimating
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -105,8 +180,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         mStoreHeader.numberOfLines = 1
         mStoreHeader.adjustsFontSizeToFitWidth = false
         mStoreHeader.lineBreakMode = .byClipping
-        mStoreView.layer.cornerRadius = 20
-        mStoreView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMinYCorner]
+        configureGlassStoreSheet()
         
         if(UserDefaults.standard.string(forKey: "email") == nil){
             UserDefaults.standard.set("", forKey: "email")
@@ -148,12 +222,76 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         
     }
 
+    /// Organization / store picker as a floating Liquid Glass card (design "Organizations.png"):
+    /// 6pt from the sides and bottom, 425pt tall, 44pt corners, no grabber, rows without separators.
+    private func configureGlassStoreSheet() {
+        // The dim overlay was pinned to the safe area, which left the status bar strip undimmed.
+        view.constraints
+            .filter { $0.firstItem === mStoreContentView && $0.firstAttribute == .top }
+            .forEach { $0.isActive = false }
+        mStoreContentView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        mStoreContentView.constraints
+            .filter { $0.firstItem === mStoreView || $0.secondItem === mStoreView }
+            .forEach { $0.isActive = false }
+        NSLayoutConstraint.activate([
+            mStoreView.leadingAnchor.constraint(equalTo: mStoreContentView.leadingAnchor, constant: 6),
+            mStoreView.trailingAnchor.constraint(equalTo: mStoreContentView.trailingAnchor, constant: -6),
+            mStoreView.bottomAnchor.constraint(equalTo: mStoreContentView.bottomAnchor, constant: -6)
+        ])
+        mStoreView.constraints
+            .first { $0.firstItem === mStoreView && $0.firstAttribute == .height && $0.secondItem == nil }?
+            .constant = 424
+
+        // Title centre 44pt below the card top; the first row starts 75pt below it; rows inset 24pt.
+        let headerView = mStoreHeader.superview?.superview
+        headerView?.subviews.first { $0.bounds.size == CGSize(width: 50, height: 4) }?.isHidden = true
+        mStoreView.constraints
+            .first { $0.firstItem === headerView && $0.firstAttribute == .top }?.constant = -3
+        storeTableTopConstraint = mStoreView.constraints
+            .first { $0.firstItem === mStoreTableView && $0.firstAttribute == .top }
+        storeTableTopConstraint?.constant = mOrganizationSubtitle.isHidden ? -2 : 10
+        mStoreView.constraints
+            .first { $0.firstItem === mStoreTableView && $0.firstAttribute == .leading }?.constant = 24
+        mStoreView.constraints
+            .first { $0.secondItem === mStoreTableView && $0.firstAttribute == .trailing }?.constant = 24
+        mStoreTableView.backgroundColor = .clear
+        mStoreTableView.separatorStyle = .none
+
+        mStoreView.backgroundColor = .clear
+
+        // Design: 363x424 card, top corners 34pt and bottom corners 58pt (they follow the screen's rounded corners).
+        let effectView: UIVisualEffectView
+        if #available(iOS 26.0, *) {
+            effectView = UIVisualEffectView(effect: UIGlassEffect(style: .regular))
+            effectView.cornerConfiguration = .corners(
+                topLeftRadius: .fixed(34),
+                topRightRadius: .fixed(34),
+                bottomLeftRadius: .fixed(58),
+                bottomRightRadius: .fixed(58)
+            )
+        } else {
+            // Before iOS 26 there is no Liquid Glass: use a light frosted blur with the same corners.
+            effectView = StoreCardBlurView(effect: UIBlurEffect(style: .systemThinMaterialLight))
+        }
+        effectView.isUserInteractionEnabled = false
+        effectView.translatesAutoresizingMaskIntoConstraints = false
+        mStoreView.insertSubview(effectView, at: 0)
+        NSLayoutConstraint.activate([
+            effectView.topAnchor.constraint(equalTo: mStoreView.topAnchor),
+            effectView.bottomAnchor.constraint(equalTo: mStoreView.bottomAnchor),
+            effectView.leadingAnchor.constraint(equalTo: mStoreView.leadingAnchor),
+            effectView.trailingAnchor.constraint(equalTo: mStoreView.trailingAnchor)
+        ])
+    }
+
     private func configureOrganizationSheetHeader() {
         mStoreHeader.text = "Organization"
-        mStoreHeader.textColor = UIColor(red: 0.25, green: 0.25, blue: 0.25, alpha: 1.0)
-        mStoreHeader.font = UIFont(name: "SegoeUI-Semibold", size: 20)
-            ?? UIFont.systemFont(ofSize: 20, weight: .semibold)
+        mStoreHeader.textColor = .black
+        mStoreHeader.font = UIFont(name: "SegoeUI-Semibold", size: 17)
+            ?? UIFont.systemFont(ofSize: 17, weight: .semibold)
 
+        // With the subtitle the list starts lower, so the subtitle stays with the title.
+        storeTableTopConstraint?.constant = 10
         guard mOrganizationSubtitle.superview == nil else {
             mOrganizationSubtitle.isHidden = false
             return
@@ -175,7 +313,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         NSLayoutConstraint.activate([
             mOrganizationSubtitle.topAnchor.constraint(
                 equalTo: mStoreHeader.bottomAnchor,
-                constant: 8
+                constant: 2
             ),
             mOrganizationSubtitle.centerXAnchor.constraint(
                 equalTo: mStoreView.centerXAnchor
@@ -192,8 +330,9 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     }
 
     private func configureStoreSheetHeader() {
-        mStoreHeader.text = "Choose Store"
+        mStoreHeader.text = "Choode Store"
         mOrganizationSubtitle.isHidden = true
+        storeTableTopConstraint?.constant = -2
     }
     
     private func setupOrganizationButton() {
@@ -243,6 +382,8 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
 
     @objc
     private func didTapOrganizationButton() {
+        // The sheet is already open (the button sits above it); don't load it again.
+        guard canPresentStoreSheet else { return }
         // Organization switcher requires PIN or Face ID after Store selection.
         mRequiresOrganizationStorePin = true
         view.endEditing(true)
@@ -355,11 +496,46 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         }
     }
 
+    /// Fades the dim background in while the sheet slides up from the bottom.
+    private func showStoreContentView() {
+        guard canPresentStoreSheet else { return }
+        let dimColor = storeSheetDimColor ?? mStoreContentView.backgroundColor
+        storeSheetDimColor = dimColor
+        isStoreSheetAnimating = true
+
+        mStoreContentView.backgroundColor = .clear
+        mStoreContentView.isHidden = false
+        view.layoutIfNeeded()
+        mStoreView.transform = CGAffineTransform(translationX: 0, y: mStoreView.bounds.height)
+
+        UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut, animations: {
+            self.mStoreContentView.backgroundColor = dimColor
+            self.mStoreView.transform = .identity
+        }, completion: { _ in
+            self.isStoreSheetAnimating = false
+        })
+    }
+
     private func dismissStoreContentView() {
-        self.mStoreContentView.slideTop()
-        self.mStoreContentView.isHidden = true
-        configureOrganizationSheetHeader()
-        self.mKey = ""
+        guard !mStoreContentView.isHidden else {
+            configureOrganizationSheetHeader()
+            self.mKey = ""
+            return
+        }
+        guard !isStoreSheetAnimating else { return }
+        isStoreSheetAnimating = true
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: {
+            self.mStoreContentView.backgroundColor = .clear
+            self.mStoreView.transform = CGAffineTransform(translationX: 0, y: self.mStoreView.bounds.height)
+        }, completion: { _ in
+            self.mStoreContentView.isHidden = true
+            self.mStoreContentView.backgroundColor = self.storeSheetDimColor
+            self.mStoreView.transform = .identity
+            self.isStoreSheetAnimating = false
+            self.configureOrganizationSheetHeader()
+            self.mKey = ""
+        })
     }
 
     @IBAction func mHideStoreContentView(_ sender: Any) {
@@ -665,10 +841,18 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                 if code == 200 {
                     if let mData = jsonResult["data"] as? [String: Any],
                        let orgData = mData["org_data"] as? NSArray {
+                        let organizationsForSelection = NSMutableArray(array: orgData)
+                        // Keep the QA-only no-store organization visible without
+                        // requiring the tester to scroll through a long account list.
+                        organizationsForSelection.insert([
+                            "organization_id": self.storeSetupMockOrganizationID,
+                            "organization": "Demo (No Stores)",
+                            "domain": "https://www.gis247.net"
+                        ], at: 0)
                         // A user with one organization has no organization
                         // choice to make. Continue directly to its store list.
-                        if orgData.count == 1,
-                           let onlyOrganization = orgData.firstObject as? NSDictionary {
+                        if organizationsForSelection.count == 1,
+                           let onlyOrganization = organizationsForSelection.firstObject as? NSDictionary {
                             print("mGetOrganization -> selecting the only available organization")
                             keepsLoadingForAutomaticSelection = true
                             self.selectOrganization(onlyOrganization)
@@ -677,12 +861,11 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
 
                         self.mKey = "org"
                         self.configureOrganizationSheetHeader()
-                        self.mStoreData = orgData
+                        self.mStoreData = organizationsForSelection
                         self.mStoreTableView.delegate = self
                         self.mStoreTableView.dataSource = self
                         self.mStoreTableView.reloadData()
-                        self.mStoreContentView.isHidden = false
-                        self.mStoreContentView.slideFromBottom()
+                        self.showStoreContentView()
                     } else {
                         
                     }
@@ -991,7 +1174,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                         if let mStoreData = jsonResult.value(forKey: "data") as? NSArray {
                             if mStoreData.count == 0 {
                                 CommonClass.stopLoader()
-                                CommonClass.showSnackBar(message: "No Stores available!")
+                                self.showNoStoresFoundOverlay()
                                 
                                 return
                             }
@@ -1017,12 +1200,12 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                             self.mStoreContentView.isHidden = false
                         }else{
                             CommonClass.stopLoader()
-                            CommonClass.showSnackBar(message: "No Stores available!")
+                            self.showNoStoresFoundOverlay()
                             return
                         }
                     } else if jsonResult.value(forKey: "code") as? Int == 400 {
                         CommonClass.stopLoader()
-                        CommonClass.showSnackBar(message: "No Stores available!")
+                        self.showNoStoresFoundOverlay()
                     }
                     
                 }
@@ -1038,6 +1221,16 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     
     
     
+    private func showNoStoresFoundOverlay() {
+        CommonClass.stopLoader()
+        mStoreContentView.isHidden = true
+        let setupURL = URL(string: "https://gis247.net/login/")
+        let controller = StoreSetupEmptyStateController(setupURL: setupURL)
+        controller.modalPresentationStyle = .overFullScreen
+        // The controller fades its dim background and slides its own sheet up.
+        present(controller, animated: false)
+    }
+
     func mGeneratePOSToken(){
         
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
@@ -1161,7 +1354,12 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                     
                 }else if mKey == "store"{
                     
-                    cells.mStoreName.text = mData.value(forKey: "voucher_name") as? String
+                    // Some vouchers have no name set; fall back to the location name.
+                    let voucherName = (mData.value(forKey: "voucher_name") as? String)?
+                        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    cells.mStoreName.text = voucherName.isEmpty
+                        ? mData.value(forKey: "location_name") as? String
+                        : voucherName
                     cells.mStoreDomain.text = ""
                 }
             }
@@ -1202,6 +1400,10 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         mOrgId = orgId
         UserDefaults.standard.set(orgId, forKey: "organization_id")
         UserDefaults.standard.set(organization["domain"], forKey: "website_url")
+        if orgId == storeSetupMockOrganizationID {
+            showNoStoresFoundOverlay()
+            return
+        }
         mLoginWithPassword(org_id: orgId)
     }
 
@@ -1242,7 +1444,622 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 40
+        return 48
         
+    }
+}
+
+final class StoreSetupEmptyStateController: UIViewController {
+    private let setupURL: URL?
+    private let teal = UIColor(red: 0.36, green: 0.78, blue: 0.756, alpha: 1)
+    private let dimView = UIView()
+    private var hasAnimatedIn = false
+    // iPad layout follows the tablet design (sheet 80pt from the top, 40pt corners, 52pt buttons).
+    private let isPad = UIDevice.current.userInterfaceIdiom == .pad
+    private let detailLabel = UILabel()
+    private lazy var detailHeight: NSLayoutConstraint = detailLabel.heightAnchor.constraint(equalToConstant: 42)
+    /// The white bottom sheet. Internal so tests can check its layout.
+    let sheetView = UIView()
+    /// Store icon from the UX/UI design (`building_storefront`).
+    let iconView = UIImageView()
+
+    init(setupURL: URL?) {
+        self.setupURL = setupURL
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .clear
+
+        // The dim background only fades; the sheet slides (see viewDidAppear).
+        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.30)
+        dimView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(dimView)
+
+        let sheet = sheetView
+        sheet.backgroundColor = .white
+        sheet.layer.cornerRadius = isPad ? 40 : 34
+        sheet.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        sheet.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(sheet)
+
+        let grabber = UIView()
+        grabber.backgroundColor = UIColor(white: 0.8, alpha: 1)
+        grabber.layer.cornerRadius = 2
+        grabber.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(grabber)
+
+        let close = UIButton(type: .system)
+        close.setImage(UIImage(systemName: "xmark"), for: .normal)
+        close.tintColor = .darkGray
+        close.addTarget(self, action: #selector(dismissOverlay), for: .touchUpInside)
+        close.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(close)
+
+        // The 48pt asset has 3pt of padding, so a 48pt frame at x=24 puts the glyph at x=27 like the design.
+        let icon = iconView
+        icon.image = UIImage(named: "building_storefront") ?? UIImage(systemName: "storefront")
+        icon.tintColor = .darkGray
+        icon.contentMode = .scaleAspectFit
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        let iconRow = UIView()
+        iconRow.addSubview(icon)
+
+        let title = UILabel()
+        title.text = "No Stores Found"
+        title.font = .systemFont(ofSize: 23, weight: .semibold)
+        title.textColor = .label
+
+        let detail = detailLabel
+        // 14.5pt with a 21pt line height breaks the text after "set up" like the design.
+        let detailStyle = NSMutableParagraphStyle()
+        detailStyle.minimumLineHeight = 21
+        detailStyle.maximumLineHeight = 21
+        detail.attributedText = NSAttributedString(
+            string: "This organization doesn't have any stores set up yet.",
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 14.5),
+                .foregroundColor: UIColor.secondaryLabel,
+                .paragraphStyle: detailStyle
+            ]
+        )
+        detail.numberOfLines = 0
+
+        let guide = makeButton(title: "View Setup Guide", filled: true)
+        guide.addTarget(self, action: #selector(showGuide), for: .touchUpInside)
+        let setup = makeButton(title: "Go to Setup", filled: false)
+        setup.addTarget(self, action: #selector(openSetup), for: .touchUpInside)
+
+        let content = UIStackView(arrangedSubviews: [iconRow, title, detail, guide, setup])
+        content.axis = .vertical
+        content.alignment = .fill
+        content.spacing = 12
+        // Gaps measured from the design (Setup 7.png, 375x812).
+        content.setCustomSpacing(27, after: iconRow)
+        content.setCustomSpacing(13, after: title)
+        content.setCustomSpacing(24, after: detail)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(content)
+
+        NSLayoutConstraint.activate([
+            dimView.topAnchor.constraint(equalTo: view.topAnchor),
+            dimView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            dimView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dimView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            sheet.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sheet.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sheet.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            // Design: the sheet top sits just below the status bar (72pt on a 812pt phone, 80pt on a 1024pt iPad).
+            isPad
+                ? sheet.topAnchor.constraint(equalTo: view.topAnchor, constant: 80)
+                : sheet.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+
+            grabber.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 5),
+            grabber.centerXAnchor.constraint(equalTo: sheet.centerXAnchor),
+            grabber.widthAnchor.constraint(equalToConstant: 58),
+            grabber.heightAnchor.constraint(equalToConstant: 4),
+
+            close.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 24),
+            close.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 24),
+            close.widthAnchor.constraint(equalToConstant: 28),
+            close.heightAnchor.constraint(equalToConstant: 28),
+
+            content.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 24),
+            content.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -24),
+            // Design: the content is pinned to the bottom of the tall sheet.
+            isPad
+                ? content.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -48)
+                : content.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -14),
+            icon.leadingAnchor.constraint(equalTo: iconRow.leadingAnchor),
+            icon.topAnchor.constraint(equalTo: iconRow.topAnchor),
+            icon.bottomAnchor.constraint(equalTo: iconRow.bottomAnchor),
+            icon.heightAnchor.constraint(equalToConstant: 48),
+            icon.widthAnchor.constraint(equalToConstant: 48),
+            // Whole-point heights keep every element on a pixel boundary like the design.
+            title.heightAnchor.constraint(equalToConstant: 28),
+            detailHeight,
+            guide.heightAnchor.constraint(equalToConstant: isPad ? 52 : 48),
+            setup.heightAnchor.constraint(equalToConstant: isPad ? 52 : 48)
+        ])
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // One line on a wide iPad, two on a phone: size the detail text to its wrapped height.
+        let width = view.bounds.width - 48
+        guard width > 0 else { return }
+        let height = ceil(detailLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height)
+        if abs(detailHeight.constant - height) > 0.5 { detailHeight.constant = height }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard !hasAnimatedIn else { return }
+        // Start with the dim transparent and the sheet below the screen.
+        dimView.alpha = 0
+        view.layoutIfNeeded()
+        sheetView.transform = CGAffineTransform(translationX: 0, y: view.bounds.height)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard !hasAnimatedIn else { return }
+        hasAnimatedIn = true
+        UIView.animate(withDuration: 0.35, delay: 0, options: .curveEaseOut) {
+            self.dimView.alpha = 1
+            self.sheetView.transform = .identity
+        }
+    }
+
+    private func makeButton(title: String, filled: Bool) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.layer.cornerRadius = isPad ? 26 : 24
+        button.layer.borderWidth = filled ? 0 : 1
+        button.layer.borderColor = UIColor.systemGray5.cgColor
+        button.backgroundColor = filled ? teal : .white
+        button.setTitleColor(filled ? .white : .darkGray, for: .normal)
+        return button
+    }
+
+    /// The end state of the slide-out: dim faded away, sheet below the screen. Call it inside an animation block.
+    func applySlideOutState() {
+        dimView.alpha = 0
+        sheetView.transform = CGAffineTransform(translationX: 0, y: view.bounds.height)
+    }
+
+    @objc private func dismissOverlay() {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: {
+            self.applySlideOutState()
+        }, completion: { _ in
+            self.dismiss(animated: false)
+        })
+    }
+
+    @objc private func showGuide() {
+        let controller = StoreSetupGuideController(setupURL: setupURL)
+        // Over the full screen (not replacing it) so "No Stores Found" stays underneath and can slide away with it.
+        controller.modalPresentationStyle = .overFullScreen
+        // Switch pages without the slide-up animation.
+        present(controller, animated: false)
+    }
+
+    @objc private func openSetup() {
+        guard let setupURL else { return }
+        present(SFSafariViewController(url: setupURL), animated: true)
+    }
+}
+
+/// A view whose own layer is the player layer, so the video always fills exactly the view's bounds
+/// (a separately sized sublayer could be left at a stale size and crop the picture).
+private final class GuidePlayerView: UIView {
+    override class var layerClass: AnyClass { AVPlayerLayer.self }
+    var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+}
+
+private final class StoreSetupGuideController: UIViewController {
+    private let setupURL: URL?
+    private let teal = UIColor(red: 0.36, green: 0.78, blue: 0.756, alpha: 1)
+    // A queue player with a looper plays each step video again and again without a gap.
+    private let player = AVQueuePlayer()
+    private var looper: AVPlayerLooper?
+    private var page = 0
+    // iPad layout follows the tablet design (sheet 80pt from the top, 40pt corners, 52pt buttons).
+    private let isPad = UIDevice.current.userInterfaceIdiom == .pad
+
+    private let titles = [
+        "Open Store Setup",
+        "Select a Store",
+        "Configure Voucher Types",
+        "Enable and Save",
+        "Ready to Set Up Your Store?"
+    ]
+    private let messages = [
+        "Select Setup > Quick Store Setup on the left side navigation bar.",
+        "Choose the store you want to set up.",
+        "Under POS, tap the edit icon to enable the voucher types supported by your store.",
+        "1. Check the {checkbox} to enable the voucher type for your store.\n\n2. Set the voucher numbering format using a prefix, sequence number, and suffix.\n\n3. Tap Save to apply your changes.",
+        "You've completed the guide. Now follow the steps to configure your store."
+    ]
+    private let videoNames = [
+        "Step1_Open_Store_Setup",
+        "Step2_Select_Location",
+        "Step3_Edit_Voucher_Type",
+        "Step4_Enable_and_Save"
+    ]
+
+    private let sheetView = UIView()
+    private let videoView = GuidePlayerView()
+    // Free space for the video: below the header, above the title (padding: 24 sides, 12 top, 48 bottom).
+    private let videoArea = UILayoutGuide()
+    private var dotWidthConstraints: [NSLayoutConstraint] = []
+    private lazy var messageHeight: NSLayoutConstraint = messageLabel.heightAnchor.constraint(equalToConstant: 0)
+    private var primaryBottomToSafe: NSLayoutConstraint!
+    private var primaryBottomToSecondary: NSLayoutConstraint!
+    private let completedIcon = UIImageView(image: UIImage(named: "check_circle") ?? UIImage(systemName: "checkmark.circle"))
+    private let titleLabel = UILabel()
+    private let messageLabel = UILabel()
+    private let primaryButton = UIButton(type: .system)
+    private let secondaryButton = UIButton(type: .system)
+    private let dots = UIStackView()
+
+    init(setupURL: URL?) {
+        self.setupURL = setupURL
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor(red: 0.66, green: 0.76, blue: 0.74, alpha: 1)
+        makeLayout()
+        updatePage(animated: false)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // The label's own intrinsic size can stay at the unwrapped height (one line per step) for this
+        // attributed text, which clipped the last step. Give it the wrapped height explicitly.
+        let messageWidth = view.bounds.width - 48
+        guard messageWidth > 0 else { return }
+        let wrappedHeight = ceil(messageLabel.sizeThatFits(
+            CGSize(width: messageWidth, height: .greatestFiniteMagnitude)
+        ).height)
+        if abs(messageHeight.constant - wrappedHeight) > 0.5 {
+            messageHeight.constant = wrappedHeight
+        }
+    }
+
+    deinit { player.pause() }
+
+    private func makeLayout() {
+        let sheet = sheetView
+        sheet.backgroundColor = .white
+        sheet.layer.cornerRadius = isPad ? 40 : 34
+        sheet.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        sheet.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(sheet)
+
+        let grabber = UIView()
+        grabber.backgroundColor = UIColor(white: 0.8, alpha: 1)
+        grabber.layer.cornerRadius = 2
+        grabber.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(grabber)
+
+        let back = UIButton(type: .system)
+        back.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        back.tintColor = .darkGray
+        back.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
+        back.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(back)
+
+        dots.axis = .horizontal
+        dots.alignment = .center
+        dots.spacing = 4
+        dots.translatesAutoresizingMaskIntoConstraints = false
+        for _ in 0..<5 {
+            let dot = UIView()
+            dot.layer.cornerRadius = 2
+            dot.translatesAutoresizingMaskIntoConstraints = false
+            let width = dot.widthAnchor.constraint(equalToConstant: 16)
+            width.isActive = true
+            dotWidthConstraints.append(width)
+            dot.heightAnchor.constraint(equalToConstant: 4).isActive = true
+            dots.addArrangedSubview(dot)
+        }
+        sheet.addSubview(dots)
+
+        videoView.backgroundColor = .white
+        videoView.layer.cornerRadius = 8
+        videoView.clipsToBounds = true
+        videoView.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(videoView)
+
+        // 1pt #E3E3E3 border drawn above the video, as in the design.
+        let videoBorder = UIView()
+        videoBorder.isUserInteractionEnabled = false
+        videoBorder.layer.cornerRadius = 8
+        videoBorder.layer.borderWidth = 1
+        videoBorder.layer.borderColor = UIColor(white: 227.0 / 255.0, alpha: 1).cgColor
+        videoBorder.translatesAutoresizingMaskIntoConstraints = false
+        videoView.addSubview(videoBorder)
+        NSLayoutConstraint.activate([
+            videoBorder.topAnchor.constraint(equalTo: videoView.topAnchor),
+            videoBorder.bottomAnchor.constraint(equalTo: videoView.bottomAnchor),
+            videoBorder.leadingAnchor.constraint(equalTo: videoView.leadingAnchor),
+            videoBorder.trailingAnchor.constraint(equalTo: videoView.trailingAnchor)
+        ])
+
+        completedIcon.tintColor = teal
+        completedIcon.contentMode = .scaleAspectFit
+        completedIcon.translatesAutoresizingMaskIntoConstraints = false
+        sheet.addSubview(completedIcon)
+
+        // Same typography as the "No Stores Found" sheet.
+        titleLabel.font = .systemFont(ofSize: 23, weight: .semibold)
+        titleLabel.textColor = .label
+        titleLabel.numberOfLines = 0
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        // Keep the text at its natural height; the video takes the leftover space.
+        titleLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        messageLabel.font = .systemFont(ofSize: 14.5)
+        messageLabel.textColor = .secondaryLabel
+        messageLabel.numberOfLines = 0
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        messageLabel.setContentHuggingPriority(.required, for: .vertical)
+        messageLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        primaryButton.layer.cornerRadius = isPad ? 26 : 24
+        primaryButton.backgroundColor = teal
+        primaryButton.setTitleColor(.white, for: .normal)
+        primaryButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        primaryButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
+        primaryButton.translatesAutoresizingMaskIntoConstraints = false
+
+        secondaryButton.layer.cornerRadius = isPad ? 26 : 24
+        secondaryButton.layer.borderWidth = 1
+        secondaryButton.layer.borderColor = UIColor.systemGray5.cgColor
+        secondaryButton.setTitleColor(.darkGray, for: .normal)
+        secondaryButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        secondaryButton.setTitle("Maybe Later", for: .normal)
+        secondaryButton.addTarget(self, action: #selector(maybeLater), for: .touchUpInside)
+        secondaryButton.translatesAutoresizingMaskIntoConstraints = false
+
+        [titleLabel, messageLabel, primaryButton, secondaryButton].forEach(sheet.addSubview)
+
+        // Positions measured from the design (Setup 6/8/9/10/11, 375x812). The sheet is as
+        // tall as the "No Stores Found" sheet and the text is pinned above the button.
+        sheet.addLayoutGuide(videoArea)
+        // Video: always the video's own 3:4 shape (so nothing is cropped), as large as fits in the free
+        // space between the header glyphs and the title glyphs with at least 24pt on each side, and centred
+        // so the visible gap above equals the gap below (at least 24pt).
+        let preferredHeight = videoView.heightAnchor.constraint(equalTo: videoArea.heightAnchor, constant: -48)
+        preferredHeight.priority = .defaultHigh
+        let preferredWidth = videoView.widthAnchor.constraint(equalTo: videoArea.widthAnchor)
+        preferredWidth.priority = .defaultHigh
+        // The title glyphs start ~5pt below the label top, so measure the bottom gap to them.
+        let areaBottom = videoArea.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 5)
+        areaBottom.priority = UILayoutPriority(999)
+        if isPad {
+            // Tablet design: video 82pt below the sheet top, always 3:4, centred, ending 57pt above the title glyphs.
+            let bottom = videoView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: -52)
+            bottom.priority = UILayoutPriority(999)
+            NSLayoutConstraint.activate([
+                videoView.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 82),
+                videoView.centerXAnchor.constraint(equalTo: sheet.centerXAnchor),
+                videoView.widthAnchor.constraint(equalTo: videoView.heightAnchor, multiplier: 0.75),
+                videoView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
+                bottom,
+                // The free space (header glyphs to title glyphs) is also used to centre the last page's check circle.
+                videoArea.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 47),
+                videoArea.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
+                areaBottom
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                // Header glyphs (back arrow, dots) end ~47pt below the sheet top.
+                videoArea.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 47),
+                videoArea.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 24),
+                videoArea.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -24),
+                videoArea.heightAnchor.constraint(greaterThanOrEqualToConstant: 0),
+                areaBottom,
+                videoView.centerXAnchor.constraint(equalTo: videoArea.centerXAnchor),
+                videoView.centerYAnchor.constraint(equalTo: videoArea.centerYAnchor),
+                videoView.widthAnchor.constraint(equalTo: videoView.heightAnchor, multiplier: 0.75),
+                videoView.widthAnchor.constraint(lessThanOrEqualTo: videoArea.widthAnchor),
+                videoView.heightAnchor.constraint(lessThanOrEqualTo: videoArea.heightAnchor, constant: -48),
+                preferredWidth,
+                preferredHeight
+            ])
+        }
+        primaryBottomToSafe = isPad
+            ? primaryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -48)
+            : primaryButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -14)
+        primaryBottomToSecondary = primaryButton.bottomAnchor.constraint(
+            equalTo: secondaryButton.topAnchor, constant: -12
+        )
+
+        NSLayoutConstraint.activate([
+            sheet.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sheet.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sheet.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            isPad
+                ? sheet.topAnchor.constraint(equalTo: view.topAnchor, constant: 80)
+                : sheet.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+
+            grabber.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 5),
+            grabber.centerXAnchor.constraint(equalTo: sheet.centerXAnchor),
+            grabber.widthAnchor.constraint(equalToConstant: 58),
+            grabber.heightAnchor.constraint(equalToConstant: 4),
+
+            // Design: the arrow glyph is centred 37pt from the left edge.
+            back.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 19),
+            back.topAnchor.constraint(equalTo: sheet.topAnchor, constant: 20),
+            back.widthAnchor.constraint(equalToConstant: 36),
+            back.heightAnchor.constraint(equalToConstant: 36),
+            dots.centerXAnchor.constraint(equalTo: sheet.centerXAnchor),
+            dots.centerYAnchor.constraint(equalTo: back.centerYAnchor),
+
+            completedIcon.centerXAnchor.constraint(equalTo: sheet.centerXAnchor),
+            // The design asset is 200pt with 27pt of padding, so the 146pt circle sits at y 261-406.
+            // Centred in the free space between the header and the title (the 200pt asset has even padding).
+            completedIcon.centerYAnchor.constraint(equalTo: videoArea.centerYAnchor),
+            completedIcon.widthAnchor.constraint(equalToConstant: isPad ? 252 : 200),
+            completedIcon.heightAnchor.constraint(equalToConstant: isPad ? 252 : 200),
+
+            titleLabel.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 24),
+            titleLabel.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -24),
+            messageLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            messageLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 13),
+            messageLabel.bottomAnchor.constraint(equalTo: primaryButton.topAnchor, constant: -24),
+            messageHeight,
+
+            secondaryButton.leadingAnchor.constraint(equalTo: sheet.leadingAnchor, constant: 24),
+            secondaryButton.trailingAnchor.constraint(equalTo: sheet.trailingAnchor, constant: -24),
+            isPad
+                ? secondaryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -48)
+                : secondaryButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -14),
+            secondaryButton.heightAnchor.constraint(equalToConstant: isPad ? 52 : 48),
+            primaryButton.leadingAnchor.constraint(equalTo: secondaryButton.leadingAnchor),
+            primaryButton.trailingAnchor.constraint(equalTo: secondaryButton.trailingAnchor),
+            primaryButton.heightAnchor.constraint(equalToConstant: isPad ? 52 : 48)
+        ])
+    }
+
+    private func updatePage(animated: Bool) {
+        titleLabel.text = titles[page]
+        messageLabel.attributedText = messageText(for: page)
+        // Buttons, text and icons switch instantly: only the progress bars animate (no fading title/colour).
+        UIView.performWithoutAnimation {
+            // Last page: two buttons, otherwise one button at the bottom.
+            primaryBottomToSecondary.isActive = false
+            primaryBottomToSafe.isActive = false
+            (page == 4 ? primaryBottomToSecondary : primaryBottomToSafe).isActive = true
+            primaryButton.setTitle(page == 4 ? "Start Setup  →" : "Next", for: .normal)
+            secondaryButton.isHidden = page != 4
+            completedIcon.isHidden = page != 4
+            videoView.isHidden = page == 4
+            primaryButton.layoutIfNeeded()
+            view.layoutIfNeeded()
+        }
+        // Design: current page is a 24x4 #2A2A2A bar, the others are 16x4 #D9D9D9.
+        let applyDots = {
+            for (index, dot) in self.dots.arrangedSubviews.enumerated() {
+                dot.backgroundColor = index == self.page
+                    ? UIColor(red: 42.0 / 255.0, green: 42.0 / 255.0, blue: 42.0 / 255.0, alpha: 1)
+                    : UIColor(red: 217.0 / 255.0, green: 217.0 / 255.0, blue: 217.0 / 255.0, alpha: 1)
+                self.dotWidthConstraints[index].constant = index == self.page ? 24 : 16
+            }
+            self.dots.layoutIfNeeded()
+        }
+        if animated {
+            UIView.animate(withDuration: 0.2, animations: applyDots)
+        } else {
+            applyDots()
+        }
+        player.pause()
+        looper?.disableLooping()
+        looper = nil
+        player.removeAllItems()
+        if page < videoNames.count,
+           let url = Bundle.main.url(forResource: videoNames[page], withExtension: "mp4", subdirectory: "StoreSetupVideo") {
+            // Show the whole 3:4 frame; the border view sits above the video.
+            videoView.playerLayer.player = player
+            videoView.playerLayer.videoGravity = .resizeAspect
+            looper = AVPlayerLooper(player: player, templateItem: AVPlayerItem(url: url))
+            player.play()
+        }
+    }
+
+    /// Message text with a 21pt line height. Numbered steps ("1. ...") get a hanging indent like the design.
+    private func messageText(for page: Int) -> NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.minimumLineHeight = 21
+        style.maximumLineHeight = 21
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 14.5),
+            .foregroundColor: UIColor.secondaryLabel,
+            .paragraphStyle: style
+        ]
+        let steps = messages[page].components(separatedBy: "\n\n")
+        let isNumberedList = steps.count > 1 && steps.allSatisfy { $0.range(of: #"^\d+\. "#, options: .regularExpression) != nil }
+        guard isNumberedList else {
+            return attributedString(messages[page], attributes: attributes)
+        }
+        style.firstLineHeadIndent = 7.5
+        style.headIndent = 24.5
+        style.paragraphSpacing = 8
+        style.tabStops = [NSTextTab(textAlignment: .left, location: 24.5)]
+        let text = steps.map { step -> String in
+            guard let dot = step.range(of: ". ") else { return step }
+            return step.replacingCharacters(in: dot, with: ".\t")
+        }.joined(separator: "\n")
+        return attributedString(text, attributes: attributes)
+    }
+
+    /// Replaces the `{checkbox}` token with the teal checked box shown in the design.
+    private func attributedString(_ text: String, attributes: [NSAttributedString.Key: Any]) -> NSAttributedString {
+        let result = NSMutableAttributedString(string: text, attributes: attributes)
+        let token = (text as NSString).range(of: "{checkbox}")
+        guard token.location != NSNotFound else { return result }
+        let attachment = NSTextAttachment()
+        attachment.image = checkboxImage()
+        // Sit the 16pt box on the text baseline like the design.
+        attachment.bounds = CGRect(x: 0, y: -3, width: 16, height: 16)
+        let attachmentString = NSMutableAttributedString(attachment: attachment)
+        attachmentString.addAttributes(attributes, range: NSRange(location: 0, length: attachmentString.length))
+        result.replaceCharacters(in: token, with: attachmentString)
+        return result
+    }
+
+    private func checkboxImage() -> UIImage {
+        let size = CGSize(width: 16, height: 16)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            teal.setFill()
+            UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 3.5).fill()
+            let check = UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 10, weight: .bold))?
+                .withTintColor(.white, renderingMode: .alwaysOriginal)
+            check?.draw(in: CGRect(x: 3, y: 3.5, width: 10, height: 9).insetBy(dx: 0, dy: 0))
+        }
+    }
+
+    @objc private func nextTapped() {
+        if page == 4 {
+            guard let setupURL else { return }
+            present(SFSafariViewController(url: setupURL), animated: true)
+            return
+        }
+        page += 1
+        updatePage(animated: true)
+    }
+
+    @objc private func backTapped() {
+        // Back from the first page switches to "No Stores Found" without the slide-down animation.
+        if page == 0 { dismiss(animated: false) }
+        else { page -= 1; updatePage(animated: true) }
+    }
+
+    @objc private func maybeLater() {
+        // Close every popup (guide and "No Stores Found"): both sheets slide down together, then return to the login screen.
+        var base: UIViewController = self
+        while let presenter = base.presentingViewController { base = presenter }
+        let noStores = presentingViewController as? StoreSetupEmptyStateController
+        view.isUserInteractionEnabled = false
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: {
+            self.sheetView.transform = CGAffineTransform(translationX: 0, y: self.view.bounds.height)
+            self.view.backgroundColor = .clear
+            noStores?.applySlideOutState()
+        }, completion: { _ in
+            base.dismiss(animated: false)
+        })
     }
 }

@@ -147,12 +147,13 @@
 		843A3A26272D9ED6002E4F0F /* GlobalMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1D272D9ED5002E4F0F /* GlobalMethod.swift */; };
 		843A3A27272D9ED6002E4F0F /* CommonClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1E272D9ED6002E4F0F /* CommonClass.swift */; };
 		843A3A28272D9ED6002E4F0F /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1F272D9ED6002E4F0F /* APIManager.swift */; };
+		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
+		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
 		A1B2C3D4E5F6000000000001 /* GISCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000002 /* GISCore.swift */; };
 		A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */; };
 		A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000006 /* GISProfileView.swift */; };
 		A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */; };
-		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
-		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
+		A1B2C3D4E5F6000000000010 /* GISProductSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000011 /* GISProductSummaryView.swift */; };
 		ABA58CF7435AE3189D1EEF65 /* Pods_GIS_GISUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */; };
 		C50065133073B35900BB2A42 /* WishlistExportOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */; };
 		C500651530762D3C00BB2A42 /* ExpandableSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C500651430762D3C00BB2A42 /* ExpandableSearchBar.swift */; };
@@ -221,6 +222,7 @@
 		C5EBD66D300DE968000CC768 /* PriceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5EBD66C300DE964000CC768 /* PriceHelper.swift */; };
 		C5F039FF2FEE7F3F00B5B9F6 /* PayPalCheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F039FE2FEE7F3A00B5B9F6 /* PayPalCheckoutView.swift */; };
 		C5F03A082FF25A4500B5B9F6 /* PayPalWebPayments in Frameworks */ = {isa = PBXBuildFile; productRef = C5F03A072FF25A4500B5B9F6 /* PayPalWebPayments */; };
+		C5F9F9EB309C1ED300DB946D /* StoreSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */; };
 		D90375922757851400E4CE09 /* Posfilter.xib in Resources */ = {isa = PBXBuildFile; fileRef = D90375912757851300E4CE09 /* Posfilter.xib */; };
 		D903A18927B2315B004FE2E0 /* emailpopup.xib in Resources */ = {isa = PBXBuildFile; fileRef = D903A18827B2315B004FE2E0 /* emailpopup.xib */; };
 		D9064A57260C848800D856D1 /* POSHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9064A56260C848700D856D1 /* POSHome.swift */; };
@@ -289,6 +291,7 @@
 		D9E7A9D0270C24D9005CC79D /* RepairDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E7A9CF270C24D9005CC79D /* RepairDesign.swift */; };
 		D9F0369C2589C950001211B4 /* CheckOutPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9F0369B2589C950001211B4 /* CheckOutPage.swift */; };
 		F1A000010000000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F1A000020000000000000001 /* GoogleService-Info.plist */; };
+		F1A000010000000000000010 /* StoreSetupVideo in Resources */ = {isa = PBXBuildFile; fileRef = F1A000010000000000000011 /* StoreSetupVideo */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -519,10 +522,6 @@
 		843A3A1D272D9ED5002E4F0F /* GlobalMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalMethod.swift; sourceTree = "<group>"; };
 		843A3A1E272D9ED6002E4F0F /* CommonClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonClass.swift; sourceTree = "<group>"; };
 		843A3A1F272D9ED6002E4F0F /* APIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6000000000002 /* GISCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISCore.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIMigrationHost.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6000000000006 /* GISProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProfileView.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProductDetailView.swift; sourceTree = "<group>"; };
 		84BAA40F2742603600FD8F37 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		84BAA4102742603B00FD8F37 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		84BAA414274260AB00FD8F37 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
@@ -537,6 +536,11 @@
 		84BAA4512742C3AC00FD8F37 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Main.strings; sourceTree = "<group>"; };
 		84BAA4522742C3AC00FD8F37 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		84BAA4532742C3AC00FD8F37 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localization.strings; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000002 /* GISCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISCore.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIMigrationHost.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000006 /* GISProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProfileView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProductDetailView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000011 /* GISProductSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISProductSummaryView.swift; sourceTree = "<group>"; };
 		AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GIS_GISUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE64CB0C4C725143D10E4C85 /* Pods-GIS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GIS.release.xcconfig"; path = "Target Support Files/Pods-GIS/Pods-GIS.release.xcconfig"; sourceTree = "<group>"; };
 		C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishlistExportOptionsController.swift; sourceTree = "<group>"; };
@@ -603,6 +607,7 @@
 		C5D0532B30444F3800CBEA51 /* EARfidFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EARfidFramework.framework; path = GIS/EARfidFramework.framework; sourceTree = "<group>"; };
 		C5EBD66C300DE964000CC768 /* PriceHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceHelper.swift; sourceTree = "<group>"; };
 		C5F039FE2FEE7F3A00B5B9F6 /* PayPalCheckoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPalCheckoutView.swift; sourceTree = "<group>"; };
+		C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSheetTests.swift; sourceTree = "<group>"; };
 		D90375912757851300E4CE09 /* Posfilter.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Posfilter.xib; sourceTree = "<group>"; };
 		D903A18827B2315B004FE2E0 /* emailpopup.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = emailpopup.xib; sourceTree = "<group>"; };
 		D9064A56260C848700D856D1 /* POSHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POSHome.swift; sourceTree = "<group>"; };
@@ -676,6 +681,7 @@
 		D9E42ACA2563D44A0051D714 /* LanguageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageController.swift; sourceTree = "<group>"; };
 		D9E7A9CF270C24D9005CC79D /* RepairDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepairDesign.swift; sourceTree = "<group>"; };
 		D9F0369B2589C950001211B4 /* CheckOutPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckOutPage.swift; sourceTree = "<group>"; };
+		F1A000010000000000000011 /* StoreSetupVideo */ = {isa = PBXFileReference; lastKnownFileType = folder; path = StoreSetupVideo; sourceTree = "<group>"; };
 		F1A000020000000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FF99DFA7C84BDAED7A4B55A9 /* Pods-GIS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GIS.debug.xcconfig"; path = "Target Support Files/Pods-GIS/Pods-GIS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -952,6 +958,17 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		A1B2C3D4E5F6000000000009 /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */,
+				A1B2C3D4E5F6000000000006 /* GISProfileView.swift */,
+				A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */,
+				A1B2C3D4E5F6000000000011 /* GISProductSummaryView.swift */,
+			);
+			path = SwiftUI;
+			sourceTree = "<group>";
+		};
 		C553B62C30208B820000A8E4 /* FaroScanner */ = {
 			isa = PBXGroup;
 			children = (
@@ -1156,16 +1173,6 @@
 			path = Startup;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6000000000009 /* SwiftUI */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */,
-				A1B2C3D4E5F6000000000006 /* GISProfileView.swift */,
-				A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */,
-			);
-			path = SwiftUI;
-			sourceTree = "<group>";
-		};
 		D968C9962538696A00D45A90 = {
 			isa = PBXGroup;
 			children = (
@@ -1224,6 +1231,7 @@
 				D968C9A42538696B00D45A90 /* SceneDelegate.swift */,
 				D968C9A82538696B00D45A90 /* Main.storyboard */,
 				D968C9AB2538699700D45A90 /* Assets.xcassets */,
+				F1A000010000000000000011 /* StoreSetupVideo */,
 				D968C9AD2538699700D45A90 /* LaunchScreen.storyboard */,
 				D968C9B02538699700D45A90 /* Info.plist */,
 				F1A000020000000000000001 /* GoogleService-Info.plist */,
@@ -1251,6 +1259,7 @@
 				7A1C00032F0000000000A001 /* TraceabilityTests.swift */,
 				D968C9BB2538699C00D45A90 /* Info.plist */,
 				C58A3561309837D10010F666 /* KycProfileBannerTests.swift */,
+				C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */,
 			);
 			path = GISTests;
 			sourceTree = "<group>";
@@ -1522,6 +1531,7 @@
 				749BA62E294C38FD00189CA4 /* catalog.storyboard in Resources */,
 				84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */,
 				D968C9AC2538699700D45A90 /* Assets.xcassets in Resources */,
+				F1A000010000000000000010 /* StoreSetupVideo in Resources */,
 				748B073C2990DD81001C6A6C /* posBoard.storyboard in Resources */,
 				74AF613F29A78B6800D65F05 /* confirmation.xib in Resources */,
 				D968C9AA2538696B00D45A90 /* Main.storyboard in Resources */,
@@ -1885,6 +1895,7 @@
 				A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */,
 				A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */,
 				A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */,
+				A1B2C3D4E5F6000000000010 /* GISProductSummaryView.swift in Sources */,
 				C5D053023029B3B300CBEA51 /* FaroSuggestions.swift in Sources */,
 				D953D5202539870D00ACA584 /* SplashController.swift in Sources */,
 				74BA46AF299AD51D00AE5243 /* MixAndMatchDiamond.swift in Sources */,
@@ -1900,6 +1911,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D968C9BA2538699C00D45A90 /* GISTests.swift in Sources */,
+				C5F9F9EB309C1ED300DB946D /* StoreSheetTests.swift in Sources */,
 				C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */,
 				7A1C00042F0000000000A001 /* TraceabilityTests.swift in Sources */,
 			);

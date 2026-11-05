@@ -317,10 +317,7 @@ class POSMain: UIViewController ,UITableViewDelegate , UITableViewDataSource {
     @IBAction func mProfileInfo(_ sender: Any) {
         self.mCustomerSearch.text = ""
         
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        if let mProfInfo = storyBoard.instantiateViewController(withIdentifier: "POSProfileInfo") as? POSProfileInfo {
-            self.navigationController?.pushViewController(mProfInfo, animated:true)
-        }
+        GISSwiftUIMigrationHost.pushProfile(from: self)
     }
     
     @IBAction func mAddNewCustomer(_ sender: Any) {

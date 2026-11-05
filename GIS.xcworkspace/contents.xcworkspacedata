@@ -13,4 +13,8 @@
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
+   <Group
+      location = "group:GISTests 2"
+      name = "GISTests 2">
+   </Group>
 </Workspace>

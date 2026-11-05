@@ -231,10 +231,7 @@ class POSInventory: UIViewController , UITableViewDelegate , UITableViewDataSour
     @IBAction func mProfileInfo(_ sender: Any) {
     
         self.mCustomerSearch.text = ""
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        if let mProfInfo = storyBoard.instantiateViewController(withIdentifier: "POSProfileInfo") as? POSProfileInfo {
-            self.navigationController?.pushViewController(mProfInfo, animated:true)
-        }
+        GISSwiftUIMigrationHost.pushProfile(from: self)
     }
     
     @IBAction func mHideSearchView(_ sender: Any) {

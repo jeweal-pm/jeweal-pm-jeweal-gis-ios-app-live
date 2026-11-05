@@ -1835,7 +1835,12 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
        
         if let cells = tableView.dequeueReusableCell(withIdentifier: "StoreItem") as? StoreItem {
             if let mData = mStoreData[indexPath.row] as? NSDictionary {
-                cells.mStoreName.text = mData.value(forKey: "voucher_name") as? String
+                let voucherName = (mData.value(forKey: "voucher_name") as? String)?
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                
+                cells.mStoreName.text = voucherName.isEmpty
+                ? mData.value(forKey: "location_name") as? String
+                : voucherName
                 cells.mStoreDomain.text = ""
             }
             return cells

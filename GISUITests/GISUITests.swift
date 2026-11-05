@@ -40,3 +40,28 @@ class GISUITests: XCTestCase {
         }
     }
 }
+
+// MARK: - Organization / Store sheet
+
+final class StoreSheetUITests: XCTestCase {
+
+    /// Needs a device/simulator that already has saved login credentials,
+    /// otherwise the organization button is hidden and the test is skipped.
+    func testTappingOrganizationButtonTwiceShowsOneSheet() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let button = app.buttons["Select Organization"]
+        guard button.waitForExistence(timeout: 5) else {
+            throw XCTSkip("No saved credentials, organization button is hidden")
+        }
+
+        button.tap()
+        let subtitle = app.staticTexts["Select an organization to continue"]
+        XCTAssertTrue(subtitle.waitForExistence(timeout: 10))
+
+        button.tap()
+        XCTAssertEqual(app.staticTexts.matching(identifier: "Select an organization to continue").count, 1)
+        XCTAssertTrue(subtitle.exists)
+    }
+}

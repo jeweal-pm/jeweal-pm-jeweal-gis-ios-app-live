@@ -8,6 +8,7 @@
 
 import UIKit
 import Alamofire
+import SwiftUI
 class SKUStonesCell : UITableViewCell {
     
     
@@ -107,6 +108,9 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
     private var productPDFURL: URL?
     private var productIDForPDF = ""
     private let productHeaderHeight: CGFloat = 56
+    private let usesSwiftUIProductSummary = true
+    private let swiftUIViewModel = GISProductSummaryViewModel()
+    private var swiftUIHostController: UIHostingController<GISProductSummaryView>?
 
     private func showProductLoading() {
         DispatchQueue.main.async { [weak self] in
@@ -145,9 +149,130 @@ class SKUProductSummary: UIViewController , UITableViewDelegate, UITableViewData
             self.mLoadingOverlay = nil
         }
     }
+
+    private func configureSwiftUIProductSummary() {
+        let productView = GISProductSummaryView(
+            viewModel: swiftUIViewModel,
+            onClose: { [weak self] in
+                self?.closeProductDetail()
+            },
+            onShare: { [weak self] in
+                self?.shareProductDetail()
+            }
+        )
+
+        let hostingController = UIHostingController(rootView: productView)
+        hostingController.view.backgroundColor = .clear
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        hostingController.didMove(toParent: self)
+        swiftUIHostController = hostingController
+    }
+
+    private func loadSwiftUIProductSummary() {
+        guard !mKey.isEmpty else {
+            guard let data = mOriginalData.firstObject as? NSDictionary else {
+                swiftUIViewModel.fail("Product info not available!")
+                return
+            }
+            applySwiftUIProductData(data)
+            return
+        }
+
+        if mType.lowercased() == "catalog" {
+            let location = catalogLocation.isEmpty
+                ? (UserDefaults.standard.string(forKey: "location") ?? "")
+                : catalogLocation
+            let params: [String: Any] = [
+                "product_id": mKey,
+                "search": "",
+                "sku": catalogSKU,
+                "type": catalogType,
+                "metal": [],
+                "size": [],
+                "stone": [],
+                "location": location,
+                "shape": [],
+                "pointer": [],
+                "isWishlist": catalogIsWishlist
+            ]
+
+            mGetData(
+                url: "https://api2uat.gis247.net/api/v1/Mobile/catalog/getCatalogDetail",
+                headers: sGisHeaders,
+                params: params
+            ) { [weak self] response, status in
+                guard let self else { return }
+                guard
+                    status,
+                    "\(response["code"] ?? "")" == "200",
+                    let data = response["data"] as? NSDictionary,
+                    let details = data["productdata_details"] as? NSDictionary
+                else {
+                    self.swiftUIViewModel.fail("Product info not available!")
+                    return
+                }
+
+                let mappedDetails = NSMutableDictionary(dictionary: details)
+                if mappedDetails["main_image"] == nil {
+                    mappedDetails["main_image"] = mappedDetails["images"] ?? ""
+                }
+                if let locations = data["location_arr"] as? NSArray,
+                   let first = locations.firstObject as? NSDictionary,
+                   let name = first["location_name"] as? String,
+                   !name.isEmpty {
+                    mappedDetails["location_name"] = name
+                }
+                self.applySwiftUIProductData(mappedDetails)
+            }
+        } else {
+            mGetData(
+                url: "https://api2uat.gis247.net/api/v1/Mobile/pos/customOrder/productDetail",
+                headers: sGisHeaders,
+                params: ["id": mKey]
+            ) { [weak self] response, status in
+                guard let self else { return }
+                guard status else {
+                    self.swiftUIViewModel.fail("Product info not available!")
+                    return
+                }
+
+                if let data = response["data"] as? NSDictionary {
+                    self.applySwiftUIProductData(data)
+                } else if let rows = response["data"] as? NSArray,
+                          let data = rows.firstObject as? NSDictionary {
+                    self.applySwiftUIProductData(data)
+                } else {
+                    self.swiftUIViewModel.fail("Product info not available!")
+                }
+            }
+        }
+    }
+
+    private func applySwiftUIProductData(_ data: NSDictionary) {
+        let product = GISProductSummary(data: data, fallbackStockID: "")
+        productIDForPDF = product.shareID == "--" ? mKey : product.shareID
+        DispatchQueue.main.async { [weak self] in
+            self?.swiftUIViewModel.load(data)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if usesSwiftUIProductSummary {
+            configureSwiftUIProductSummary()
+            loadSwiftUIProductSummary()
+            return
+        }
+
         print("🔥 SKUProductSummary OPEN")
         mUserLoginToken = UserDefaults.standard.string(forKey: "token")
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
