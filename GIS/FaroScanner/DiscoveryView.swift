@@ -33,8 +33,15 @@ struct DiscoveryView: View {
     // MARK: - State
     //-----------------------------------------
 
+    /// The prompts in the order they were pressed (same rules as Android FaroPromptState). A prompt pressed but not yet
+    /// answered keeps its starter sentence in the field with no answers.
     @State
-    private var selectedAnswers: [DiscoveryAnswer] = []
+    private var segments: [DiscoveryAnswer] = []
+
+    /// Prompts that have at least one answer (shown as completed chips).
+    private var selectedAnswers: [DiscoveryAnswer] {
+        segments.filter { !$0.answers.isEmpty }
+    }
 
     //-----------------------------------------
     // MARK: - Prompt List
@@ -95,9 +102,9 @@ struct DiscoveryView: View {
                                     selected: $selectedPrompt,
                                     onSelect: { prompt, isSelected in
                                         if isSelected {
-                                            previewPrompt(prompt)
+                                            pressPrompt(prompt)
                                         } else {
-                                            clearPromptPreview()
+                                            closePrompt()
                                         }
                                     }
                                 ).animation(
@@ -162,14 +169,10 @@ struct DiscoveryView: View {
 
             }
             .onChange(of: searchText) { value in
-                // A direct edit is a new free-text search.  Do not leave a
-                // parent/child chip looking selected after its generated text
-                // has been changed by the user.
+                // The user edited the field: keep only the prompts whose words are still there
+                // (editing an answer's word unselects that answer; editing a starter sentence unselects the prompt).
                 guard !isApplyingPromptText else { return }
-                baseKeyword = value
-                selectedPrompt = nil
-                selectedAnswers.removeAll()
-
+                onUserEdited(value)
             }
 
     }
@@ -256,95 +259,61 @@ struct DiscoveryView: View {
         question: String,
         answer: String
     ) {
-
-        //---------------------------------
-        // Toggle Answer
-        //---------------------------------
-
-        if let index = selectedAnswers.firstIndex(where: {
-            $0.questionId == question
-        }) {
-
-            // เลือกอันเดิม = ยกเลิก, เลือกอันใหม่ = เพิ่ม
-            if let answerIndex = selectedAnswers[index].answers.firstIndex(of: answer) {
-                selectedAnswers[index].answers.remove(at: answerIndex)
+        // A child chip toggles its answer in the pressed prompt's sentence; the prompt stays open for more answers.
+        if let index = segments.firstIndex(where: { $0.questionId == question }) {
+            if let answerIndex = segments[index].answers.firstIndex(of: answer) {
+                segments[index].answers.remove(at: answerIndex)
             } else {
-                selectedAnswers[index].answers.append(answer)
+                segments[index].answers.append(answer)
             }
-
-            // หากยกเลิกคำตอบสุดท้าย ให้ลบคำถามนี้ออกด้วย
-            if selectedAnswers[index].answers.isEmpty {
-                selectedAnswers.remove(at: index)
-            }
-
         } else {
-
-            selectedAnswers.append(
-                DiscoveryAnswer(
-                    questionId: question,
-                    answers: [answer]
-                )
-            )
-
+            segments.append(DiscoveryAnswer(questionId: question, answers: [answer]))
         }
-
-        //---------------------------------
-        // Refresh Search
-        //---------------------------------
-
         refreshSearchText()
-
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !query.isEmpty {
-//            onSearch(query)
-        }
-
-        //---------------------------------
-        // Keep Prompt Open
-        //---------------------------------
-
-        // Keep the question open so the user can choose more than one answer.
-
     }
 
-    private func previewPrompt(_ prompt: String) {
-        // Show the active question in the input before rendering its child
-        // chips.  This gives the user immediate context and mirrors the Faro
-        // discovery flow instead of leaving an apparently unchanged field.
-        let preview: String
-        switch prompt {
-        case "Who is it for?": preview = "I'm shopping for"
-        case "Occasion": preview = "I'm looking for jewelry for"
-        case "Jewelry Type": preview = "I'm looking for a"
-        default: preview = prompt
+    /// A mother chip: its starter sentence goes into the field. A prompt still waiting for an answer is replaced.
+    private func pressPrompt(_ prompt: String) {
+        segments.removeAll { $0.answers.isEmpty }
+        if !segments.contains(where: { $0.questionId == prompt }) {
+            segments.append(DiscoveryAnswer(questionId: prompt, answers: []))
         }
-
-        baseKeyword = ""
-        isApplyingPromptText = true
-        searchText = preview
-        DispatchQueue.main.async {
-            isApplyingPromptText = false
-        }
+        refreshSearchText()
     }
 
-    private func clearPromptPreview() {
-        guard selectedAnswers.isEmpty else {
-            refreshSearchText()
-            return
-        }
-        isApplyingPromptText = true
-        searchText = baseKeyword
-        DispatchQueue.main.async {
-            isApplyingPromptText = false
-        }
+    /// Tapping the shown prompt again hides its answers; an unanswered prompt leaves the field.
+    private func closePrompt() {
+        segments.removeAll { $0.answers.isEmpty }
+        refreshSearchText()
     }
-    
-    
+
+    private func onUserEdited(_ value: String) {
+        let lower = value.lowercased()
+        segments = segments.compactMap { segment in
+            if lower.contains(Self.sentence(segment).lowercased()) { return segment }
+            guard lower.contains(Self.head(segment.questionId).lowercased()) else { return nil }
+            var kept = segment
+            kept.answers = segment.answers.filter { lower.contains(Self.word($0).lowercased()) }
+            return kept
+        }
+        if let active = selectedPrompt, !segments.contains(where: { $0.questionId == active }) {
+            selectedPrompt = nil
+        }
+        // Whatever is no longer a prompt sentence is the user's own keyword.
+        let sentences = buildSearchText()
+        if !sentences.isEmpty && value.contains(sentences) {
+            baseKeyword = value.replacingOccurrences(of: sentences, with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if segments.isEmpty {
+            baseKeyword = value
+        }
+        faroMode = value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .search : .discover
+    }
+
     private func removeAnswer(
         question: String
     ) {
 
-        selectedAnswers.removeAll {
+        segments.removeAll {
 
             $0.questionId == question
 
@@ -361,7 +330,7 @@ struct DiscoveryView: View {
     
     func removeLastAnswer() {
 
-        if let last = selectedAnswers.last {
+        if let last = segments.last {
 
             removeAnswer(question: last.questionId)
 
@@ -379,151 +348,60 @@ struct DiscoveryView: View {
     //-----------------------------------------
 
     private func buildSearchText() -> String {
-
-        var parts: [String] = []
-
-        //---------------------------------
-        // Who is it for?
-        //---------------------------------
-
-        if let person = answers(for: "Who is it for?") {
-
-            switch person {
-
-            case ["Myself"]:
-                parts.append("I'm shopping for myself")
-
-            default:
-                parts.append(
-                    "I'm shopping for my \(person.map { $0.lowercased() }.joined(separator: " or "))"
-                )
-
-            }
-
-        }
-
-        //---------------------------------
-        // Occasion
-        //---------------------------------
-
-        if let occasion = answers(for: "Occasion") {
-
-            parts.append(
-                "for \(occasion.map { $0.lowercased() }.joined(separator: " or "))"
-            )
-
-        }
-
-        //---------------------------------
-        // Jewelry Type
-        //---------------------------------
-
-        if let type = answers(for: "Jewelry Type") {
-
-            parts.append(type.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Metal
-        //---------------------------------
-
-        if let metal = answers(for: "Metal") {
-
-            parts.append(metal.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Gemstone
-        //---------------------------------
-
-        if let gem = answers(for: "Gemstone") {
-
-            parts.append(gem.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Style
-        //---------------------------------
-
-        if let style = answers(for: "Style") {
-
-            parts.append(style.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Budget
-        //---------------------------------
-
-        if let budget = answers(for: "Budget") {
-
-            parts.append(
-                "Budget \(budget.joined(separator: ", "))"
-            )
-
-        }
-
-        //---------------------------------
-        // Theme
-        //---------------------------------
-
-        if let theme = answers(for: "Theme") {
-
-            parts.append(theme.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Color
-        //---------------------------------
-
-        if let color = answers(for: "Color") {
-
-            parts.append(color.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Size
-        //---------------------------------
-
-        if let size = answers(for: "Size") {
-
-            parts.append(
-                "Size \(size.joined(separator: ", "))"
-            )
-
-        }
-
-        //---------------------------------
-        // Everyday
-        //---------------------------------
-
-        if let everyday = answers(for: "Wear/Lifestyle") {
-
-            parts.append(everyday.joined(separator: ", "))
-
-        }
-
-        //---------------------------------
-        // Avoid
-        //---------------------------------
-
-        if let avoid = answers(for: "Avoid") {
-
-            parts.append(
-                "Avoid \(avoid.joined(separator: ", "))"
-            )
-
-        }
-
-        return parts.joined(separator: ", ")
-
+        segments.map { Self.sentence($0) }.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
+    //-----------------------------------------
+    // MARK: - Sentence rules (Figma handoff, same as Android FaroPromptState and the website)
+    //-----------------------------------------
+
+    /// Starter sentence of each prompt; "..." marks where the answers go.
+    private static let placeholders: [String: String] = [
+        "Who is it for?": "I'm shopping for",
+        "Occasion": "This jewelry is for",
+        "Jewelry Type": "I'm looking for a",
+        "Metal": "I'd like it to be made of",
+        "Gemstone": "I'd like it to be made of",
+        "Style": "I prefer a... style.",
+        "Budget": "My budget is",
+        "Theme": "I'm looking for a design inspired by",
+        "Color": "I'm looking for... tones.",
+        "Size": "The size is",
+        "Wear/Lifestyle": "It will mostly be worn",
+        "Avoid": "I'd like to avoid"
+    ]
+
+    private static func placeholder(_ prompt: String) -> String { placeholders[prompt] ?? prompt }
+
+    private static func head(_ prompt: String) -> String {
+        placeholder(prompt).components(separatedBy: "...").first ?? placeholder(prompt)
+    }
+
+    /// Answers read as part of the sentence: lower case, except sizes, carats and prices (US 5, 18K, $500–1K).
+    private static func word(_ answer: String) -> String {
+        answer.contains(where: { $0.isNumber || $0 == "$" }) ? answer : answer.lowercased()
+    }
+
+    /// Two answers are joined with "and", three or more as "A, B and C".
+    private static func join(_ words: [String]) -> String {
+        switch words.count {
+        case 0: return ""
+        case 1: return words[0]
+        default: return words.dropLast().joined(separator: ", ") + " and " + words[words.count - 1]
+        }
+    }
+
+    private static func sentence(_ segment: DiscoveryAnswer) -> String {
+        let p = placeholder(segment.questionId)
+        let joined = join(segment.answers.map(word))
+        let body: String
+        if joined.isEmpty { body = p }
+        else if p.contains("...") { body = p.replacingOccurrences(of: "...", with: " \(joined)") }
+        else { body = "\(p) \(joined)" }
+        // Sentences follow each other: "I'm shopping for myself. I prefer a modern and elegant style."
+        return (body.hasSuffix(".") || joined.isEmpty) ? body : body + "."
+    }
+
     //-----------------------------------------
     // MARK: - Helper
     //-----------------------------------------
@@ -548,7 +426,7 @@ struct DiscoveryView: View {
 
         selectedPrompt = nil
 
-        selectedAnswers.removeAll()
+        segments.removeAll()
 
         searchText = ""
 
@@ -571,7 +449,8 @@ struct DiscoveryView: View {
         } else if discovery.isEmpty {
             searchText = keyword
         } else {
-            searchText = "\(keyword), \(discovery)"
+            // The field shows what the user typed before choosing prompts, followed by the prompt sentences.
+            searchText = "\(keyword) \(discovery)"
         }
         DispatchQueue.main.async {
             isApplyingPromptText = false
@@ -599,7 +478,7 @@ struct DiscoveryView: View {
 
         selectedPrompt = nil
 
-        selectedAnswers.removeAll()
+        segments.removeAll()
 
         faroMode = .search
 

@@ -1371,6 +1371,20 @@ struct FaroScannerView: View {
             .font(.system(size: 16))
             .tint(.gray.opacity(0.35))
             .foregroundColor(.black)
+            // Not editing: a sentence longer than the box shows its latest words (Discovery appends to the end).
+            .opacity(isFocused || searchText.isEmpty ? 1 : 0)
+            .overlay(alignment: .leading) {
+                if !isFocused && !searchText.isEmpty {
+                    Text(searchText)
+                        .font(.system(size: 16))
+                        .foregroundColor(.black)
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { isFocused = true }
+                }
+            }
             .submitLabel(.search)
             .onSubmit {
 
@@ -2582,40 +2596,97 @@ struct FaroScannerView: View {
     
     @ViewBuilder
     private func rainbowGradient() -> some View {
-        let rainbowColors: [Color] = [Color(
-                                            red: 0.36,
-                                            green: 0.54,
-                                            blue: 1.0
-                                        ),
-                                        Color(
-                                            red: 0.24,
-                                            green: 0.92,
-                                            blue: 0.95
-                                        ), Color(
-                                            red: 0.36,
-                                            green: 0.54,
-                                            blue: 1.0
-                                        )]
-        let gradientColors: [Color] = Array(repeating: rainbowColors, count: 2)
-            .flatMap { $0 }
-
-//        if !isFocused {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(
-                    AngularGradient(
-                        colors: gradientColors,
-                        center: .center,
-                        angle: .degrees(360)//.degrees(isHighlighted ? 360 : 0)
-                    ),
-                    style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)
-                )
-//                .padding(-2)
-//                .blur(radius: 3)
-//        }
+        FaroRunningBorder(cornerRadius: 28, lineWidth: 1.5)
     }
 }
 
 
+
+/// Discovery running border (same as Android faroGlowBorder): a seamless cyan → violet → cyan conic gradient that
+/// turns once every 4 s round the card's centre, masked to the rounded stroke.
+/// Built with Core Animation (not a SwiftUI animation) because FaroScannerView's `.transaction` forces every SwiftUI
+/// animation in the page to a one-off 0.3 s ease, which stopped a SwiftUI repeat-forever rotation.
+struct FaroRunningBorder: UIViewRepresentable {
+
+    let cornerRadius: CGFloat
+    let lineWidth: CGFloat
+
+    func makeUIView(context: Context) -> FaroRunningBorderView {
+        let view = FaroRunningBorderView()
+        view.borderRadius = cornerRadius
+        view.lineWidth = lineWidth
+        return view
+    }
+
+    func updateUIView(_ view: FaroRunningBorderView, context: Context) {
+        view.borderRadius = cornerRadius
+        view.lineWidth = lineWidth
+        view.setNeedsLayout()
+    }
+}
+
+final class FaroRunningBorderView: UIView {
+
+    var borderRadius: CGFloat = 28
+    var lineWidth: CGFloat = 1.5
+
+    private let gradient = CAGradientLayer()
+    private let strokeMask = CAShapeLayer()
+    private static let spinKey = "faroBorderSpin"
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+        backgroundColor = .clear
+        let cyan = UIColor(red: 0x54 / 255.0, green: 0xED / 255.0, blue: 0xD8 / 255.0, alpha: 1)
+        let violet = UIColor(red: 0x60 / 255.0, green: 0x6E / 255.0, blue: 0xFE / 255.0, alpha: 1)
+        gradient.type = .conic
+        gradient.colors = [cyan.cgColor, violet.cgColor, cyan.cgColor]
+        gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
+        gradient.endPoint = CGPoint(x: 0.5, y: 0)
+        layer.addSublayer(gradient)
+        strokeMask.fillColor = UIColor.clear.cgColor
+        strokeMask.strokeColor = UIColor.black.cgColor
+        layer.mask = strokeMask
+        NotificationCenter.default.addObserver(self, selector: #selector(restartSpin),
+                                               name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        // A square as wide as the diagonal, centred, so the turning gradient always covers the whole border.
+        let side = (bounds.width * bounds.width + bounds.height * bounds.height).squareRoot()
+        gradient.bounds = CGRect(x: 0, y: 0, width: side, height: side)
+        gradient.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        strokeMask.frame = bounds
+        strokeMask.lineWidth = lineWidth
+        strokeMask.path = UIBezierPath(roundedRect: bounds.insetBy(dx: lineWidth / 2, dy: lineWidth / 2),
+                                       cornerRadius: max(0, borderRadius - lineWidth / 2)).cgPath
+        CATransaction.commit()
+        if gradient.animation(forKey: Self.spinKey) == nil { restartSpin() }
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil { restartSpin() }
+    }
+
+    @objc private func restartSpin() {
+        gradient.removeAnimation(forKey: Self.spinKey)
+        let spin = CABasicAnimation(keyPath: "transform.rotation.z")
+        spin.fromValue = 0
+        spin.toValue = Double.pi * 2
+        spin.duration = 4
+        spin.repeatCount = .infinity
+        spin.timingFunction = CAMediaTimingFunction(name: .linear)
+        spin.isRemovedOnCompletion = false
+        gradient.add(spin, forKey: Self.spinKey)
+    }
+}
 
 struct AnimatedDiscoveryBorder: View {
 

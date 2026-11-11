@@ -258,7 +258,7 @@ struct FaroProductCard: View {
 
                 if quantity > 0 {
 
-                    Text("\\(quantity)")
+                    Text("\(quantity)")
 
                         .font(
 
@@ -996,7 +996,7 @@ private struct FaroProductDropdownRow: View {
 
                                 ? "--"
 
-                                : "Select \\(title)"
+                                : "Select \(title)"
 
                             )
 

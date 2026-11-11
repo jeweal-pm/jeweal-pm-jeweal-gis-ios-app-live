@@ -254,6 +254,20 @@ struct FaroResultView: View {
                     .focused($resultSearchFocused)
                     .font(FaroFont.regular(16))
                     .foregroundColor(.black)
+                    // Not editing: a long Discovery sentence shows its latest words rather than its beginning.
+                    .opacity(resultSearchFocused || searchText.isEmpty ? 1 : 0)
+                    .overlay(alignment: .leading) {
+                        if !resultSearchFocused && !searchText.isEmpty {
+                            Text(searchText)
+                                .font(FaroFont.regular(16))
+                                .foregroundColor(.black)
+                                .lineLimit(1)
+                                .truncationMode(.head)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                                .onTapGesture { resultSearchFocused = true }
+                        }
+                    }
                     .submitLabel(.search)
                     .onSubmit {
                         submitResultSearch()
