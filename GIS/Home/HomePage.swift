@@ -97,6 +97,9 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
     
     private let faroButton = UIButton(type: .custom)
     private let scanQrButton = UIButton(type: .custom)
+    #if NFC_WRITER
+    private let scanNfcButton = UIButton(type: .custom)
+    #endif
     private var menuRows: [UIStackView] = []
     private var menuTiles: [UIView] = []
     private weak var diamondMenuTile: UIView?
@@ -604,7 +607,7 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         let configuredEndDate = remoteConfig["seasonal_home_lottie_end_date"].stringValue
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let startDate = configuredStartDate.isEmpty ? "2026-10-28" : configuredStartDate
-        let endDate = configuredEndDate.isEmpty ? "2026-11-01" : configuredEndDate
+        let endDate = configuredEndDate.isEmpty ? "2026-11-11" : configuredEndDate
         print("isSeasonalHomeLottiePeriod startDate = \(startDate)")
         print("isSeasonalHomeLottiePeriod endDate = \(endDate)")
         let formatter = DateFormatter()
@@ -1306,6 +1309,55 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
         ])
     }
     
+    #if NFC_WRITER
+    /// Round NFC button in the same style as the QR scan button, stacked above it.
+    private func setupScanNfcButton() {
+        guard scanNfcButton.superview == nil else { return }
+        scanNfcButton.translatesAutoresizingMaskIntoConstraints = false
+        scanNfcButton.backgroundColor = .clear
+        scanNfcButton.tintColor = UIColor(white: 0.12, alpha: 1)
+        scanNfcButton.setImage(
+            UIImage(systemName: "wave.3.right", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)),
+            for: .normal
+        )
+        // The QR button's artwork is a 47pt white circle centered in its 56pt frame, so draw the same circle
+        // here (behind the button, so the icon stays visible); the button frame (56pt) is identical to the
+        // QR button, so both line up and look the same size.
+        let circleSize: CGFloat = 47
+        let circle = UIView()
+        circle.translatesAutoresizingMaskIntoConstraints = false
+        circle.isUserInteractionEnabled = false
+        circle.backgroundColor = .white
+        circle.layer.cornerRadius = circleSize / 2
+        circle.layer.shadowColor = UIColor.black.cgColor
+        circle.layer.shadowOpacity = 0.2
+        circle.layer.shadowRadius = 8
+        circle.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.addSubview(circle)
+        scanNfcButton.accessibilityLabel = "Scan NFC"
+        scanNfcButton.addTarget(self, action: #selector(mScanNFC), for: .touchUpInside)
+        view.addSubview(scanNfcButton)
+        NSLayoutConstraint.activate([
+            circle.widthAnchor.constraint(equalToConstant: circleSize),
+            circle.heightAnchor.constraint(equalToConstant: circleSize),
+            circle.centerXAnchor.constraint(equalTo: scanNfcButton.centerXAnchor),
+            circle.centerYAnchor.constraint(equalTo: scanNfcButton.centerYAnchor)
+        ])
+
+        let bottomAnchor = scanQrButton.superview != nil ? scanQrButton.topAnchor : view.safeAreaLayoutGuide.bottomAnchor
+        NSLayoutConstraint.activate([
+            scanNfcButton.widthAnchor.constraint(equalToConstant: 56),
+            scanNfcButton.heightAnchor.constraint(equalToConstant: 56),
+            scanNfcButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            scanNfcButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: scanQrButton.superview != nil ? -12 : -90)
+        ])
+    }
+
+    @objc private func mScanNFC() {
+        NFCScanRouter.scan(from: self)
+    }
+    #endif
+
     @IBAction func mOpenQRScanner(_ sender: UIButton) {
 
         let storyBoard = UIStoryboard(name: "transactions", bundle: nil)
@@ -1378,6 +1430,9 @@ class HomePage: UIViewController , UITableViewDelegate , UITableViewDataSource, 
             setupFaroButton()//essindy faroButton
             setupScanQrButton()
         }
+        #if NFC_WRITER
+        setupScanNfcButton()
+        #endif
         
         mProfilePicture.downlaodImageFromUrl(urlString: UserDefaults.standard.string(forKey: "SALESPERSON_IMAGE") ?? "")
         applyCompanyLogo()

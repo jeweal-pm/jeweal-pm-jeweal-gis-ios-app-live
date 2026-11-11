@@ -143,6 +143,8 @@
 	<string>Our App uses bluetooth to find, connect and transfer data using RFID</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Our App uses bluetooth to find, connect and transfer data using RFID</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Our App uses NFC to write product information to NFC tags</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Our App uses camera for scanning stocks</string>
 	<key>NSFaceIDUsageDescription</key>

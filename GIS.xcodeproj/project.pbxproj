@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C5F9F9F430A1B77000DB946D /* NFCWriterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F230A1B73A00DB946D /* NFCWriterManager.swift */; };
+		C5F9F9F530A1B77000DB946D /* NFCWriterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F330A1B75800DB946D /* NFCWriterViews.swift */; };
 		065CE7492D196AC1000589D8 /* QRCodeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 065CE7482D196AC1000589D8 /* QRCodeView.xib */; };
 		065CE74B2D196D0F000589D8 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065CE74A2D196D0F000589D8 /* QRCodeView.swift */; };
 		065CE7532D19CE41000589D8 /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = 065CE7522D19CE41000589D8 /* Stripe */; };
@@ -608,6 +610,8 @@
 		C5EBD66C300DE964000CC768 /* PriceHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceHelper.swift; sourceTree = "<group>"; };
 		C5F039FE2FEE7F3A00B5B9F6 /* PayPalCheckoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPalCheckoutView.swift; sourceTree = "<group>"; };
 		C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSheetTests.swift; sourceTree = "<group>"; };
+		C5F9F9F230A1B73A00DB946D /* NFCWriterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCWriterManager.swift; sourceTree = "<group>"; };
+		C5F9F9F330A1B75800DB946D /* NFCWriterViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCWriterViews.swift; sourceTree = "<group>"; };
 		D90375912757851300E4CE09 /* Posfilter.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Posfilter.xib; sourceTree = "<group>"; };
 		D903A18827B2315B004FE2E0 /* emailpopup.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = emailpopup.xib; sourceTree = "<group>"; };
 		D9064A56260C848700D856D1 /* POSHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POSHome.swift; sourceTree = "<group>"; };
@@ -1021,6 +1025,15 @@
 			path = FaroScanner;
 			sourceTree = "<group>";
 		};
+		C5F9F9F130A1B73A00DB946D /* NFCWriter */ = {
+			isa = PBXGroup;
+			children = (
+				C5F9F9F230A1B73A00DB946D /* NFCWriterManager.swift */,
+				C5F9F9F330A1B75800DB946D /* NFCWriterViews.swift */,
+			);
+			path = NFCWriter;
+			sourceTree = "<group>";
+		};
 		D90D1D12255E9D2F00BE4CD6 /* UI Font */ = {
 			isa = PBXGroup;
 			children = (
@@ -1248,6 +1261,7 @@
 				521A75F52A05131C00C8777F /* transactions.storyboard */,
 				529DAF8E2A56D9B900A3716D /* laybyInstallment.storyboard */,
 				520751E42A582F0200E6F932 /* quotation.storyboard */,
+				C5F9F9F130A1B73A00DB946D /* NFCWriter */,
 			);
 			path = GIS;
 			sourceTree = "<group>";
@@ -1894,6 +1908,8 @@
 				A1B2C3D4E5F6000000000001 /* GISCore.swift in Sources */,
 				A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */,
 				A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */,
+				C5F9F9F430A1B77000DB946D /* NFCWriterManager.swift in Sources */,
+				C5F9F9F530A1B77000DB946D /* NFCWriterViews.swift in Sources */,
 				A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */,
 				A1B2C3D4E5F6000000000010 /* GISProductSummaryView.swift in Sources */,
 				C5D053023029B3B300CBEA51 /* FaroSuggestions.swift in Sources */,
@@ -2196,7 +2212,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG NFC_WRITER";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -2253,6 +2269,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = NFC_WRITER;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -2269,7 +2286,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 95;
+				CURRENT_PROJECT_VERSION = 96;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
@@ -2305,7 +2322,7 @@
 				CODE_SIGN_ENTITLEMENTS = GIS/GIS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 95;
+				CURRENT_PROJECT_VERSION = 96;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				EXCLUDED_ARCHS = "";
