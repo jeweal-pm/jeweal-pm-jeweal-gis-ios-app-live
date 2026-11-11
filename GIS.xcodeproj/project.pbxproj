@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AEE3E71E5CD592AF5D56A1F3 /* GISOnScreenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */; };
-		2DC07831DB0E3B69E33A1B22 /* GISOpenIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DC30A4C69C00814F0A /* GISOpenIntents.swift */; };
-		911D2DDA27F79DD618FF4B86 /* GISIntentRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DB30A4C69500814F0A /* GISIntentRouter.swift */; };
-		4796A9D35DFEC4C209574534 /* GISItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DA30A4C69200814F0A /* GISItemEntity.swift */; };
 		065CE7492D196AC1000589D8 /* QRCodeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 065CE7482D196AC1000589D8 /* QRCodeView.xib */; };
 		065CE74B2D196D0F000589D8 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065CE74A2D196D0F000589D8 /* QRCodeView.swift */; };
 		065CE7532D19CE41000589D8 /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = 065CE7522D19CE41000589D8 /* Stripe */; };
@@ -21,7 +17,9 @@
 		0688D2252BB2F10F008A7886 /* AddressPicker.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0688D2242BB2F10F008A7886 /* AddressPicker.storyboard */; };
 		0688D2272BB2F139008A7886 /* AddressPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0688D2262BB2F139008A7886 /* AddressPicker.swift */; };
 		06AE78F02B738F89007AADC2 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AE78EF2B738F89007AADC2 /* SpeechRecognizer.swift */; };
+		2DC07831DB0E3B69E33A1B22 /* GISOpenIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DC30A4C69C00814F0A /* GISOpenIntents.swift */; };
 		40AC9487562985E4ED5F9F61 /* Pods_GISTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46471A6414C68C2A5A64AB3F /* Pods_GISTests.framework */; };
+		4796A9D35DFEC4C209574534 /* GISItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DA30A4C69200814F0A /* GISItemEntity.swift */; };
 		520751E52A582F0200E6F932 /* quotation.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 520751E42A582F0200E6F932 /* quotation.storyboard */; };
 		520E96CE2A5C1C9C00F58DBC /* confirmquote.xib in Resources */ = {isa = PBXBuildFile; fileRef = 520E96CD2A5C1C9C00F58DBC /* confirmquote.xib */; };
 		521A75F62A05131C00C8777F /* transactions.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 521A75F52A05131C00C8777F /* transactions.storyboard */; };
@@ -153,12 +151,14 @@
 		843A3A28272D9ED6002E4F0F /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843A3A1F272D9ED6002E4F0F /* APIManager.swift */; };
 		84BAA41E2742640B00FD8F37 /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84BAA4202742640B00FD8F37 /* Localization.strings */; };
 		84BAA42727426C6A00FD8F37 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BAA42627426C6A00FD8F37 /* AppLanguage.swift */; };
+		911D2DDA27F79DD618FF4B86 /* GISIntentRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DB30A4C69500814F0A /* GISIntentRouter.swift */; };
 		A1B2C3D4E5F6000000000001 /* GISCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000002 /* GISCore.swift */; };
 		A1B2C3D4E5F6000000000003 /* SwiftUIMigrationHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000004 /* SwiftUIMigrationHost.swift */; };
 		A1B2C3D4E5F6000000000005 /* GISProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000006 /* GISProfileView.swift */; };
 		A1B2C3D4E5F6000000000007 /* GISProductDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000008 /* GISProductDetailView.swift */; };
 		A1B2C3D4E5F6000000000010 /* GISProductSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000011 /* GISProductSummaryView.swift */; };
 		ABA58CF7435AE3189D1EEF65 /* Pods_GIS_GISUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8F60C49AA88E96BA38656B /* Pods_GIS_GISUITests.framework */; };
+		AEE3E71E5CD592AF5D56A1F3 /* GISOnScreenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */; };
 		C50065133073B35900BB2A42 /* WishlistExportOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50065123073B35900BB2A42 /* WishlistExportOptionsController.swift */; };
 		C500651530762D3C00BB2A42 /* ExpandableSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C500651430762D3C00BB2A42 /* ExpandableSearchBar.swift */; };
 		C52C9AFD30494E9000F1D6F3 /* SoldStock.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52C9AFC30494E8C00F1D6F3 /* SoldStock.swift */; };
@@ -203,6 +203,8 @@
 		C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */; };
 		C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A3561309837D10010F666 /* KycProfileBannerTests.swift */; };
 		C58A356430983CFA0010F666 /* KycVerifyWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */; };
+		C58ED7E430A4C88800814F0A /* GISSpotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E330A4C88800814F0A /* GISSpotlight.swift */; };
+		C58ED7E630A4C89000814F0A /* GISItemSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -596,6 +598,8 @@
 		C58ED7DB30A4C69500814F0A /* GISIntentRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISIntentRouter.swift; sourceTree = "<group>"; };
 		C58ED7DC30A4C69C00814F0A /* GISOpenIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISOpenIntents.swift; sourceTree = "<group>"; };
 		C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISOnScreenItem.swift; sourceTree = "<group>"; };
+		C58ED7E330A4C88800814F0A /* GISSpotlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISSpotlight.swift; sourceTree = "<group>"; };
+		C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISItemSnippet.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1040,6 +1044,8 @@
 				C58ED7DB30A4C69500814F0A /* GISIntentRouter.swift */,
 				C58ED7DC30A4C69C00814F0A /* GISOpenIntents.swift */,
 				C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */,
+				C58ED7E330A4C88800814F0A /* GISSpotlight.swift */,
+				C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */,
 			);
 			path = AppIntents;
 			sourceTree = "<group>";
@@ -1874,6 +1880,7 @@
 				D968C9A52538696B00D45A90 /* SceneDelegate.swift in Sources */,
 				C5D05310302D754E00CBEA51 /* CameraManager.swift in Sources */,
 				C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */,
+				C58ED7E430A4C88800814F0A /* GISSpotlight.swift in Sources */,
 				7A1C00062F0000000000A001 /* ATIDTextStreamParser.swift in Sources */,
 				7471018A295B330100556743 /* CommonFilters.swift in Sources */,
 				744F599C29DE071700E0587C /* CommonSearch.swift in Sources */,
@@ -1884,6 +1891,7 @@
 				74B10EFB29E040A400FA7A37 /* InventoryReserved.swift in Sources */,
 				D9C16736261D786C0076A82B /* CustomerProfile.swift in Sources */,
 				D93D4457261336D3003C9F56 /* WishListController.swift in Sources */,
+				C58ED7E630A4C89000814F0A /* GISItemSnippet.swift in Sources */,
 				74BBBB5F299DED0F00E13DE9 /* OpenCustomAndMixMatch.swift in Sources */,
 				52A34AF52A69404D00B6A303 /* QuotedItems.swift in Sources */,
 				744529A429434C580052773C /* QuickViewSearch.swift in Sources */,

@@ -29,6 +29,9 @@ struct OpenItemQuickViewIntent: GISForegroundIntent {
     @Parameter(title: "Item")
     var item: GISItemEntity
 
+    init() {}
+    init(item: GISItemEntity) { self.item = item }
+
     static var parameterSummary: some ParameterSummary {
         Summary("Open \(\.$item) in Quick View")
     }
@@ -48,6 +51,9 @@ struct OpenItemCatalogIntent: GISForegroundIntent {
     @Parameter(title: "Item")
     var item: GISItemEntity
 
+    init() {}
+    init(item: GISItemEntity) { self.item = item }
+
     static var parameterSummary: some ParameterSummary {
         Summary("Open \(\.$item) in Catalog")
     }
@@ -66,6 +72,9 @@ struct OpenItemInventoryIntent: GISForegroundIntent {
 
     @Parameter(title: "Item")
     var item: GISItemEntity
+
+    init() {}
+    init(item: GISItemEntity) { self.item = item }
 
     static var parameterSummary: some ParameterSummary {
         Summary("Open \(\.$item) in Inventory")

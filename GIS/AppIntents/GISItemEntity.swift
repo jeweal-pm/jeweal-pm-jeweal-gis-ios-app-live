@@ -23,6 +23,7 @@ enum GISRecentItems {
         var list = ids.filter { $0.caseInsensitiveCompare(trimmed) != .orderedSame }
         list.insert(trimmed, at: 0)
         UserDefaults.standard.set(Array(list.prefix(limit)), forKey: key)
+        GISSpotlightIndexer.indexRecent()
     }
 }
 
