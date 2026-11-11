@@ -28,6 +28,38 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
     var mAllImages = [String]()
     var isMixMatch = false
     var selectedImageIndex = 0
+
+    /// Returns the image URL used by the gallery. The API has returned both
+    /// `thumbnail` and direct URL fields over time, so keep the mapping in one
+    /// place and ignore empty/null values.
+    private func imageURL(from image: NSDictionary) -> String {
+        let keys = ["thumbnail", "url", "image", "original", "full", "large"]
+        for key in keys {
+            if let value = image[key] as? String {
+                let url = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !url.isEmpty, url.lowercased() != "null", url.lowercased() != "<null>" {
+                    return url
+                }
+            }
+        }
+        return ""
+    }
+
+    /// Do not render the same server image twice. This prevents a duplicated
+    /// thumbnail when ProductImages returns duplicate records while preserving
+    /// every genuinely distinct image from the API.
+    private func uniqueImageItems(from items: NSArray) -> NSArray {
+        var seenURLs = Set<String>()
+        var uniqueItems = [NSDictionary]()
+
+        for case let item as NSDictionary in items {
+            let url = imageURL(from: item)
+            guard !url.isEmpty, seenURLs.insert(url).inserted else { continue }
+            uniqueItems.append(item)
+        }
+
+        return uniqueItems as NSArray
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,17 +124,19 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
                 if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? NSDictionary,
                    let mResults = json.value(forKey: "data") as? NSDictionary,
                    let mProductData = mResults.value(forKey: "ProductImages") as? NSDictionary,
-                   let mData = mProductData.value(forKey: "image") as? NSArray,
-                   mData.count > 0 {
-                    print("getImageData Data = \(mData)")
-                    if let mImageItems = mData[0] as? NSDictionary {
+                   let rawImageData = mProductData.value(forKey: "image") as? NSArray {
+                    let mData = self.uniqueImageItems(from: rawImageData)
+                    guard let mImageItems = mData.firstObject as? NSDictionary else {
+                        CommonClass.showSnackBar(message: "No Image Data Available")
+                        return
+                    }
+                    print("getImageData unique image count = \(mData.count)")
                         self.mProductName.text = "\(mProductData.value(forKey: "name") ?? "")"
-                        self.mZoomableImage.imageView.downlaodImageFromUrl(urlString: "\(mImageItems.value(forKey: "thumbnail") ?? "")")
+                        self.mZoomableImage.imageView.downlaodImageFromUrl(urlString: self.imageURL(from: mImageItems))
                         self.mImageData = mData
                         self.mCollectionView.delegate = self
                         self.mCollectionView.dataSource = self
                         self.mCollectionView.reloadData()
-                    }
                 } else {
                     CommonClass.showSnackBar(message: "No Image Data Available")
                 }
@@ -141,8 +175,9 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
                 }
             }else{
                 if let mData = mImageData[selectedImageIndex] as? NSDictionary {
-                    if "\(mData.value(forKey:"thumbnail") ?? "")" != "" {
-                        self.setImage(link: "\(mData.value(forKey:"thumbnail") ?? "")")
+                    let url = self.imageURL(from: mData)
+                    if !url.isEmpty {
+                        self.setImage(link: url)
                     }else{
                         self.mZoomableImage.isHidden = true
                     }
@@ -187,8 +222,9 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
             }else{
                 if let mData = mImageData[selectedImageIndex] as? NSDictionary {
                     
-                    if "\(mData.value(forKey:"thumbnail") ?? "")" != "" {
-                        self.setImage(link: "\(mData.value(forKey:"thumbnail") ?? "")")
+                    let url = self.imageURL(from: mData)
+                    if !url.isEmpty {
+                        self.setImage(link: url)
                     }else{
                         self.mZoomableImage.isHidden = true
                     }
@@ -229,7 +265,7 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
                 cells.mImage.downlaodImageFromUrl(urlString: mAllImages[indexPath.row])
             }else{
                 let mData = mImageData[indexPath.row] as? NSDictionary
-                cells.mImage.downlaodImageFromUrl(urlString: "\(mData?.value(forKey:"thumbnail") ?? "")")
+                cells.mImage.downlaodImageFromUrl(urlString: mData.map { imageURL(from: $0) } ?? "")
             }
             cells.mImage.contentMode = .scaleAspectFill
             return cells
@@ -251,8 +287,13 @@ class GlobalImageViewer: UIViewController, UICollectionViewDelegate, UICollectio
         }else{
             let mData = mImageData[indexPath.row] as? NSDictionary
             
-            if let thumbnail = mData?.value(forKey:"thumbnail") as? String, !thumbnail.isEmpty {
-                self.setImage(link: thumbnail)
+            if let mData {
+                let url = imageURL(from: mData)
+                if !url.isEmpty {
+                    self.setImage(link: url)
+                } else {
+                    self.mZoomableImage.isHidden = true
+                }
             }else{
                 self.mZoomableImage.isHidden = true
             }

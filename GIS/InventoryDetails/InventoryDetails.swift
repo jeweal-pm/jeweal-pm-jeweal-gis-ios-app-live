@@ -184,8 +184,8 @@ class InventoryDetails: UIViewController , UITableViewDelegate, UITableViewDataS
                     mTransitAndWareHouse()
                     
                 }else if type == "Reserved" {
-                    self.mProductStatus.textColor =  #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
-                    self.mStatusDot.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                    self.mProductStatus.textColor =  #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                    self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                     self.mProductStatus.text = "Reserve"
                     mTransitAndWareHouse()
                     

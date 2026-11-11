@@ -541,13 +541,14 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         }
         bar.isHidden = true  // Start hidden
         
-        // Place the bar on the header view — spanning full width
-        // so the X button replaces the back button position.
+        // Keep the leading navigation area clear.  Inventory can be searched
+        // while the user is deep in the flow, so the original back button must
+        // remain visible and tappable instead of being covered by the search bar.
         headerView.addSubview(bar)
         
         NSLayoutConstraint.activate([
-            bar.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
-            bar.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            bar.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 60),
+            bar.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -12),
             bar.topAnchor.constraint(equalTo: headerView.topAnchor),
         ])
         
@@ -563,7 +564,14 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
     private var headerHeightConstraint: NSLayoutConstraint?
     private let originalHeaderHeight: CGFloat = 60
 
-    /// Show the expandable search bar and hide back/title/search icons
+    /// The storyboard back control occupies the first 51pt of the header.
+    /// Preserve it whenever search is open; hide only the title and search icon.
+    private func isHeaderBackControl(_ view: UIView, in headerView: UIView) -> Bool {
+        let frame = view.convert(view.bounds, to: headerView)
+        return frame.minX <= 20 && frame.width <= 60 && frame.height <= 60
+    }
+
+    /// Show the expandable search bar while preserving the back button.
     private func showExpandableSearchBar() {
         installExpandableSearchBar()
         
@@ -577,9 +585,9 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
             }
         }
         
-        // Hide all header children except the expandable bar
+        // Hide title and search icon, but leave the back control available.
         for subview in headerView.subviews where subview !== bar {
-            subview.alpha = 0
+            subview.alpha = isHeaderBackControl(subview, in: headerView) ? 1 : 0
         }
         bar.isHidden = false
         headerView.bringSubviewToFront(bar)
@@ -601,9 +609,9 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         bar.isHidden = false
         headerView.bringSubviewToFront(bar)
         
-        // Keep header children hidden (bar replaces them)
+        // Keep the original back control visible while the filled bar is shown.
         for subview in headerView.subviews where subview !== bar {
-            subview.alpha = 0
+            subview.alpha = isHeaderBackControl(subview, in: headerView) ? 1 : 0
         }
         
         // Shrink header back to original height for the single-line filled bar
@@ -973,6 +981,18 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
      
     @IBAction func mSubmitReserveItems(_ sender: Any) {
 
+        // Reserved items can be selected (e.g. for sharing) but cannot be reserved again.
+        let hasReservedItem = mSelectedInventoryIndex.contains { indexPath in
+            guard indexPath.row < mInventoryData.count,
+                  let item = mInventoryData[indexPath.row] as? NSDictionary,
+                  let statusType = item.value(forKey: "status_type") as? String else { return false }
+            return statusType == "reserve" || statusType == "custom_order"
+        }
+        if hasReservedItem {
+            CommonClass.showSnackBar(message: "Selected items include an already reserved item. Please deselect it to continue.")
+            return
+        }
+
         mGetData(url: mDiamondFiltersAPI,headers: sGisHeaders,  params: ["":""]) { response , status in
             CommonClass.stopLoader()
             if status {
@@ -1168,9 +1188,9 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                     if statusType == "stock" {
                         cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                     }else if statusType == "reserve" {
-                        cells.mStatusColor.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                        cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                     }else if statusType == "custom_order" {
-                        cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                        cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                     }else if statusType == "repair_order" {
                         cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
                     }else if statusType == "warehouse" {
@@ -1198,12 +1218,12 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                             self.mStatusDot.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                             self.mProductStatus.text = "Stock"
                         }else if statusType == "reserve" {
-                            self.mProductStatus.textColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
-                            self.mStatusDot.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                            self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                            self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             self.mProductStatus.text = "Reserved"
                         }else if statusType == "custom_order" {
-                            self.mProductStatus.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
-                            self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                            self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                            self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             self.mProductStatus.text = "Reserved"
                         }else if statusType == "repair_order"  {
                             self.mProductStatus.textColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
@@ -1488,7 +1508,10 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                     self.mStoneTwoWeight.textAlignment = .right
                     
                     if let statusType = mData.value(forKey: "status_type") as? String {
-                        if statusType == "stock" || statusType == "warehouse" {
+                        // Reserved items can be selected too, including ones reserved for another customer.
+                        let isSelectable = statusType == "stock" || statusType == "warehouse"
+                            || statusType == "reserve" || statusType == "custom_order"
+                        if isSelectable {
                             
                             if self.mSelectedInventoryIndex.contains(indexPath) {
                                 self.mSelectedInventoryIndex = mSelectedInventoryIndex.filter {$0 != indexPath }
@@ -1568,7 +1591,7 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                             }
                         }
                         
-                        if statusType == "custom_order" || statusType == "reserve" || statusType == "repair_order" {
+                        if statusType == "repair_order" {
                             if let mCOData = mData.value(forKey: "pos") as? NSDictionary {
                                 if self.mCustomerId != "\(mCOData.value(forKey: "customer_id") ?? "")" {
                                     CommonClass.showSnackBar(message: "This Item is reserved for \(mCOData.value(forKey: "customer_name") ?? "Other user")")
@@ -2435,8 +2458,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
                         
                         let statusProperties: [String: (textColor: UIColor, backgroundColor: UIColor, statusText: String)] = [
                             "stock": (#colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1), #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1), "Stock"),
-                            "reserve": (#colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1), #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1), "Reserved"),
-                            "custom_order": (#colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1), #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1), "Reserved"),
+                            "reserve": (#colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), "Reserved"),
+                            "custom_order": (#colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), "Reserved"),
                             "repair_order": (#colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1), #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1), "Repair"),
                             "warehouse": (#colorLiteral(red: 0.4392156863, green: 0.4392156863, blue: 0.4392156863, alpha: 1), #colorLiteral(red: 0.4392156863, green: 0.4392156863, blue: 0.4392156863, alpha: 1), "Warehouse"),
                             "transit": (#colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1), #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1), "Transit")

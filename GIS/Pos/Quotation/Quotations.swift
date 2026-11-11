@@ -344,7 +344,7 @@ class Quotations: UIViewController, UITableViewDelegate, UITableViewDataSource, 
             
             if mData.value(forKey: "type") as? String ?? "" == "custom_order" {
                 cell.mType.text = "Custom Order".localizedString
-                cell.mType.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                cell.mType.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
             }else if mData.value(forKey: "type") as? String ?? "" == "mix_and_match" {
                 cell.mType.text = "Mix & Match".localizedString
                 cell.mType.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)

@@ -584,9 +584,9 @@ class MixAndMatchJewelry:UIViewController , UITableViewDelegate , UITableViewDat
                 if status == "stock" {
                     cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                 }else if status == "reserve" {
-                    cells.mStatusColor.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                    cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                 }else if status == "custom_order" {
-                    cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                    cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                 }else if status == "repair_order" {
                     cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
                 }else if status == "warehouse" {
@@ -615,12 +615,12 @@ class MixAndMatchJewelry:UIViewController , UITableViewDelegate , UITableViewDat
                         self.mStatusDot.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                         self.mProductStatus.text = "Stock"
                     }else if status == "reserve" {
-                        self.mProductStatus.textColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
-                        self.mStatusDot.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                         self.mProductStatus.text = "Reserved"
                     }else if status == "custom_order" {
-                        self.mProductStatus.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
-                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                         self.mProductStatus.text = "Reserved"
                     }else if status == "repair_order"  {
                         self.mProductStatus.textColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
@@ -857,12 +857,12 @@ class MixAndMatchJewelry:UIViewController , UITableViewDelegate , UITableViewDat
                                         self.mStatusDot.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                                         self.mProductStatus.text = "Stock"
                                     }else if status == "reserve" {
-                                        self.mProductStatus.textColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
-                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                         self.mProductStatus.text = "Reserved"
                                     }else if status == "custom_order" {
-                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
-                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                         self.mProductStatus.text = "Reserved"
                                     }else if status == "repair_order" {
                                         self.mProductStatus.textColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)

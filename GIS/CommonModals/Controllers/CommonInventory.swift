@@ -1059,9 +1059,9 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                             case "stock":
                                 cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                             case "reserve":
-                                cells.mStatusColor.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                                cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             case "custom_order":
-                                cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                                cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             case "repair_order":
                                 cells.mStatusColor.backgroundColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
                             case "warehouse":
@@ -1086,10 +1086,10 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                                 let color = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                                 self.setProductStatus(color: color, text: "Stock")
                             case "reserve":
-                                let color = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                                let color = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                 self.setProductStatus(color: color, text: "Reserved")
                             case "custom_order":
-                                let color = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                                let color = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                 self.setProductStatus(color: color, text: "Reserved")
                             case "repair_order":
                                 let color = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
@@ -1224,10 +1224,10 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                             let color = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                             self.setProductStatus(color: color, text: "Stock")
                         case "reserve":
-                            let color = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                            let color = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             self.setProductStatus(color: color, text: "Reserved")
                         case "custom_order":
-                            let color = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                            let color = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                             self.setProductStatus(color: color, text: "Reserved")
                         case "repair_order":
                             let color = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
@@ -1733,13 +1733,13 @@ class CommonInventory:UIViewController , UITableViewDelegate , UITableViewDataSo
                                         self.mProductStatus.text = "Stock"
                                     }else if statusType == "reserve" {
                                         
-                                        self.mProductStatus.textColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
-                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                         self.mProductStatus.text = "Reserved"
                                     }else if statusType == "custom_order" {
                                         
-                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
-                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                                        self.mProductStatus.textColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
+                                        self.mStatusDot.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                                         self.mProductStatus.text = "Reserved"
                                     }else if statusType == "repair_order"  {
                                         self.mProductStatus.textColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)

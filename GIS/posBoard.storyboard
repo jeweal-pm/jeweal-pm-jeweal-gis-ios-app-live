@@ -2101,7 +2101,7 @@
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="udM-gu-uIa">
                                                                             <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                                                                             <connections>
-                                                                                <action selector="mLikeDislike:" destination="NSq-Ph-2Vw" eventType="touchUpInside" id="Mwv-vQ-8aG"/>
+                                                                                <action selector="mAddToCart:" destination="NSq-Ph-2Vw" eventType="touchUpInside" id="Mwv-vQ-8aG"/>
                                                                             </connections>
                                                                         </button>
                                                                     </subviews>

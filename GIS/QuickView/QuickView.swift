@@ -1216,8 +1216,8 @@ class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewD
                     
                     let statusProperties: [String: (textColor: UIColor, backgroundColor: UIColor, statusText: String)] = [
                         "stock": (#colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1), #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1), "Stock"),
-                        "reserve": (#colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1), #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1), "Reserved"),
-                        "custom_order": (#colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1), #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1), "Reserved"),
+                        "reserve": (#colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), "Reserved"),
+                        "custom_order": (#colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1), "Reserved"),
                         "repair_order": (#colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1), #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1), "Repair"),
                         "warehouse": (#colorLiteral(red: 0.4392156863, green: 0.4392156863, blue: 0.4392156863, alpha: 1), #colorLiteral(red: 0.4392156863, green: 0.4392156863, blue: 0.4392156863, alpha: 1), "Warehouse"),
                         "transit": (#colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1), #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1), "Transit")

@@ -33,6 +33,33 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
         return (UserDefaults.standard.string(forKey: "SALESPERSONID") ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// The API can return floating-point artefacts such as
+    /// `9.630000000000001`. Product weights are displayed to two decimals
+    /// throughout the catalog so the value matches the back-office value.
+    private func formattedWeight(_ rawValue: Any?) -> String {
+        guard let rawValue else { return "--" }
+
+        let raw = String(describing: rawValue)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !raw.isEmpty,
+              raw != "--",
+              raw.lowercased() != "null",
+              raw.lowercased() != "<null>" else {
+            return "--"
+        }
+
+        let normalized = raw.replacingOccurrences(of: ",", with: "")
+        guard let value = Double(normalized), value.isFinite else {
+            return raw
+        }
+
+        return String(
+            format: "%.2f",
+            locale: Locale(identifier: "en_US_POSIX"),
+            value
+        )
+    }
     
     func mCreateNewCustomer() {
         let storyBoard: UIStoryboard = UIStoryboard(name: "reserveBoard", bundle: nil)
@@ -396,7 +423,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
         self.mMetalName.text = self.getFullMetalName(metalCode)
 
         self.mPMetalWeight.text =
-            "\(productData["GrossWt"] ?? "--")g"
+            "\(formattedWeight(productData["GrossWt"]))g"
 
         self.mReferenceNo.text =
             "\(productData["referenceNo"] ?? "--")"
@@ -552,7 +579,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
                                 
                                 
                                 self.mPMetalName.text = self.getFullMetalName(metalCode) /*"\(mProductData.value(forKey: "metal_name") ?? "--" )"*/
-                                self.mPMetalWeight.text = "\(mProductData.value(forKey: "GrossWt") ?? "--" )g"
+                                self.mPMetalWeight.text = "\(self.formattedWeight(mProductData.value(forKey: "GrossWt")))g"
                                 
                                 print("viewDidLoad DEBUG PRODUCT STONES =", mProductData["stones"] ?? "NO STONES")
                                 print("viewDidLoad DEBUG GROSS WT =", mProductData["GrossWt"] ?? "NO GROSS WT")
@@ -3613,7 +3640,7 @@ class POSAddToCart: UIViewController , UICollectionViewDelegate , UICollectionVi
                         self.mPointerName.text = "\(mProductData.value(forKey: "pointer_name") ?? "")"
 //                        self.mReferenceNo.text = "\(mProductData.value(forKey: "SKU") ?? "--")"
 //                        self.mPMetalName.text = "\(mProductData.value(forKey: "metal_name") ?? "--" )"
-                        self.mPMetalWeight.text = "\(mProductData.value(forKey: "GrossWt") ?? "--" )g"
+                        self.mPMetalWeight.text = "\(self.formattedWeight(mProductData.value(forKey: "GrossWt")))g"
                         print("mUpdateData DEBUG PRODUCT STONES =", mProductData["stones"] ?? "NO STONES")
                         print("mUpdateData DEBUG GROSS WT =", mProductData["GrossWt"] ?? "NO GROSS WT")
                         print("mUpdateData DEBUG REFERENCE =", mProductData["referenceNo"] ?? "NO REFERENCE")

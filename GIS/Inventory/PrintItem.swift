@@ -291,9 +291,9 @@ class PrintItem: UIViewController , UITableViewDelegate , UITableViewDataSource 
                         if  status == "stock" {
                             cell1.mStatus.backgroundColor = #colorLiteral(red: 0.4588235294, green: 0.8, blue: 1, alpha: 1)
                         }else if status == "reserve" {
-                            cell1.mStatus.backgroundColor = #colorLiteral(red: 1, green: 0.7386777401, blue: 0.3924969435, alpha: 1)
+                            cell1.mStatus.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                         }else if status == "custom_order" {
-                            cell1.mStatus.backgroundColor = #colorLiteral(red: 0.9137254902, green: 0.4392156863, blue: 0.4392156863, alpha: 1)
+                            cell1.mStatus.backgroundColor = #colorLiteral(red: 0.9764705882, green: 0.737254902, blue: 0.2666666667, alpha: 1)
                         }else if status == "repair_order"  {
                             cell1.mStatus.backgroundColor = #colorLiteral(red: 0.662745098, green: 0.6078431373, blue: 0.7411764706, alpha: 1)
                         }else if status == "warehouse" {

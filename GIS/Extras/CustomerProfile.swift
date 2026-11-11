@@ -306,6 +306,7 @@ class CustomerProfile: UIViewController, UIViewControllerTransitioningDelegate {
         let storyBoard: UIStoryboard = UIStoryboard(name: "transactions", bundle: nil)
         if let mCPayment = storyBoard.instantiateViewController(withIdentifier: "CustomerPurchaseHistory") as? CustomerPurchaseHistory {
             mCPayment.mCustomerId = mCustomerId
+            mCPayment.mCustomerName = mCustomerName.attributedText?.string ?? mCustomerName.text ?? ""
             mCPayment.modalPresentationStyle = .overFullScreen
             mCPayment.transitioningDelegate = self
             self.present(mCPayment,animated: true)
