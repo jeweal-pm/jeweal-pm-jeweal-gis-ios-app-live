@@ -121,6 +121,8 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     
     @IBOutlet weak var mUserName: UITextField!
     @IBOutlet weak var mPassword: UITextField!
+    @IBOutlet weak var mForgotPasswordButton: UIButton!
+    @IBOutlet weak var mForgotPasswordLabel: UILabel!
     
     @IBOutlet weak var mQuickLoginText: UILabel!
     @IBOutlet weak var mLoginWithPinButton: UIButton!
@@ -141,12 +143,16 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     
     @IBOutlet weak var mStoreHeader: UILabel!
     private let mOrganizationButton = UIButton(type: .system)
-    // TestFlight test organization: intentionally has no stores.
-    private let storeSetupMockOrganizationID = "__store_setup_demo_no_stores__"
     private let mOrganizationSubtitle = UILabel()
     // The overlay's dim colour is faded in/out while only the sheet slides.
     private var storeSheetDimColor: UIColor?
     private var isStoreSheetAnimating = false
+    private var compactCredentialConstraints = [NSLayoutConstraint]()
+    private var originalCredentialEdgeConstraints = [NSLayoutConstraint]()
+    /// Keep one gradient whose frame follows the controller's bounds.  The old
+    /// helper added a new static-size CAGradientLayer every layout pass, leaving
+    /// the old portrait layer visible on the right after an iPad rotation.
+    private let loginGradientLayer = CAGradientLayer()
     // Distance from the header to the first row: larger while the organization subtitle is visible.
     private var storeTableTopConstraint: NSLayoutConstraint?
 
@@ -175,6 +181,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         mOTPSix.keyboardType  = .numberPad
         
         mUserName.autocorrectionType = UITextAutocorrectionType.no
+        configureCredentialWidthForCurrentTraitCollection()
         
         configureOrganizationSheetHeader()
         mStoreHeader.numberOfLines = 1
@@ -217,9 +224,91 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         mStoreContentView.isUserInteractionEnabled = true
 
         
-        self.view.backgroundColor = UIColor(named: "themeBackground")
+        configureLoginBackground()
         self.mStoreContentView.isHidden = true
         
+    }
+
+    /// On iPad, preserve the same centred credential width used on iPhone instead
+    /// of stretching the email/password lines across the entire screen.
+    private func configureCredentialWidthForCurrentTraitCollection() {
+        NSLayoutConstraint.deactivate(compactCredentialConstraints)
+        compactCredentialConstraints.removeAll()
+        NSLayoutConstraint.activate(originalCredentialEdgeConstraints)
+
+        guard traitCollection.horizontalSizeClass == .regular,
+              let emailContainer = mUserName.superview,
+              let passwordContainer = mPassword.superview else { return }
+
+        let containers = [emailContainer, passwordContainer]
+        let edgeConstraints = view.constraints
+            .filter { constraint in
+                let touchesCredentialContainer = containers.contains { container in
+                    constraint.firstItem === container || constraint.secondItem === container
+                }
+                return touchesCredentialContainer &&
+                    (constraint.firstAttribute == .leading || constraint.firstAttribute == .trailing)
+            }
+        let forgotPasswordViews: [UIView] = [mForgotPasswordButton, mForgotPasswordLabel]
+        let forgotPasswordEdgeConstraints = view.constraints.filter { constraint in
+            forgotPasswordViews.contains { item in
+                constraint.firstItem === item || constraint.secondItem === item
+            } &&
+                (constraint.firstAttribute == .leading || constraint.firstAttribute == .trailing)
+        }
+        if originalCredentialEdgeConstraints.isEmpty {
+            originalCredentialEdgeConstraints = edgeConstraints + forgotPasswordEdgeConstraints
+        }
+        NSLayoutConstraint.deactivate(edgeConstraints + forgotPasswordEdgeConstraints)
+
+        compactCredentialConstraints = containers.flatMap { container in
+            [
+                container.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                container.widthAnchor.constraint(equalToConstant: 460)
+            ]
+        }
+        compactCredentialConstraints.append(
+            mForgotPasswordButton.trailingAnchor.constraint(equalTo: passwordContainer.trailingAnchor, constant: -10)
+        )
+        compactCredentialConstraints.append(
+            mForgotPasswordLabel.trailingAnchor.constraint(equalTo: passwordContainer.trailingAnchor, constant: -10)
+        )
+        NSLayoutConstraint.activate(compactCredentialConstraints)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
+            configureCredentialWidthForCurrentTraitCollection()
+        }
+        configureLoginBackground()
+    }
+
+    /// The login background must cover the complete window in both portrait and
+    /// landscape.  Keep it in this controller rather than repeatedly using the
+    /// generic gradient helper, which appends a new layer on every layout pass.
+    private func configureLoginBackground() {
+        let top = #colorLiteral(red: 0.7725490196, green: 0.9019607843, blue: 0.8745098039, alpha: 1)
+        let bottom = #colorLiteral(red: 0.9207345247, green: 0.9503677487, blue: 0.978346765, alpha: 1)
+        loginGradientLayer.colors = [top.cgColor, bottom.cgColor]
+        loginGradientLayer.startPoint = GradientOrientation.vertical.startPoint
+        loginGradientLayer.endPoint = GradientOrientation.vertical.endPoint
+        loginGradientLayer.frame = view.bounds
+
+        if loginGradientLayer.superlayer == nil {
+            // Remove only the obsolete full-screen gradients previously created
+            // by this login screen; no child-view layers are touched.
+            view.layer.sublayers?
+                .filter { $0 is CAGradientLayer }
+                .forEach { $0.removeFromSuperlayer() }
+            view.layer.insertSublayer(loginGradientLayer, at: 0)
+        }
+
+        let fallback = UIColor(named: "themeBackground") ?? top
+        view.backgroundColor = fallback
+        view.superview?.backgroundColor = fallback
+        navigationController?.view.backgroundColor = fallback
+        view.window?.backgroundColor = fallback
     }
 
     /// Organization / store picker as a floating Liquid Glass card (design "Organizations.png"):
@@ -330,7 +419,7 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     }
 
     private func configureStoreSheetHeader() {
-        mStoreHeader.text = "Choode Store"
+        mStoreHeader.text = "Change Store"
         mOrganizationSubtitle.isHidden = true
         storeTableTopConstraint?.constant = -2
     }
@@ -724,10 +813,8 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
     }
     
     override func viewDidLayoutSubviews() {
-        
-        self.view.applyGradient(withColours: [#colorLiteral(red: 0.7725490196, green: 0.9019607843, blue: 0.8745098039, alpha: 1),#colorLiteral(red: 0.9207345247, green: 0.9503677487, blue: 0.978346765, alpha: 1)], gradientOrientation: .vertical)
-        
-        
+        super.viewDidLayoutSubviews()
+        configureLoginBackground()
     }
     
     
@@ -842,13 +929,6 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
                     if let mData = jsonResult["data"] as? [String: Any],
                        let orgData = mData["org_data"] as? NSArray {
                         let organizationsForSelection = NSMutableArray(array: orgData)
-                        // Keep the QA-only no-store organization visible without
-                        // requiring the tester to scroll through a long account list.
-                        organizationsForSelection.insert([
-                            "organization_id": self.storeSetupMockOrganizationID,
-                            "organization": "Demo (No Stores)",
-                            "domain": "https://www.gis247.net"
-                        ], at: 0)
                         // A user with one organization has no organization
                         // choice to make. Continue directly to its store list.
                         if organizationsForSelection.count == 1,
@@ -1400,10 +1480,6 @@ class LoginController: UIViewController , UITableViewDataSource, UITableViewDele
         mOrgId = orgId
         UserDefaults.standard.set(orgId, forKey: "organization_id")
         UserDefaults.standard.set(organization["domain"], forKey: "website_url")
-        if orgId == storeSetupMockOrganizationID {
-            showNoStoresFoundOverlay()
-            return
-        }
         mLoginWithPassword(org_id: orgId)
     }
 

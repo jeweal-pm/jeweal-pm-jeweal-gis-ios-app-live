@@ -1286,6 +1286,8 @@
                         <outlet property="mCountDown" destination="tYi-gJ-k6j" id="LgY-cR-h1v"/>
                         <outlet property="mDidntReceiveLABEL" destination="Dpk-DY-OJ9" id="ACG-Gw-AsS"/>
                         <outlet property="mDotSquare" destination="dFW-2P-fe7" id="rpI-78-AA2"/>
+                        <outlet property="mForgotPasswordButton" destination="EgX-rT-Qmd" id="gFs-rg-001"/>
+                        <outlet property="mForgotPasswordLabel" destination="E9y-cP-F6v" id="gFs-rg-002"/>
                         <outlet property="mLoginButton" destination="72T-pi-9SA" id="ciK-wG-YXQ"/>
                         <outlet property="mLoginWithPinButton" destination="n9Q-8z-Fyr" id="imy-3T-yim"/>
                         <outlet property="mOTPFive" destination="Ban-D1-lFy" id="cJG-KH-ZjH"/>

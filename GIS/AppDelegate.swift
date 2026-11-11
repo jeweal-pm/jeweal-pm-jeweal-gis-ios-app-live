@@ -34,7 +34,7 @@ private enum GISMinimumVersionGate {
         // Halloween window as a safe bootstrap fallback while Remote Config
         // is unavailable or has not activated yet.
         "seasonal_home_lottie_start_date": "2026-10-28" as NSString,
-        "seasonal_home_lottie_end_date": "2026-11-01" as NSString
+        "seasonal_home_lottie_end_date": "2026-11-11" as NSString
     ]
 
     static func check() {
@@ -46,7 +46,15 @@ private enum GISMinimumVersionGate {
         settings.fetchTimeout = 10
         remoteConfig.configSettings = settings
 
-        remoteConfig.fetchAndActivate { _, _ in
+        remoteConfig.fetchAndActivate { status, error in
+            // Diagnostics: shows whether Firebase delivered the published values and where each value comes from
+            // (source: 0 = remote, 1 = default, 2 = not found).
+            print("RemoteConfig fetchAndActivate status = \(status.rawValue) (0 = fetched new, 1 = already up to date, 2 = error) error = \(String(describing: error))")
+            for key in ["min_supported_version_ios", "ios_store_url", "seasonal_home_lottie_start_date", "seasonal_home_lottie_end_date", "seasonal_hat_type", "seasonal_hat_start_date", "seasonal_hat_end_date"] {
+                let value = remoteConfig[key]
+                print("RemoteConfig \(key) = '\(value.stringValue)' source = \(value.source.rawValue)")
+            }
+            print("RemoteConfig lastFetchStatus = \(remoteConfig.lastFetchStatus.rawValue) lastFetchTime = \(String(describing: remoteConfig.lastFetchTime)) remoteKeys = \(remoteConfig.allKeys(from: .remote)) defaultKeys = \(remoteConfig.allKeys(from: .default))")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 presentIfRequired()
             }
