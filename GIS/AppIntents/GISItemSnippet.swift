@@ -118,3 +118,10 @@ struct FindItemIntent: AppIntent {
         return .result()
     }
 }
+
+@available(iOS 26.0, *)
+#Preview("Item card") {
+    GISItemCardView(item: GISItemEntity(id: "SB025"))
+        .frame(width: 340)
+        .background(.background)
+}

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A1C00062F0000000000B001 /* GISAppIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1C00052F0000000000B001 /* GISAppIntentsTests.swift */; };
 		065CE7492D196AC1000589D8 /* QRCodeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 065CE7482D196AC1000589D8 /* QRCodeView.xib */; };
 		065CE74B2D196D0F000589D8 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065CE74A2D196D0F000589D8 /* QRCodeView.swift */; };
 		065CE7532D19CE41000589D8 /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = 065CE7522D19CE41000589D8 /* Stripe */; };
@@ -205,6 +206,7 @@
 		C58A356430983CFA0010F666 /* KycVerifyWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */; };
 		C58ED7E430A4C88800814F0A /* GISSpotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E330A4C88800814F0A /* GISSpotlight.swift */; };
 		C58ED7E630A4C89000814F0A /* GISItemSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */; };
+		C58ED7ED30A4C9B800814F0A /* GISVisualSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7EC30A4C9B800814F0A /* GISVisualSearch.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -354,6 +356,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7A1C00052F0000000000B001 /* GISAppIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISAppIntentsTests.swift; sourceTree = "<group>"; };
 		065CE7482D196AC1000589D8 /* QRCodeView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QRCodeView.xib; sourceTree = "<group>"; };
 		065CE74A2D196D0F000589D8 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 		065CE7562D19CEE3000589D8 /* StripeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeManager.swift; sourceTree = "<group>"; };
@@ -600,6 +603,7 @@
 		C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISOnScreenItem.swift; sourceTree = "<group>"; };
 		C58ED7E330A4C88800814F0A /* GISSpotlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISSpotlight.swift; sourceTree = "<group>"; };
 		C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISItemSnippet.swift; sourceTree = "<group>"; };
+		C58ED7EC30A4C9B800814F0A /* GISVisualSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISVisualSearch.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1046,6 +1050,7 @@
 				C58ED7DD30A4C6B500814F0A /* GISOnScreenItem.swift */,
 				C58ED7E330A4C88800814F0A /* GISSpotlight.swift */,
 				C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */,
+				C58ED7EC30A4C9B800814F0A /* GISVisualSearch.swift */,
 			);
 			path = AppIntents;
 			sourceTree = "<group>";
@@ -1297,6 +1302,7 @@
 			children = (
 				D968C9B92538699C00D45A90 /* GISTests.swift */,
 				7A1C00032F0000000000A001 /* TraceabilityTests.swift */,
+				7A1C00052F0000000000B001 /* GISAppIntentsTests.swift */,
 				D968C9BB2538699C00D45A90 /* Info.plist */,
 				C58A3561309837D10010F666 /* KycProfileBannerTests.swift */,
 				C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */,
@@ -1800,6 +1806,7 @@
 				5276944F2A722F7500616E62 /* RepairDesignModal.swift in Sources */,
 				C553B664302629CC0000A8E4 /* CatalogMapper.swift in Sources */,
 				74D69F91290FA8D8008AA4C6 /* DiamondFilters.swift in Sources */,
+				C58ED7ED30A4C9B800814F0A /* GISVisualSearch.swift in Sources */,
 				C553B6713028996B0000A8E4 /* FaroResultView.swift in Sources */,
 				843A3A26272D9ED6002E4F0F /* GlobalMethod.swift in Sources */,
 				7473BE7129489D1A00FFC980 /* SKUProductSummary.swift in Sources */,
@@ -1962,6 +1969,7 @@
 				C5F9F9EB309C1ED300DB946D /* StoreSheetTests.swift in Sources */,
 				C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */,
 				7A1C00042F0000000000A001 /* TraceabilityTests.swift in Sources */,
+				7A1C00062F0000000000B001 /* GISAppIntentsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
