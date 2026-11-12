@@ -88,6 +88,19 @@ class InventoryDetails: UIViewController , UITableViewDelegate, UITableViewDataS
     @IBOutlet weak var mMainImage: UIImageView!
     
     
+    /// Lets Siri resolve "this" to the item on screen.
+    private let onScreenItem = GISOnScreenItem()
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        onScreenItem.resume()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        onScreenItem.clear()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -134,6 +147,7 @@ class InventoryDetails: UIViewController , UITableViewDelegate, UITableViewDataS
             mProductStatus.text = "\(mData.value(forKey: "type") ?? "--")"
             mStockId.text = "\(mData.value(forKey: "stock_id") ?? "--")"
             mSearchField.text = "\(mData.value(forKey: "stock_id") ?? "--")"
+            onScreenItem.show(id: "\(mData.value(forKey: "stock_id") ?? "")")
             mCollection.text = "\(mData.value(forKey: "Collection_name") ?? "--")"
         
 
