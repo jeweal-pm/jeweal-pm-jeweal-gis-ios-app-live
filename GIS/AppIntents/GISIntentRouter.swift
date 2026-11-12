@@ -21,33 +21,44 @@ enum GISIntentError: Error, CustomLocalizedStringResourceConvertible {
 
 @MainActor
 enum GISIntentRouter {
-    /// The scene delegate, only when the app is signed in and showing its navigation stack.
+    private static func currentSceneDelegate() -> SceneDelegate? {
+        let delegates = UIApplication.shared.connectedScenes.compactMap { $0.delegate as? SceneDelegate }
+        return delegates.first { $0.window?.rootViewController is UINavigationController }
+    }
+
+    /// The scene delegate, once the app shows its navigation stack (signed in).
+    /// When Siri launches the app from cold, the scene is not ready yet, so wait briefly.
     /// The SceneDelegate helpers assume a UINavigationController root, so refuse otherwise.
-    private static func readySceneDelegate() throws -> SceneDelegate {
-        guard let delegate = UIApplication.shared.connectedScenes
-            .compactMap({ $0.delegate as? SceneDelegate }).first,
-            delegate.window?.rootViewController is UINavigationController else {
-            throw GISIntentError.notSignedIn
+    private static func readySceneDelegate() async throws -> SceneDelegate {
+        for attempt in 0..<20 {
+            if let delegate = currentSceneDelegate() { return delegate }
+            print("GIS Siri: waiting for the app to be ready (\(attempt))")
+            try? await Task.sleep(nanoseconds: 250_000_000)
         }
-        return delegate
+        print("GIS Siri: app not ready, probably not signed in")
+        throw GISIntentError.notSignedIn
     }
 
-    static func openQuickView(id: String) throws {
-        try readySceneDelegate().navigateToQuickViewSearch(with: id)
+    static func openQuickView(id: String) async throws {
+        print("GIS Siri: open quick view for \(id)")
+        try await readySceneDelegate().navigateToQuickViewSearch(with: id)
         GISRecentItems.record(id)
     }
 
-    static func openCatalog(id: String) throws {
-        try readySceneDelegate().navigateToCatelog(with: id)
+    static func openCatalog(id: String) async throws {
+        print("GIS Siri: open catalog for \(id)")
+        try await readySceneDelegate().navigateToCatelog(with: id)
         GISRecentItems.record(id)
     }
 
-    static func openInventory(id: String) throws {
-        try readySceneDelegate().navigateToInventory(with: id)
+    static func openInventory(id: String) async throws {
+        print("GIS Siri: open inventory for \(id)")
+        try await readySceneDelegate().navigateToInventory(with: id)
         GISRecentItems.record(id)
     }
 
-    static func openStockTake() throws {
-        try readySceneDelegate().navigateToStockTake(with: "")
+    static func openStockTake() async throws {
+        print("GIS Siri: open stock take")
+        try await readySceneDelegate().navigateToStockTake(with: "")
     }
 }

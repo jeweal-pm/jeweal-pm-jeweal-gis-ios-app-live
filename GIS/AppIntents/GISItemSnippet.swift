@@ -106,14 +106,12 @@ struct FindItemIntent: AppIntent {
         try await continueInForeground("Open GIS?", alwaysConfirm: false)
 
         let id = item.id
-        try await MainActor.run {
-            if choice == inventory {
-                try GISIntentRouter.openInventory(id: id)
-            } else if choice == catalog {
-                try GISIntentRouter.openCatalog(id: id)
-            } else {
-                try GISIntentRouter.openQuickView(id: id)
-            }
+        if choice == inventory {
+            try await GISIntentRouter.openInventory(id: id)
+        } else if choice == catalog {
+            try await GISIntentRouter.openCatalog(id: id)
+        } else {
+            try await GISIntentRouter.openQuickView(id: id)
         }
         return .result()
     }

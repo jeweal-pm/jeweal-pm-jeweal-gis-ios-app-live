@@ -38,7 +38,7 @@ struct OpenItemQuickViewIntent: GISForegroundIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try GISIntentRouter.openQuickView(id: item.id)
+        try await GISIntentRouter.openQuickView(id: item.id)
         return .result()
     }
 }
@@ -60,7 +60,7 @@ struct OpenItemCatalogIntent: GISForegroundIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try GISIntentRouter.openCatalog(id: item.id)
+        try await GISIntentRouter.openCatalog(id: item.id)
         return .result()
     }
 }
@@ -82,7 +82,7 @@ struct OpenItemInventoryIntent: GISForegroundIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try GISIntentRouter.openInventory(id: item.id)
+        try await GISIntentRouter.openInventory(id: item.id)
         return .result()
     }
 }
@@ -94,7 +94,7 @@ struct StartStockTakeIntent: GISForegroundIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try GISIntentRouter.openStockTake()
+        try await GISIntentRouter.openStockTake()
         return .result()
     }
 }

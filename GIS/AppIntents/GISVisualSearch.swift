@@ -65,7 +65,7 @@ struct OpenGISItemIntent: OpenIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try GISIntentRouter.openQuickView(id: target.id)
+        try await GISIntentRouter.openQuickView(id: target.id)
         return .result()
     }
 }
