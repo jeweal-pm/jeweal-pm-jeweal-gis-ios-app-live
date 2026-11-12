@@ -23,7 +23,12 @@ enum GISIntentError: Error, CustomLocalizedStringResourceConvertible {
 enum GISIntentRouter {
     private static func currentSceneDelegate() -> SceneDelegate? {
         let delegates = UIApplication.shared.connectedScenes.compactMap { $0.delegate as? SceneDelegate }
-        return delegates.first { $0.window?.rootViewController is UINavigationController }
+        return delegates.first { delegate in
+            guard let navigation = delegate.window?.rootViewController as? UINavigationController else { return false }
+            // The login screens live in the same navigation stack, so being on one means nobody is signed in yet.
+            let top = navigation.topViewController
+            return !(top is LoginController) && !(top is LoginWithPin)
+        }
     }
 
     /// The scene delegate, once the app shows its navigation stack (signed in).
