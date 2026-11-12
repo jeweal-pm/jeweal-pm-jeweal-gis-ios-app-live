@@ -205,7 +205,6 @@ class QuickView: UIViewController, UICollectionViewDataSource, UICollectionViewD
         mUserLoginTokenPos = UserDefaults.standard.string(forKey: "token_pos")
         
         mSearchField.text = mSKUName
-        mSearchField.enableScanText()
         mProductName.text = mSKUDetails
         mStockIdName.text = mSKUName
         mPageController.numberOfPages =  mImageData.count

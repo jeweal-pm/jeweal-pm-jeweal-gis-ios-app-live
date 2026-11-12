@@ -36,7 +36,6 @@ class QuickViewSearch: UIViewController, UITableViewDelegate , UITableViewDataSo
         
         mHeader.text = mType.localizedString
         mProductSearch.placeholder = "Search by SKU / Stock Id".localizedString
-        mProductSearch.enableScanText()
         mSearchProductByKeys(value: mSiriID ?? "")
         
         if let siriID = mSiriID, !siriID.isEmpty {

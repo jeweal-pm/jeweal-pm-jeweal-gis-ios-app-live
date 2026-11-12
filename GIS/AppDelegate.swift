@@ -166,6 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         GISMinimumVersionGate.check()
+        ScanText.install() // Scan Text bubble on every text field
                
         //IQKeyboardManager.shared.enable = true
         IQKeyboardManager.shared.isEnabled = true
