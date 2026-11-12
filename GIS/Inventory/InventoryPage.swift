@@ -500,7 +500,20 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
         inventorySelectionBar?.isHidden = !shouldShow
         selectedItemCountLabel?.text = "\(selectedCount) Item\(selectedCount == 1 ? "" : "s") selected"
         selectedItemsShareButton?.isEnabled = shouldShow
-        selectedItemsReserveButton?.isEnabled = shouldShow
+        // Reserved items can be selected (e.g. for sharing) but cannot be reserved again.
+        let canReserve = shouldShow && !selectedInventoryHasReservedItem
+        selectedItemsReserveButton?.isEnabled = canReserve
+        selectedItemsReserveButton?.alpha = canReserve ? 1 : 0.4
+    }
+
+    /// True when any ticked My Inventory row is already reserved (or reserved by a custom order).
+    private var selectedInventoryHasReservedItem: Bool {
+        mSelectedInventoryIndex.contains { indexPath in
+            guard indexPath.row < mInventoryData.count,
+                  let item = mInventoryData[indexPath.row] as? NSDictionary,
+                  let statusType = item.value(forKey: "status_type") as? String else { return false }
+            return statusType == "reserve" || statusType == "custom_order"
+        }
     }
 
     // MARK: - Expandable Search Bar
@@ -981,14 +994,8 @@ class InventoryPage: UIViewController , UITableViewDelegate , UITableViewDataSou
      
     @IBAction func mSubmitReserveItems(_ sender: Any) {
 
-        // Reserved items can be selected (e.g. for sharing) but cannot be reserved again.
-        let hasReservedItem = mSelectedInventoryIndex.contains { indexPath in
-            guard indexPath.row < mInventoryData.count,
-                  let item = mInventoryData[indexPath.row] as? NSDictionary,
-                  let statusType = item.value(forKey: "status_type") as? String else { return false }
-            return statusType == "reserve" || statusType == "custom_order"
-        }
-        if hasReservedItem {
+        // The button is disabled for these, but keep the check for any other caller.
+        if selectedInventoryHasReservedItem {
             CommonClass.showSnackBar(message: "Selected items include an already reserved item. Please deselect it to continue.")
             return
         }
