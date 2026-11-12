@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C5F9F9F430A1B77000DB946D /* NFCWriterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F230A1B73A00DB946D /* NFCWriterManager.swift */; };
-		C5F9F9F530A1B77000DB946D /* NFCWriterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F330A1B75800DB946D /* NFCWriterViews.swift */; };
 		065CE7492D196AC1000589D8 /* QRCodeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 065CE7482D196AC1000589D8 /* QRCodeView.xib */; };
 		065CE74B2D196D0F000589D8 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065CE74A2D196D0F000589D8 /* QRCodeView.swift */; };
 		065CE7532D19CE41000589D8 /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = 065CE7522D19CE41000589D8 /* Stripe */; };
@@ -201,6 +199,7 @@
 		C56647A9307A1EBD0017F72E /* StockIdDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */; };
 		C58A3562309837D10010F666 /* KycProfileBannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A3561309837D10010F666 /* KycProfileBannerTests.swift */; };
 		C58A356430983CFA0010F666 /* KycVerifyWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */; };
+		C58ED7F930A569FD00814F0A /* TextScanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7F830A569FD00814F0A /* TextScanSupport.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -225,6 +224,8 @@
 		C5F039FF2FEE7F3F00B5B9F6 /* PayPalCheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F039FE2FEE7F3A00B5B9F6 /* PayPalCheckoutView.swift */; };
 		C5F03A082FF25A4500B5B9F6 /* PayPalWebPayments in Frameworks */ = {isa = PBXBuildFile; productRef = C5F03A072FF25A4500B5B9F6 /* PayPalWebPayments */; };
 		C5F9F9EB309C1ED300DB946D /* StoreSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9EA309C1ED300DB946D /* StoreSheetTests.swift */; };
+		C5F9F9F430A1B77000DB946D /* NFCWriterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F230A1B73A00DB946D /* NFCWriterManager.swift */; };
+		C5F9F9F530A1B77000DB946D /* NFCWriterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F9F9F330A1B75800DB946D /* NFCWriterViews.swift */; };
 		D90375922757851400E4CE09 /* Posfilter.xib in Resources */ = {isa = PBXBuildFile; fileRef = D90375912757851300E4CE09 /* Posfilter.xib */; };
 		D903A18927B2315B004FE2E0 /* emailpopup.xib in Resources */ = {isa = PBXBuildFile; fileRef = D903A18827B2315B004FE2E0 /* emailpopup.xib */; };
 		D9064A57260C848800D856D1 /* POSHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9064A56260C848700D856D1 /* POSHome.swift */; };
@@ -588,6 +589,7 @@
 		C56647A8307A1EBD0017F72E /* StockIdDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockIdDecoder.swift; sourceTree = "<group>"; };
 		C58A3561309837D10010F666 /* KycProfileBannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KycProfileBannerTests.swift; sourceTree = "<group>"; };
 		C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KycVerifyWebViewController.swift; sourceTree = "<group>"; };
+		C58ED7F830A569FD00814F0A /* TextScanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextScanSupport.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1312,6 +1314,7 @@
 				528525872A6A9CF8005734C6 /* PartialPaymentHistory.swift */,
 				528525892A6AB741005734C6 /* PartialPaymentDetails.swift */,
 				C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */,
+				C58ED7F830A569FD00814F0A /* TextScanSupport.swift */,
 			);
 			path = Extras;
 			sourceTree = "<group>";
@@ -1763,6 +1766,7 @@
 				D94EA5062583B263007A29E8 /* ItemSearchPage.swift in Sources */,
 				749BA630294C652800189CA4 /* WishlistSearch.swift in Sources */,
 				843A3A23272D9ED6002E4F0F /* FloatRatingView.swift in Sources */,
+				C58ED7F930A569FD00814F0A /* TextScanSupport.swift in Sources */,
 				D9064A57260C848800D856D1 /* POSHome.swift in Sources */,
 				D9E2D1F02582C2CE00D5FE16 /* SearchCustomer.swift in Sources */,
 				C553B668302630550000A8E4 /* FaroConstants.swift in Sources */,
