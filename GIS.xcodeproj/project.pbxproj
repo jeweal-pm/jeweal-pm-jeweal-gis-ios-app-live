@@ -207,6 +207,7 @@
 		C58ED7E430A4C88800814F0A /* GISSpotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E330A4C88800814F0A /* GISSpotlight.swift */; };
 		C58ED7E630A4C89000814F0A /* GISItemSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */; };
 		C58ED7ED30A4C9B800814F0A /* GISVisualSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7EC30A4C9B800814F0A /* GISVisualSearch.swift */; };
+		C58ED7F930A569FD00814F0A /* TextScanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58ED7F830A569FD00814F0A /* TextScanSupport.swift */; };
 		C5D052F430289EBE00CBEA51 /* FloatingCartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */; };
 		C5D052F63028A54E00CBEA51 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F53028A54D00CBEA51 /* ToastView.swift */; };
 		C5D052F83028A6EE00CBEA51 /* BottomSummaryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */; };
@@ -604,6 +605,7 @@
 		C58ED7E330A4C88800814F0A /* GISSpotlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISSpotlight.swift; sourceTree = "<group>"; };
 		C58ED7E530A4C89000814F0A /* GISItemSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISItemSnippet.swift; sourceTree = "<group>"; };
 		C58ED7EC30A4C9B800814F0A /* GISVisualSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GISVisualSearch.swift; sourceTree = "<group>"; };
+		C58ED7F830A569FD00814F0A /* TextScanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextScanSupport.swift; sourceTree = "<group>"; };
 		C5D052F330289EBD00CBEA51 /* FloatingCartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingCartButton.swift; sourceTree = "<group>"; };
 		C5D052F53028A54D00CBEA51 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		C5D052F73028A6EE00CBEA51 /* BottomSummaryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSummaryBar.swift; sourceTree = "<group>"; };
@@ -1344,6 +1346,7 @@
 				528525872A6A9CF8005734C6 /* PartialPaymentHistory.swift */,
 				528525892A6AB741005734C6 /* PartialPaymentDetails.swift */,
 				C58A356330983CFA0010F666 /* KycVerifyWebViewController.swift */,
+				C58ED7F830A569FD00814F0A /* TextScanSupport.swift */,
 			);
 			path = Extras;
 			sourceTree = "<group>";
@@ -1795,6 +1798,7 @@
 				D94EA5062583B263007A29E8 /* ItemSearchPage.swift in Sources */,
 				749BA630294C652800189CA4 /* WishlistSearch.swift in Sources */,
 				843A3A23272D9ED6002E4F0F /* FloatRatingView.swift in Sources */,
+				C58ED7F930A569FD00814F0A /* TextScanSupport.swift in Sources */,
 				D9064A57260C848800D856D1 /* POSHome.swift in Sources */,
 				D9E2D1F02582C2CE00D5FE16 /* SearchCustomer.swift in Sources */,
 				C553B668302630550000A8E4 /* FaroConstants.swift in Sources */,

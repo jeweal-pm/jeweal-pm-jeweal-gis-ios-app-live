@@ -168,6 +168,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         GISMinimumVersionGate.check()
         GISSpotlightIndexer.indexRecent() // refreshes Siri App Shortcut parameters and Spotlight
 
+        ScanText.install() // Scan Text bubble on every text field
+               
         //IQKeyboardManager.shared.enable = true
         IQKeyboardManager.shared.isEnabled = true
 
