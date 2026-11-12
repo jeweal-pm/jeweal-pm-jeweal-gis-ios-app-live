@@ -26,7 +26,7 @@ struct OpenItemQuickViewIntent: GISForegroundIntent {
     static var title: LocalizedStringResource = "Open Item in Quick View"
     static var description = IntentDescription("Search a stock item in Quick View.")
 
-    @Parameter(title: "Item")
+    @Parameter(title: "Item", requestValueDialog: "Which item? Say or type the stock ID.")
     var item: GISItemEntity
 
     init() {}
@@ -48,7 +48,7 @@ struct OpenItemCatalogIntent: GISForegroundIntent {
     static var title: LocalizedStringResource = "Open Item in Catalog"
     static var description = IntentDescription("Search a stock item in the catalog.")
 
-    @Parameter(title: "Item")
+    @Parameter(title: "Item", requestValueDialog: "Which item? Say or type the stock ID.")
     var item: GISItemEntity
 
     init() {}
@@ -70,7 +70,7 @@ struct OpenItemInventoryIntent: GISForegroundIntent {
     static var title: LocalizedStringResource = "Open Item in Inventory"
     static var description = IntentDescription("Search a stock item in inventory.")
 
-    @Parameter(title: "Item")
+    @Parameter(title: "Item", requestValueDialog: "Which item? Say or type the stock ID.")
     var item: GISItemEntity
 
     init() {}
@@ -102,16 +102,37 @@ struct StartStockTakeIntent: GISForegroundIntent {
 @available(iOS 16.4, *)
 struct GISAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
+        // Phrases without an item let Siri ask "Which item?"; phrases with an item only
+        // match items Siri already knows (recent items), so both forms are offered.
         AppShortcut(
             intent: OpenItemQuickViewIntent(),
-            phrases: ["Open \(\.$item) in \(.applicationName)",
+            phrases: ["Quick view in \(.applicationName)",
+                      "Open quick view in \(.applicationName)",
+                      "Open \(\.$item) in \(.applicationName)",
                       "Quick view \(\.$item) in \(.applicationName)"],
             shortTitle: "Quick View",
             systemImageName: "magnifyingglass"
         )
         AppShortcut(
+            intent: OpenItemInventoryIntent(),
+            phrases: ["Search inventory in \(.applicationName)",
+                      "Open inventory in \(.applicationName)",
+                      "Inventory \(\.$item) in \(.applicationName)"],
+            shortTitle: "Inventory",
+            systemImageName: "shippingbox"
+        )
+        AppShortcut(
+            intent: OpenItemCatalogIntent(),
+            phrases: ["Search catalog in \(.applicationName)",
+                      "Open catalog in \(.applicationName)",
+                      "Catalog \(\.$item) in \(.applicationName)"],
+            shortTitle: "Catalog",
+            systemImageName: "book"
+        )
+        AppShortcut(
             intent: StartStockTakeIntent(),
-            phrases: ["Start stock take in \(.applicationName)"],
+            phrases: ["Start stock take in \(.applicationName)",
+                      "Stock take in \(.applicationName)"],
             shortTitle: "Stock Take",
             systemImageName: "checklist"
         )

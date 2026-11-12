@@ -25,6 +25,8 @@ extension GISItemEntity: IndexedEntity {
 enum GISSpotlightIndexer {
     /// Replaces the Spotlight entries with the current recent items.
     static func indexRecent() {
+        // Lets Siri learn the recent item ids used in App Shortcut phrases.
+        if #available(iOS 16.4, *) { GISAppShortcuts.updateAppShortcutParameters() }
         guard #available(iOS 18.0, *) else { return }
         let entities = GISRecentItems.ids.map { GISItemEntity(id: $0) }
         guard !entities.isEmpty else { return }
